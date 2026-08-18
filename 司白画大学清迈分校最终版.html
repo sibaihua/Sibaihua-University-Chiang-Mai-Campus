@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sibaihua University, Chiang Mai</title>
+  <link rel="icon" type="image/png" href="https://cdn.mriders.cn/img/2026/08/6a82000f8ce84.png">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Vue 3 -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#1E3A5F',
+              dark: '#142740',
+              light: '#2B4E7D',
+              subtle: '#5A7394',
+              bgLight: '#f8fafc'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media (min-width: 768px) {
+      html {
+        scroll-snap-type: y proximity;
+        scroll-behavior: smooth;
+      }
+      .snap-section {
+        min-height: 100vh;
+        scroll-snap-align: start;
+        position: relative;
+      }
+    }
+
+    @media (max-width: 767px) {
+      html {
+        scroll-behavior: smooth;
+      }
+      .snap-section {
+        min-height: 100vh;
+        position: relative;
+      }
+    }
+
+    .hero-bg {
+      background-image: url('https://cdn.mriders.cn/img/2026/08/6a832d619acaf.jpg?raw=1');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .campuses-bg {
+      background-image: url('https://cdn.mriders.cn/img/2026/01/696c9b495f44e.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+    @media (min-width: 768px) {
+      .campuses-bg {
+        background-attachment: fixed;
+      }
+    }
+
+    .footer-segment-bg {
+      background-image: url('https://cdn.mriders.cn/img/2026/01/696c9b88381ca.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .hero-clean-veil {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(30, 58, 95, 0.35) 0%, rgba(30, 58, 95, 0.05) 40%, rgba(30, 58, 95, 0.15) 85%, rgba(255, 255, 255, 0.15) 100%);
+      pointer-events: none;
+    }
+
+    .school-logo-fixed {
+      width: 54px !important;
+      height: 54px !important;
+      min-width: 54px !important;
+      min-height: 54px !important;
+      max-width: 54px !important;
+      max-height: 54px !important;
+      object-fit: cover;
+      flex-shrink: 0 !important;
+      border-radius: 9999px;
+    }
+
+    @media (max-width: 640px) {
+      .school-logo-fixed {
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
+        min-height: 44px !important;
+      }
+    }
+
+    .campus-spotlight-card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.28);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @media (min-width: 768px) {
+      .campus-spotlight-card:hover {
+        transform: translateY(-5px);
+        background: #ffffff;
+        box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.38);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .science-mask-img {
+        mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.8) 100px, black 160px);
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,0.8) 100px, black 160px);
+      }
+    }
+    @media (max-width: 1023px) {
+      .science-mask-img {
+        mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.8) 40px, black 80px);
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.8) 40px, black 80px);
+      }
+    }
+  </style>
+</head>
+<body class="bg-white text-slate-800 antialiased font-sans selection:bg-slate-200">
+  <div id="app" class="relative">
+    
+    <!-- 顶部固定导航栏 -->
+    <header :class="isScrolled ? 'bg-white/95 backdrop-blur-md shadow-sm text-slate-900' : 'bg-transparent text-white drop-shadow'"
+            class="fixed top-0 left-0 right-0 z-40 h-16 sm:h-20 transition-all duration-300">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
+        
+        <!-- Logo & University Brand -->
+        <a href="#hero" class="flex items-center space-x-2.5 sm:space-x-3.5 flex-shrink-0 group">
+          <img src="https://cdn.mriders.cn/img/2026/08/6a82000f8ce84.png" 
+               alt="Sibaihua University Crest" 
+               class="school-logo-fixed border border-white/40 p-0.5 shadow-sm transition-transform duration-300 group-hover:scale-105">
+          <div class="flex flex-col justify-center text-left">
+            <span class="font-bold text-sm sm:text-base md:text-lg tracking-tight leading-none whitespace-nowrap">Sibaihua University</span>
+            <span :class="isScrolled ? 'text-brand-subtle' : 'text-white/85'" class="text-[9px] sm:text-[11px] font-normal tracking-wide leading-none mt-1 whitespace-nowrap">Chiang Mai Campus</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <nav class="hidden md:flex items-center space-x-8 text-sm font-medium flex-shrink-0">
+          <a href="#about" class="hover:opacity-80 transition">About</a>
+          <a href="#science" class="hover:opacity-80 transition">Science</a>
+          <a href="#faculties" class="hover:opacity-80 transition">Faculties</a>
+          <a href="#campuses" class="hover:opacity-80 transition">Campuses</a>
+          <a href="#governance" class="hover:opacity-80 transition">Governance</a>
+        </nav>
+
+        <!-- Right Side: Mail Button & Mobile Menu Toggle -->
+        <div class="flex items-center space-x-3 flex-shrink-0">
+          <button @click="openMailModal" 
+                  :class="isScrolled ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-white/20 backdrop-blur-md border border-white/40 text-white hover:bg-white/30'" 
+                  class="inline-flex items-center space-x-1.5 sm:space-x-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition shadow-sm whitespace-nowrap">
+            <i class="fa-regular fa-envelope"></i>
+            <span class="hidden sm:inline">{{ isLogined ? 'Campus Mail (Connected)' : 'Campus Mail' }}</span>
+            <span class="sm:hidden">{{ isLogined ? 'Mail (On)' : 'Mail' }}</span>
+          </button>
+
+          <button @click="mobileMenuOpen = !mobileMenuOpen" 
+                  :class="isScrolled ? 'text-slate-800' : 'text-white'"
+                  class="md:hidden text-lg p-2 focus:outline-none" aria-label="Toggle Menu">
+            <i :class="mobileMenuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Dropdown Navigation Drawer -->
+      <transition enter-active-class="transition duration-200 ease-out" 
+                  enter-from-class="opacity-0 -translate-y-2" 
+                  enter-to-class="opacity-100 translate-y-0" 
+                  leave-active-class="transition duration-150 ease-in" 
+                  leave-from-class="opacity-100 translate-y-0" 
+                  leave-to-class="opacity-0 -translate-y-2">
+        <div v-if="mobileMenuOpen" class="md:hidden bg-white/95 backdrop-blur-xl border-b border-slate-200 shadow-xl px-6 py-5 space-y-3 text-slate-800 text-sm font-medium">
+          <a href="#about" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">About University</a>
+          <a href="#science" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Faculty of Science</a>
+          <a href="#faculties" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Specialized Faculties</a>
+          <a href="#campuses" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Campuses & Locations</a>
+          <a href="#governance" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Governance & Administration</a>
+        </div>
+      </transition>
+    </header>
+
+    <!-- 主页面流式模块 -->
+    <main>
+      
+      <!-- Section 1: Hero Banner -->
+      <section id="hero" class="snap-section hero-bg flex items-center justify-center text-center px-4 sm:px-6 overflow-hidden">
+        <div class="hero-clean-veil"></div>
+        <div class="relative z-10 w-full max-w-5xl mx-auto text-white flex justify-center items-center">
+          <h2 class="text-3xl sm:text-5xl md:text-7xl font-sans font-semibold tracking-wider leading-tight sm:leading-none uppercase whitespace-normal sm:whitespace-nowrap select-none drop-shadow-[0_4px_20px_rgba(30,58,95,0.35)]">
+            One World, One Dream
+          </h2>
+        </div>
+        <a href="#about" class="relative z-10 absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 text-white/80 hover:text-white transition animate-bounce">
+          <i class="fa-solid fa-chevron-down text-lg sm:text-xl"></i>
+        </a>
+      </section>
+
+      <!-- Section 2: About University -->
+      <section id="about" class="snap-section bg-white flex items-center py-16 sm:py-0">
+        <div class="w-full grid lg:grid-cols-2 items-stretch min-h-screen">
+          <div class="p-6 sm:p-10 md:p-14 lg:p-20 flex flex-col justify-center">
+            <span class="text-xs uppercase tracking-widest text-brand font-bold mb-2 sm:mb-3">About Sibaihua University</span>
+            <h3 class="text-2xl sm:text-3xl md:text-4xl font-semibold text-brand leading-snug mb-4 sm:mb-5">
+              An Independent Institution Dedicated to Global Inquiries & Discovery
+            </h3>
+            
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-3">
+              Sibaihua University, Chiang Mai is a comprehensive, self-governing university rooted in the scenic highlands of Doi Inthanon. Inspired by the universal vision of "One World, One Dream," the university unites classical humanism, Asian civilizational exchanges, and cutting-edge science.
+            </p>
+            
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mb-4">
+              Our campus ethos is defined by an enduring commitment to <strong>intellectual liberty, universal equality, and selfless altruistic devotion</strong>. We uphold an open, empathetic sanctuary that champions scientific and humanitarian progress, embracing every identity with unconditional dignity, universal respect, and full allyship for the <strong>LGBTQ+ community</strong>.
+            </p>
+            
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              With administrative and supervisory arms stationed at King Power Mahanakhon in Bangkok and direct liaison hubs in Beijing, Sibaihua University bridges Southeast Asian intellectual vitality with worldwide academic networks.
+            </p>
+          </div>
+          
+          <div class="relative w-full h-72 sm:h-96 lg:h-full min-h-[300px] lg:min-h-full overflow-hidden group">
+            <img src="https://cdn.mriders.cn/img/2026/08/6a84980625177.jpg" alt="Sibaihua University Campus Landscape" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+            <div class="absolute bottom-4 right-5 z-10 flex items-center space-x-2 pointer-events-none drop-shadow-md">
+              <span class="w-4 h-[1px] bg-white/60"></span>
+              <span class="text-[10px] font-sans tracking-widest text-white/90 uppercase font-light">Photo / Maxx Nikonov</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Faculty of Science -->
+      <section id="science" class="snap-section w-full bg-brand text-white overflow-hidden flex items-stretch py-16 lg:py-0">
+        <div class="w-full grid grid-cols-1 lg:grid-cols-12 items-stretch min-h-screen">
+          <div class="lg:col-span-5 p-6 sm:p-10 md:p-14 lg:p-20 flex flex-col justify-center space-y-4 sm:space-y-6 z-10 bg-brand">
+            <span class="text-xs uppercase tracking-widest text-slate-300 font-bold block">Fundamental Science & Natural Laws</span>
+            <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-white">Faculty of Science</h3>
+            <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Dedicated to rigorous foundational research across <strong>Mathematics, Physics, Chemistry, and Biology</strong>, alongside deep empirical inquiry into natural laws and ecological systems. Anchored at the Doi Inthanon alpine research stations and marine observatories, the faculty bridges pure theoretical sciences with applied environmental discovery.
+            </p>
+            <div class="space-y-2.5 sm:space-y-3.5 text-xs text-slate-200 pt-2">
+              <div class="flex items-center space-x-3"><i class="fa-solid fa-square-root-variable text-slate-400"></i><span>Pure & Applied Mathematics and Quantitative Modeling</span></div>
+              <div class="flex items-center space-x-3"><i class="fa-solid fa-atom text-slate-400"></i><span>Theoretical, Quantum & Atmospheric Physics</span></div>
+              <div class="flex items-center space-x-3"><i class="fa-solid fa-flask-vial text-slate-400"></i><span>Molecular Chemistry, Materials & Environmental Catalysis</span></div>
+              <div class="flex items-center space-x-3"><i class="fa-solid fa-dna text-slate-400"></i><span>Evolutionary Biology, Genetics & Highland Ecology</span></div>
+            </div>
+          </div>
+          
+          <div class="lg:col-span-7 relative w-full h-64 sm:h-80 lg:h-full min-h-[260px] lg:min-h-full overflow-hidden p-0 m-0 bg-brand">
+            <img src="https://cdn.mriders.cn/img/2026/08/6a848a8be3677.jpg" alt="Marine Ecological Research" class="absolute inset-0 w-full h-full object-cover science-mask-img">
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Academic Faculties -->
+      <section id="faculties" class="snap-section bg-white flex items-center justify-center px-4 sm:px-6 py-20 sm:py-24">
+        <div class="max-w-7xl mx-auto w-full">
+          <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
+            <span class="text-xs uppercase tracking-widest text-brand font-bold">Academic Faculties</span>
+            <h3 class="text-2xl sm:text-3xl font-bold text-brand mt-1">Specialized Disciplines</h3>
+            <p class="text-xs text-slate-500 mt-1 sm:mt-2">Comprehensive academic programs based at the Doi Inthanon Campus</p>
+          </div>
+
+          <!-- 第一行：三大学部 -->
+          <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-6xl mx-auto mb-6 sm:mb-8">
+            
+            <!-- Faculty of Arts -->
+            <div class="p-5 sm:p-6 bg-brand-bgLight rounded-2xl hover:bg-slate-100 transition flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] text-brand-subtle font-semibold uppercase tracking-wider block mb-1">Literature & Humanities</span>
+                <h4 class="font-bold text-base sm:text-lg text-brand mb-2">Faculty of Arts</h4>
+                <p class="text-xs text-slate-600 leading-relaxed">Classical Chinese literature, ancient poetry, comparative Asian literary traditions, global prose, and cross-cultural hermeneutics.</p>
+              </div>
+            </div>
+            
+            <!-- Faculty of Informatics -->
+            <div class="p-5 sm:p-6 bg-brand-bgLight rounded-2xl hover:bg-slate-100 transition flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] text-brand-subtle font-semibold uppercase tracking-wider block mb-1">AI & Computing</span>
+                <h4 class="font-bold text-base sm:text-lg text-brand mb-2">Faculty of Informatics</h4>
+                <p class="text-xs text-slate-600 leading-relaxed">Artificial intelligence, machine learning systems, neural computing, distributed software architectures, and big data engineering.</p>
+              </div>
+            </div>
+            
+            <!-- School of Economics -->
+            <div class="p-5 sm:p-6 bg-brand-bgLight rounded-2xl hover:bg-slate-100 transition sm:col-span-2 md:col-span-1 flex flex-col justify-between">
+              <div>
+                <span class="text-[10px] text-brand-subtle font-semibold uppercase tracking-wider block mb-1">Commerce & Finance</span>
+                <h4 class="font-bold text-base sm:text-lg text-brand mb-2">School of Economics</h4>
+                <p class="text-xs text-slate-600 leading-relaxed">International enterprise governance, quantitative economics, macroeconomic analysis, regional trade dynamics, and market models.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 第二行：双视觉展示卡片 -->
+          <div class="grid md:grid-cols-2 gap-4 sm:gap-7 max-w-6xl mx-auto">
+            
+            <!-- Faculty of Fine Arts -->
+            <div class="relative rounded-2xl overflow-hidden h-44 sm:h-52 md:h-60 shadow-sm flex items-end">
+              <img src="https://cdn.mriders.cn/img/2026/08/6a848a8b297f6.jpg" alt="Architectural Heritage and Visual Arts" class="absolute inset-0 w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-brand/90 to-transparent"></div>
+              <div class="relative z-10 p-4 sm:p-6 text-white">
+                <h4 class="text-base sm:text-lg font-bold">Faculty of Fine Arts</h4>
+                <p class="text-xs text-slate-200">Integrated visual arts, classical and contemporary musicology, spatial and industrial design, and architectural heritage conservation.</p>
+              </div>
+            </div>
+            
+            <!-- Faculty of Social Sciences -->
+            <div class="relative rounded-2xl overflow-hidden h-44 sm:h-52 md:h-60 shadow-sm flex items-end">
+              <img src="https://cdn.mriders.cn/img/2026/08/6a848a8a2030d.jpg" alt="Philosophy, Psychology and Social Inquiries" class="absolute inset-0 w-full h-full object-cover">
+              <div class="absolute inset-0 bg-gradient-to-t from-brand/90 to-transparent"></div>
+              <div class="relative z-10 p-4 sm:p-6 text-white">
+                <h4 class="text-base sm:text-lg font-bold">Faculty of Social Sciences</h4>
+                <p class="text-xs text-slate-200">Political theory, behavioral and cognitive psychology, moral and epistemological philosophy, and sustainable governance paradigms.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Campuses & Locations -->
+      <section id="campuses" class="snap-section campuses-bg flex items-center justify-center px-4 sm:px-6 py-20 sm:py-28 relative overflow-hidden">
+        <div class="absolute inset-0 bg-slate-900/35 backdrop-blur-[0.5px]"></div>
+
+        <div class="relative z-10 max-w-6xl mx-auto w-full">
+          <div class="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+            <span class="inline-block px-4 py-1 rounded-full bg-white/95 text-brand text-xs font-bold tracking-widest uppercase mb-2 sm:mb-3 shadow">
+              Global Presence
+            </span>
+            <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white drop-shadow-md">Campuses & Locations</h3>
+            <p class="text-xs md:text-sm text-slate-100 font-light mt-1 sm:mt-2 drop-shadow">Rooted at Doi Inthanon, connected globally across key urban hubs</p>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-5 sm:gap-7">
+            
+            <!-- Main Campus -->
+            <div class="campus-spotlight-card p-6 sm:p-8 rounded-2xl text-slate-800 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3 sm:mb-4">
+                  <span class="text-[10px] font-bold tracking-wider uppercase text-brand bg-slate-100 px-3 py-1 rounded-full">Main Campus</span>
+                  <div class="w-6 sm:w-7 h-6 sm:h-7 rounded-full bg-brand/10 text-brand flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-mountain"></i>
+                  </div>
+                </div>
+                <h4 class="font-bold text-base sm:text-lg text-slate-900 mb-1.5 sm:mb-2">Doi Inthanon, Chiang Mai</h4>
+                <p class="text-xs text-slate-600 leading-relaxed mb-4 sm:mb-6">
+                  Academic faculties, research centers, laboratories, and specialized learning institutes situated across the highland campus.
+                </p>
+              </div>
+              <div class="pt-3 sm:pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                <span><i class="fa-solid fa-location-dot text-brand mr-1"></i> Chiang Mai, Thailand</span>
+                <span class="text-brand font-semibold">Primary Site</span>
+              </div>
+            </div>
+
+            <!-- Bangkok Presence -->
+            <div class="campus-spotlight-card p-6 sm:p-8 rounded-2xl text-slate-800 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3 sm:mb-4">
+                  <span class="text-[10px] font-bold tracking-wider uppercase text-brand bg-slate-100 px-3 py-1 rounded-full">Executive Center</span>
+                  <div class="w-6 sm:w-7 h-6 sm:h-7 rounded-full bg-brand/10 text-brand flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-building-columns"></i>
+                  </div>
+                </div>
+                <h4 class="font-bold text-base sm:text-lg text-slate-900 mb-1.5 sm:mb-2">Bangkok Presence</h4>
+                <p class="text-xs text-slate-600 leading-relaxed mb-4 sm:mb-6">
+                  Located at King Power Mahanakhon, housing the <strong>University Council</strong>, the <strong>President's Office</strong>, and the <strong>Supervisory Committee</strong>.
+                </p>
+              </div>
+              <div class="pt-3 sm:pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                <span><i class="fa-solid fa-location-dot text-brand mr-1"></i> King Power Mahanakhon</span>
+                <span class="text-brand font-semibold">Headquarters</span>
+              </div>
+            </div>
+
+            <!-- Beijing Office -->
+            <div class="campus-spotlight-card p-6 sm:p-8 rounded-2xl text-slate-800 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3 sm:mb-4">
+                  <span class="text-[10px] font-bold tracking-wider uppercase text-brand bg-slate-100 px-3 py-1 rounded-full">Liaison Mission</span>
+                  <div class="w-6 sm:w-7 h-6 sm:h-7 rounded-full bg-brand/10 text-brand flex items-center justify-center text-xs">
+                    <i class="fa-solid fa-globe"></i>
+                  </div>
+                </div>
+                <h4 class="font-bold text-base sm:text-lg text-slate-900 mb-1.5 sm:mb-2">Beijing Office</h4>
+                <p class="text-xs text-slate-600 leading-relaxed mb-4 sm:mb-6">
+                  University-level representative entity coordinating institutional partnerships and academic initiatives across China.
+                </p>
+              </div>
+              <div class="pt-3 sm:pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                <span><i class="fa-solid fa-location-dot mr-1 text-slate-300"></i> Beijing, China</span>
+                <span class="text-brand font-semibold">Direct Entity</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: Governance & Administration (电脑端完美保留，手机端图片上下两端皆加入渐变过渡) -->
+      <section id="governance" class="snap-section md:h-screen md:max-h-screen bg-slate-900 flex items-stretch overflow-hidden">
+        <div class="w-full grid lg:grid-cols-12 items-stretch h-full">
+          
+          <!-- 左侧文字排版区域 -->
+          <div class="lg:col-span-7 p-6 sm:p-10 md:p-12 lg:p-16 flex flex-col justify-center text-white bg-slate-900 h-full relative z-10">
+            <div class="mb-4 sm:mb-6">
+              <span class="inline-block px-3 py-1 rounded-full bg-white/10 text-slate-300 text-[10px] sm:text-[11px] font-semibold tracking-widest uppercase mb-2">
+                Institutional Framework
+              </span>
+              <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight">Governance & Administration</h3>
+            </div>
+
+            <!-- 机构列表 -->
+            <div class="space-y-4 sm:space-y-5 text-left">
+              
+              <!-- 1. President's Office -->
+              <div class="border-l-2 border-white pl-4 sm:pl-5 py-1">
+                <div class="flex items-center space-x-2 text-[10px] uppercase font-bold tracking-wider text-slate-300 mb-1">
+                  <span>Executive Headquarters · Central Hub</span>
+                </div>
+                <h4 class="text-base sm:text-lg md:text-xl font-bold text-white">President's Office</h4>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light mt-1">
+                  The supreme executive organ of Sibaihua University. Directly executes Council resolutions, oversees teaching, scientific research, and cross-campus operations.
+                </p>
+                <div class="text-[11px] sm:text-xs text-slate-400 font-light mt-1.5">
+                  <i class="fa-solid fa-location-dot mr-1.5 text-slate-300"></i> King Power Mahanakhon, Bangkok
+                </div>
+              </div>
+
+              <!-- 2. University Council -->
+              <div class="border-l border-white/20 pl-4 sm:pl-5 py-1">
+                <div class="flex items-center space-x-2 text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
+                  <span>Supreme Governing Body · Statutory</span>
+                </div>
+                <h4 class="text-sm sm:text-base md:text-lg font-bold text-white">University Council</h4>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light mt-1">
+                  The supreme governing authority determining institutional statutes, long-term strategic plans, and overseeing the Finance and Supervisory Committees.
+                </p>
+                <div class="text-[11px] sm:text-xs text-slate-400 font-light mt-1.5">
+                  <i class="fa-solid fa-location-dot mr-1.5 text-slate-300"></i> King Power Mahanakhon, Bangkok
+                </div>
+              </div>
+
+              <!-- 3. Beijing Office -->
+              <div class="border-l border-white/20 pl-4 sm:pl-5 py-1">
+                <div class="flex items-center space-x-2 text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
+                  <span>Direct University Entity · External Mission</span>
+                </div>
+                <h4 class="text-sm sm:text-base md:text-lg font-bold text-white">Beijing Office</h4>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light mt-1">
+                  Functions as the primary external mission managing bilateral academic alliances, joint educational programs, and strategic collaborations across China.
+                </p>
+                <div class="text-[11px] sm:text-xs text-slate-400 font-light mt-1.5">
+                  <i class="fa-solid fa-location-dot mr-1.5 text-slate-300"></i> Liaison Headquarters, Beijing
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- 右侧：专属大图（电脑端保持侧边无缝拼接，手机端实现图片上下两端同时渐变过渡） -->
+          <div class="lg:col-span-5 relative w-full h-64 sm:h-80 lg:h-full overflow-hidden bg-slate-900">
+            <img src="https://cdn.mriders.cn/img/2026/01/696c9b046fc92.jpg" alt="Governance Architecture" class="absolute inset-0 w-full h-full object-cover">
+            <!-- 电脑端侧边渐变 + 手机端专属纵向顶部与底部同时渐变过渡 -->
+            <div class="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-t lg:bg-gradient-to-r from-slate-900 via-transparent lg:via-transparent to-slate-900 lg:to-transparent"></div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-segment-bg relative text-white py-12 sm:py-14 px-4 sm:px-6 overflow-hidden">
+      <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px]"></div>
+
+      <div class="relative z-10 max-w-7xl mx-auto w-full">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 text-xs text-slate-200 pb-6 sm:pb-8 border-b border-white/20">
+          <div>
+            <div class="font-bold text-white text-sm sm:text-base mb-1.5 sm:mb-2">Sibaihua University, Chiang Mai</div>
+            <p class="leading-relaxed text-slate-200">
+              Main Campus: Doi Inthanon, Chiang Mai, Thailand<br>
+              Administrative Presence: King Power Mahanakhon, Bangkok<br>
+              Liaison Hub: Beijing, China
+            </p>
+          </div>
+          <div>
+            <div class="font-semibold text-white text-xs sm:text-sm mb-1.5 sm:mb-2">Governance & Administration</div>
+            <p class="leading-relaxed text-slate-200">
+              Supreme Governing Body: University Council (King Power Mahanakhon)<br>
+              Executive Authority: President's Office (King Power Mahanakhon)<br>
+              Direct Entity: Beijing Office
+            </p>
+          </div>
+          <div>
+            <div class="font-semibold text-white text-xs sm:text-sm mb-1.5 sm:mb-2">Official Contacts & Services</div>
+            <p class="leading-relaxed text-slate-200">
+              President's Office: <a href="mailto:office@sibaihua.com" class="text-white font-medium hover:underline">office@sibaihua.com</a><br>
+              Campus Mail Gateway: <a href="https://gayg.de" target="_blank" class="hover:underline text-white font-medium">gayg.de</a>
+            </p>
+          </div>
+        </div>
+
+        <div class="pt-4 sm:pt-6 text-center text-xs text-slate-300">
+          © 2026 Sibaihua University, Chiang Mai. All rights reserved.
+        </div>
+      </div>
+    </footer>
+
+    <!-- Webmail Modal Box -->
+    <div v-if="showMailModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+      <div :class="token ? 'max-w-lg' : 'max-w-sm'" class="bg-white rounded-2xl shadow-2xl w-full overflow-hidden flex flex-col max-h-[90vh] sm:max-h-[85vh] transition-all duration-300">
+        <div class="bg-white px-5 sm:px-6 py-3.5 sm:py-4 border-b border-slate-100 flex justify-between items-center">
+          <div class="flex items-center space-x-2">
+            <i class="fa-regular fa-envelope text-brand text-sm"></i>
+            <span class="font-bold text-xs sm:text-sm text-brand">Sibaihua Campus Webmail</span>
+          </div>
+          <button @click="showMailModal = false" class="text-slate-400 hover:text-slate-700 text-sm p-1">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <div class="p-5 sm:p-6 overflow-y-auto flex-1">
+          <!-- Login Form -->
+          <div v-if="!token" class="space-y-3.5 sm:space-y-4">
+            <p class="text-xs text-slate-500">Authenticate with your university email credentials:</p>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Email Address</label>
+              <input v-model="loginForm.email" type="email" placeholder="office@sibaihua.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-brand focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-700 mb-1">Password</label>
+              <input v-model="loginForm.password" type="password" placeholder="••••••••" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs focus:ring-1 focus:ring-brand focus:outline-none">
+            </div>
+            <button @click="handleLogin" :disabled="loading" class="w-full bg-brand hover:bg-brand-dark text-white py-2.5 rounded-lg text-xs font-medium transition disabled:opacity-50 mt-1 sm:mt-2">
+              <span v-if="loading"><i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Authenticating...</span>
+              <span v-else>Sign In</span>
+            </button>
+          </div>
+
+          <!-- Inbox Screen -->
+          <div v-else class="space-y-3.5">
+            <div class="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 text-xs">
+              <span class="text-slate-600 truncate max-w-[170px] sm:max-w-[200px]">Token: <span class="font-mono text-brand">{{ token.substring(0, 8) }}...</span></span>
+              <button @click="logout" class="text-xs text-slate-500 hover:text-brand font-medium">Sign Out</button>
+            </div>
+
+            <div class="flex space-x-2">
+              <input v-model="searchQuery" @keyup.enter="fetchEmails" placeholder="Search subject/sender" class="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-xs focus:outline-none">
+              <button @click="fetchEmails" :disabled="loading" class="px-3 sm:px-4 py-2 bg-brand text-white rounded-lg text-xs hover:bg-brand-dark transition">
+                Search
+              </button>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl divide-y divide-slate-100 max-h-56 sm:max-h-60 overflow-y-auto">
+              <div v-if="loading" class="text-center py-6 text-xs text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-1.5"></i> Loading emails...</div>
+              <div v-else-if="emailList.length === 0" class="text-center py-6 text-xs text-slate-400">No matching messages found.</div>
+              <div v-for="mail in emailList" :key="mail.emailId" class="p-3 hover:bg-slate-50 text-xs">
+                <div class="flex justify-between text-slate-600 mb-1">
+                  <span class="font-semibold text-brand truncate max-w-[150px] sm:max-w-[200px]">{{ mail.sendName || mail.sendEmail }}</span>
+                  <span class="text-[10px] text-slate-400 font-mono">{{ mail.createTime }}</span>
+                </div>
+                <div class="text-slate-800 font-medium truncate mb-1 text-xs">{{ mail.subject }}</div>
+                <div class="text-slate-500 text-[11px] line-clamp-1" v-html="mail.content"></div>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="errorMsg" class="mt-3 p-2.5 text-xs bg-slate-50 text-red-600 rounded-lg border border-red-200">{{ errorMsg }}</div>
+        </div>
+
+        <div class="bg-slate-50 px-5 sm:px-6 py-2 sm:py-2.5 border-t border-slate-100 text-[10px] sm:text-[11px] text-slate-400 flex justify-between">
+          <span>Gateway: gayg.de</span>
+          <span>Sibaihua Network</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Client-side Logic -->
+  <script>
+    const { createApp, ref, onMounted, onUnmounted } = Vue;
+
+    createApp({
+      setup() {
+        const API_BASE = 'https://gayg.de';
+        const showMailModal = ref(false);
+        const mobileMenuOpen = ref(false);
+        const token = ref(localStorage.getItem('sa_token') || '');
+        const isLogined = ref(!!token.value);
+        const loading = ref(false);
+        const errorMsg = ref('');
+        const emailList = ref([]);
+        const searchQuery = ref('');
+        const isScrolled = ref(false);
+
+        const loginForm = ref({
+          email: '',
+          password: ''
+        });
+
+        const handleScroll = () => {
+          isScrolled.value = window.scrollY > 40;
+        };
+
+        onMounted(() => {
+          window.addEventListener('scroll', handleScroll, { passive: true });
+        });
+
+        onUnmounted(() => {
+          window.removeEventListener('scroll', handleScroll);
+        });
+
+        const openMailModal = () => {
+          showMailModal.value = true;
+          mobileMenuOpen.value = false;
+          if (token.value) {
+            fetchEmails();
+          }
+        };
+
+        const handleLogin = async () => {
+          if (!loginForm.value.email || !loginForm.value.password) {
+            errorMsg.value = 'Please provide both email and password';
+            return;
+          }
+          loading.value = true;
+          errorMsg.value = '';
+          try {
+            const res = await fetch(`${API_BASE}/api/public/genToken`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(loginForm.value)
+            });
+            const data = await res.json();
+            if (data.code === 200 && data.data?.token) {
+              token.value = data.data.token;
+              localStorage.setItem('sa_token', data.data.token);
+              isLogined.value = true;
+              fetchEmails();
+            } else {
+              errorMsg.value = data.message || 'Authentication failed. Please verify credentials.';
+            }
+          } catch (err) {
+            errorMsg.value = 'Network error connecting to auth server.';
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const fetchEmails = async () => {
+          if (!token.value) return;
+          loading.value = true;
+          errorMsg.value = '';
+          try {
+            const payload = {
+              num: 1,
+              size: 20,
+              timeSort: 'desc'
+            };
+            if (searchQuery.value) {
+              payload.subject = searchQuery.value;
+            }
+
+            const res = await fetch(`${API_BASE}/api/public/emailList`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': token.value
+              },
+              body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.code === 200 && Array.isArray(data.data)) {
+              emailList.value = data.data;
+            } else {
+              errorMsg.value = data.message || 'Failed to fetch emails';
+            }
+          } catch (err) {
+            errorMsg.value = 'Failed to communicate with mail server';
+          } finally {
+            loading.value = false;
+          }
+        };
+
+        const logout = () => {
+          token.value = '';
+          localStorage.removeItem('sa_token');
+          isLogined.value = false;
+          emailList.value = [];
+        };
+
+        return {
+          showMailModal,
+          mobileMenuOpen,
+          token,
+          isLogined,
+          loading,
+          errorMsg,
+          loginForm,
+          emailList,
+          searchQuery,
+          isScrolled,
+          openMailModal,
+          handleLogin,
+          fetchEmails,
+          logout
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
