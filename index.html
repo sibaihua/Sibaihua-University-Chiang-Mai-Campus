@@ -161,15 +161,48 @@
           <a href="#governance" class="hover:opacity-80 transition">Governance</a>
         </nav>
 
-        <!-- Right Side: Login Button & Mobile Menu Toggle -->
+        <!-- Right Side: Login & User State -->
         <div class="flex items-center space-x-3 flex-shrink-0">
-          <a href="https://gayg.de/login" 
-             target="_blank"
-             :class="isScrolled ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-white/20 backdrop-blur-md border border-white/40 text-white hover:bg-white/30'" 
-             class="inline-flex items-center space-x-1.5 sm:space-x-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition shadow-sm whitespace-nowrap">
+          
+          <!-- Loading State -->
+          <div v-if="authLoading" class="inline-flex items-center px-4 py-2 text-xs font-medium space-x-2 opacity-80">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <span>Authenticating...</span>
+          </div>
+
+          <!-- Logged In State -->
+          <div v-else-if="user" class="flex items-center space-x-2">
+            <!-- Go to My E-Campus Card Link -->
+            <a href="https://e.sibaihua.com" 
+               target="_blank"
+               title="Go to My E-Campus"
+               :class="isScrolled ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200' : 'bg-white/20 hover:bg-white/30 backdrop-blur-md border-white/40 text-white'"
+               class="inline-flex items-center space-x-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-medium border transition shadow-sm">
+              <i class="fa-solid fa-user-graduate"></i>
+              <div class="flex flex-col text-left leading-tight">
+                <span class="font-semibold">{{ user.englishName || user.username }}</span>
+                <span class="text-[10px] opacity-80 uppercase tracking-wider capitalize">{{ user.role || 'Member' }}</span>
+              </div>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1 opacity-70"></i>
+            </a>
+
+            <!-- Logout Button -->
+            <button @click="logout" 
+                    title="Logout"
+                    :class="isScrolled ? 'text-slate-500 hover:text-red-600' : 'text-white/80 hover:text-white'"
+                    class="p-2 text-xs transition focus:outline-none">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </button>
+          </div>
+
+          <!-- Not Logged In State -->
+          <button v-else 
+                  @click="login"
+                  :class="isScrolled ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-white/20 backdrop-blur-md border border-white/40 text-white hover:bg-white/30'" 
+                  class="inline-flex items-center space-x-1.5 sm:space-x-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition shadow-sm whitespace-nowrap focus:outline-none">
             <i class="fa-solid fa-right-to-bracket"></i>
             <span>Login</span>
-          </a>
+          </button>
 
           <button @click="mobileMenuOpen = !mobileMenuOpen" 
                   :class="isScrolled ? 'text-slate-800' : 'text-white'"
@@ -192,6 +225,13 @@
           <a href="#faculties" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Specialized Faculties</a>
           <a href="#campuses" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Campuses & Locations</a>
           <a href="#governance" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Governance & Administration</a>
+          <div v-if="user" class="pt-3 border-t border-slate-200 flex justify-between items-center text-xs">
+            <a href="https://e.sibaihua.com" target="_blank" class="text-brand font-semibold flex items-center space-x-1">
+              <span>My E-Campus</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </a>
+            <button @click="logout" class="text-red-600 font-medium">Logout</button>
+          </div>
         </div>
       </transition>
     </header>
@@ -413,7 +453,7 @@
         </div>
       </section>
 
-      <!-- Section 6: Governance & Administration (电脑端完美保留，手机端图片上下两端皆加入渐变过渡) -->
+      <!-- Section 6: Governance & Administration -->
       <section id="governance" class="snap-section md:h-screen md:max-h-screen bg-slate-900 flex items-stretch overflow-hidden">
         <div class="w-full grid lg:grid-cols-12 items-stretch h-full">
           
@@ -474,10 +514,9 @@
             </div>
           </div>
 
-          <!-- 右侧：专属大图（电脑端保持侧边无缝拼接，手机端实现图片上下两端同时渐变过渡） -->
+          <!-- 右侧大图 -->
           <div class="lg:col-span-5 relative w-full h-64 sm:h-80 lg:h-full overflow-hidden bg-slate-900">
             <img src="https://cdn.mriders.cn/img/2026/01/696c9b046fc92.jpg" alt="Governance Architecture" class="absolute inset-0 w-full h-full object-cover">
-            <!-- 电脑端侧边渐变 + 手机端专属纵向顶部与底部同时渐变过渡 -->
             <div class="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-t lg:bg-gradient-to-r from-slate-900 via-transparent lg:via-transparent to-slate-900 lg:to-transparent"></div>
           </div>
 
@@ -527,21 +566,135 @@
 
   </div>
 
-  <!-- Client-side Logic -->
+  <!-- Client-side Logic & OAuth Implementation -->
   <script>
     const { createApp, ref, onMounted, onUnmounted } = Vue;
+
+    // Configured with provided OAuth 2.0 Credentials
+    const OAUTH_CONFIG = {
+      baseUrl: 'https://e.sibaihua.com',
+      clientId: 'sib_8d94818346c53b1b',
+      clientSecret: '3ae879bbcfc2e782fa28c60067a1ddd0719993469616ead5',
+      redirectUri: 'https://sibaihua.com'
+    };
 
     createApp({
       setup() {
         const mobileMenuOpen = ref(false);
         const isScrolled = ref(false);
+        const user = ref(null);
+        const authLoading = ref(false);
 
         const handleScroll = () => {
           isScrolled.value = window.scrollY > 40;
         };
 
-        onMounted(() => {
+        // Step 1: Redirect to OAuth Authorize Page
+        const login = () => {
+          const state = Math.random().toString(36).substring(2, 15);
+          sessionStorage.setItem('oauth_state', state);
+
+          const authUrl = `${OAUTH_CONFIG.baseUrl}/oauth?response_type=code` +
+            `&client_id=${encodeURIComponent(OAUTH_CONFIG.clientId)}` +
+            `&redirect_uri=${encodeURIComponent(OAUTH_CONFIG.redirectUri)}` +
+            `&state=${encodeURIComponent(state)}`;
+
+          window.location.href = authUrl;
+        };
+
+        // Step 2 & 3: Handle OAuth Callback (Exchange Code for Token & Fetch User Profile)
+        const handleCallback = async () => {
+          const urlParams = new URLSearchParams(window.location.search);
+          const code = urlParams.get('code');
+          const state = urlParams.get('state');
+
+          if (!code) return;
+
+          const savedState = sessionStorage.getItem('oauth_state');
+          if (savedState && state !== savedState) {
+            console.error('Invalid OAuth state');
+            return;
+          }
+          sessionStorage.removeItem('oauth_state');
+
+          // Clean URL parameters cleanly
+          window.history.replaceState({}, document.title, window.location.pathname);
+
+          authLoading.value = true;
+          try {
+            // Exchange authorization code for access token
+            const tokenRes = await fetch(`${OAUTH_CONFIG.baseUrl}/api/oauth/token`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                grant_type: 'authorization_code',
+                client_id: OAUTH_CONFIG.clientId,
+                client_secret: OAUTH_CONFIG.clientSecret,
+                code: code,
+                redirect_uri: OAUTH_CONFIG.redirectUri
+              })
+            });
+
+            const tokenData = await tokenRes.json();
+            if (tokenData.code === 200 && tokenData.data?.access_token) {
+              const accessToken = tokenData.data.access_token;
+              localStorage.setItem('oauth_access_token', accessToken);
+              await fetchUserInfo(accessToken);
+            } else {
+              console.error('Failed to obtain token:', tokenData.message);
+            }
+          } catch (err) {
+            console.error('OAuth Exchange Error:', err);
+          } finally {
+            authLoading.value = false;
+          }
+        };
+
+        // Step 4: Fetch User Profile via Access Token
+        const fetchUserInfo = async (token) => {
+          try {
+            const res = await fetch(`${OAUTH_CONFIG.baseUrl}/api/oauth/userinfo`, {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
+            const data = await res.json();
+            if (data.code === 200 && data.data) {
+              user.value = data.data;
+              localStorage.setItem('oauth_user', JSON.stringify(data.data));
+            } else {
+              logout();
+            }
+          } catch (err) {
+            console.error('Failed to fetch user info:', err);
+            logout();
+          }
+        };
+
+        const logout = () => {
+          localStorage.removeItem('oauth_access_token');
+          localStorage.removeItem('oauth_user');
+          user.value = null;
+        };
+
+        onMounted(async () => {
           window.addEventListener('scroll', handleScroll, { passive: true });
+
+          // Load cached user profile if exists
+          const cachedUser = localStorage.getItem('oauth_user');
+          const token = localStorage.getItem('oauth_access_token');
+
+          if (cachedUser && token) {
+            try {
+              user.value = JSON.parse(cachedUser);
+              fetchUserInfo(token); // Silent background refresh
+            } catch (e) {
+              logout();
+            }
+          }
+
+          // Check if returned from OAuth redirect
+          await handleCallback();
         });
 
         onUnmounted(() => {
@@ -550,7 +703,11 @@
 
         return {
           mobileMenuOpen,
-          isScrolled
+          isScrolled,
+          user,
+          authLoading,
+          login,
+          logout
         };
       }
     }).mount('#app');
