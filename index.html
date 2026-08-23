@@ -132,34 +132,6 @@
       }
     }
 
-    /* Subtle rainbow spectrum accent — integrated into the visual system, never a full flag */
-    .rainbow-accent {
-      width: 130px;
-      height: 4px;
-      border-radius: 9999px;
-      background: linear-gradient(90deg,
-        #e40303 0%, #ff8c00 16.6%, #ffed00 33.3%, #008026 50%,
-        #004dff 66.6%, #750787 83.3%, #e40303 100%);
-      opacity: 0.92;
-    }
-
-    .rainbow-btn-hover {
-      position: relative;
-      overflow: hidden;
-    }
-    .rainbow-btn-hover::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg,
-        rgba(228,3,3,0.22), rgba(255,140,0,0.22), rgba(255,237,0,0.22),
-        rgba(0,128,38,0.22), rgba(0,77,255,0.22), rgba(117,7,135,0.22));
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-    }
-    .rainbow-btn-hover:hover::after { opacity: 1; }
-    .rainbow-btn-hover > * { position: relative; z-index: 1; }
   </style>
 </head>
 <body class="bg-white text-slate-800 antialiased font-sans selection:bg-slate-200">
@@ -201,35 +173,12 @@
             <span>Authenticating...</span>
           </div>
 
-          <!-- Logged In State -->
-          <div v-else-if="user" class="flex items-center space-x-2">
-            <!-- Go to My E-Campus Card Link -->
-              <a href="https://e.sibaihua.com" 
-                 target="_blank"
-                 title="Open E-Campus"
-                 :class="isScrolled ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200' : 'bg-white/20 hover:bg-white/30 backdrop-blur-md border-white/40 text-white'"
-                 class="rainbow-btn-hover inline-flex items-center space-x-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-medium border transition shadow-sm whitespace-nowrap">
-                <i class="fa-solid fa-user-graduate"></i>
-                <span>E-Campus</span>
-                <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-0.5 opacity-70"></i>
-              </a>
-
-            <!-- Logout Button -->
-            <button @click="logout" 
-                    title="Logout"
-                    :class="isScrolled ? 'text-slate-500 hover:text-red-600' : 'text-white/80 hover:text-white'"
-                    class="p-2 text-xs transition focus:outline-none">
-              <i class="fa-solid fa-arrow-right-from-bracket"></i>
-            </button>
-          </div>
-
           <!-- E-Campus: pure redirect to the digital campus (login handled there) -->
-          <a v-else
-             href="https://e.sibaihua.com"
+          <a href="https://e.sibaihua.com"
              target="_blank"
              rel="noopener"
              :class="isScrolled ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-white/20 backdrop-blur-md border border-white/40 text-white hover:bg-white/30'"
-             class="rainbow-btn-hover inline-flex items-center space-x-1.5 sm:space-x-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition shadow-sm whitespace-nowrap">
+             class="inline-flex items-center space-x-1.5 sm:space-x-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition shadow-sm whitespace-nowrap">
             <i class="fa-solid fa-arrow-up-right-from-square"></i>
             <span>E-Campus</span>
           </a>
@@ -257,12 +206,11 @@
           <a href="#governance" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Governance & Administration</a>
           <a href="#charter" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">University Charter</a>
           <a href="#identity" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">University Identity</a>
-          <div class="pt-3 border-t border-slate-200 flex justify-between items-center text-xs">
+          <div class="pt-3 border-t border-slate-200 flex items-center text-xs">
             <a href="https://e.sibaihua.com" target="_blank" rel="noopener" class="text-brand font-semibold flex items-center space-x-1">
               <span>E-Campus</span>
               <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
             </a>
-            <button v-if="user" @click="logout" class="text-red-600 font-medium">Logout</button>
           </div>
         </div>
       </transition>
@@ -275,12 +223,10 @@
       <section id="hero" class="snap-section hero-bg flex items-center justify-center text-center px-4 sm:px-6 overflow-hidden relative">
         <div class="hero-clean-veil"></div>
         <div class="relative z-10 w-full max-w-5xl mx-auto text-white flex flex-col justify-center items-center py-10">
-          <span class="text-xs sm:text-sm uppercase tracking-[0.35em] text-white/85 mb-4 sm:mb-6 font-medium">Sibaihua University</span>
-          <h1 class="text-4xl sm:text-6xl md:text-7xl font-sans font-bold tracking-wide leading-tight drop-shadow-[0_4px_20px_rgba(30,58,95,0.35)] mb-5 sm:mb-6">
+          <h1 class="text-4xl sm:text-6xl md:text-7xl font-sans font-bold tracking-wide leading-tight [text-shadow:0_2px_18px_rgba(0,0,0,0.55)] mb-5 sm:mb-6">
             One World, One Dream
           </h1>
-          <div class="rainbow-accent mx-auto mb-6 sm:mb-8"></div>
-          <p class="text-base sm:text-xl md:text-2xl font-light text-white/90 max-w-3xl leading-relaxed drop-shadow">
+          <p class="text-base sm:text-xl md:text-2xl font-light text-white max-w-3xl leading-relaxed [text-shadow:0_2px_14px_rgba(0,0,0,0.55)]">
             An Independent Institution Dedicated to Global Inquiry &amp; Discovery
           </p>
           <div class="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
@@ -322,7 +268,7 @@
           </div>
           
           <div class="relative w-full h-72 sm:h-96 lg:h-full min-h-[300px] lg:min-h-full overflow-hidden group">
-            <img src="https://cdn.mriders.cn/img/2026/08/6a8a93de4afec.jpg" alt="Sibaihua University Campus Landscape" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+            <img src="https://cdn.mriders.cn/img/2026/08/6a8a90e82ec17.jpg" alt="Sibaihua University Campus Landscape" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
             <div class="absolute bottom-4 right-5 z-10 flex items-center space-x-2 pointer-events-none drop-shadow-md">
               <span class="w-4 h-[1px] bg-white/60"></span>
               <span class="text-[10px] font-sans tracking-widest text-white/90 uppercase font-light">Photo / Maxx Nikonov</span>
@@ -501,11 +447,11 @@
       </section>
 
       <!-- Section 6: Governance & Administration -->
-      <section id="governance" class="snap-section md:h-screen md:max-h-screen bg-slate-900 flex items-stretch overflow-hidden">
-        <div class="w-full grid lg:grid-cols-12 items-stretch h-full">
+      <section id="governance" class="snap-section bg-slate-900 flex items-stretch">
+        <div class="w-full grid lg:grid-cols-12 items-stretch">
           
           <!-- 左侧文字排版区域 -->
-          <div class="lg:col-span-7 p-6 sm:p-10 md:p-12 lg:p-16 flex flex-col justify-center text-white bg-slate-900 h-full relative z-10">
+          <div class="lg:col-span-7 p-6 sm:p-10 md:p-12 lg:p-16 flex flex-col justify-center text-white bg-slate-900 relative z-10">
             <div class="mb-4 sm:mb-6">
               <span class="inline-block px-3 py-1 rounded-full bg-white/10 text-slate-300 text-[10px] sm:text-[11px] font-semibold tracking-widest uppercase mb-2">
                 Institutional Framework
@@ -587,7 +533,7 @@
           </div>
 
           <!-- 右侧大图 -->
-          <div class="lg:col-span-5 relative w-full h-64 sm:h-80 lg:h-full overflow-hidden bg-slate-900">
+          <div class="lg:col-span-5 relative w-full h-64 sm:h-80 lg:h-auto min-h-[320px] overflow-hidden bg-slate-900">
             <img src="https://cdn.mriders.cn/img/2026/01/696c9b046fc92.jpg" alt="Governance Architecture" class="absolute inset-0 w-full h-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-t lg:bg-gradient-to-r from-slate-900 via-transparent lg:via-transparent to-slate-900 lg:to-transparent"></div>
           </div>
@@ -718,25 +664,15 @@
           <div>
             <div class="font-semibold text-white text-xs sm:text-sm mb-1.5 sm:mb-2">Official Contacts & Services</div>
             <p class="leading-relaxed text-slate-200">
-              University Council: <a href="mailto:admin@sibaihua.com" class="text-white font-medium hover:underline">admin@sibaihua.com</a><br>
               President's Office: <a href="mailto:office@sibaihua.com" class="text-white font-medium hover:underline">office@sibaihua.com</a><br>
               Admissions Office: <a href="mailto:iam@gayg.de" class="text-white font-medium hover:underline">iam@gayg.de</a><br>
-              Campus Mail: <a href="https://e.sibaihua.com" target="_blank" rel="noopener" class="hover:underline text-white font-medium">e.sibaihua.com</a>
+              E-Campus: <a href="https://e.sibaihua.com" target="_blank" rel="noopener" class="text-white font-medium hover:underline">e.sibaihua.com</a><br>
+              Network Partner: <a href="https://gayg.de" target="_blank" rel="noopener" class="text-white font-medium hover:underline">GayG</a>
             </p>
           </div>
         </div>
 
         <div class="pt-4 sm:pt-6 text-center text-xs text-slate-300 flex flex-col items-center space-y-1.5">
-          <div class="flex items-center space-x-2">
-            <span class="uppercase tracking-widest text-slate-400">E-Campus</span>
-            <span class="text-slate-500">·</span>
-            <a href="https://e.sibaihua.com" target="_blank" rel="noopener" class="text-white font-medium hover:underline">e.sibaihua.com</a>
-          </div>
-          <div class="flex items-center space-x-2">
-            <span class="uppercase tracking-widest text-slate-400">Network Partner</span>
-            <span class="text-slate-500">·</span>
-            <a href="https://gayg.de" target="_blank" rel="noopener" class="text-white font-medium hover:underline">GayG</a>
-          </div>
           <div>© 2026 Sibaihua University. All rights reserved.</div>
         </div>
       </div>
