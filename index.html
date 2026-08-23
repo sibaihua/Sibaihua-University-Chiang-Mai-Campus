@@ -159,7 +159,6 @@
           <a href="#science" class="hover:opacity-80 transition">Science</a>
           <a href="#faculties" class="hover:opacity-80 transition">Faculties</a>
           <a href="#campuses" class="hover:opacity-80 transition">Campuses</a>
-          <a href="#governance" class="hover:opacity-80 transition">Governance</a>
           <a href="#charter" class="hover:opacity-80 transition">Charter</a>
           <a href="#identity" class="hover:opacity-80 transition">Identity</a>
         </nav>
@@ -203,7 +202,6 @@
           <a href="#science" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Faculty of Science</a>
           <a href="#faculties" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Specialized Faculties</a>
           <a href="#campuses" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Campuses & Locations</a>
-          <a href="#governance" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Governance & Administration</a>
           <a href="#charter" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">University Charter</a>
           <a href="#identity" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">University Identity</a>
           <div class="pt-3 border-t border-slate-200 flex items-center text-xs">
@@ -223,7 +221,7 @@
       <section id="hero" class="snap-section hero-bg flex items-center justify-center text-center px-4 sm:px-6 overflow-hidden relative">
         <div class="hero-clean-veil"></div>
         <div class="relative z-10 w-full max-w-5xl mx-auto text-white flex flex-col justify-center items-center py-10">
-          <h1 class="text-4xl sm:text-6xl md:text-7xl font-sans font-bold tracking-wide leading-tight [text-shadow:0_1px_4px_rgba(0,0,0,0.35)] mb-5 sm:mb-6">
+          <h1 class="text-4xl sm:text-6xl md:text-7xl font-sans font-bold tracking-wide leading-tight [text-shadow:0_2px_10px_rgba(0,0,0,0.6)] mb-5 sm:mb-6">
             One World, One Dream
           </h1>
           <p class="text-base sm:text-xl md:text-2xl font-light text-white max-w-3xl leading-relaxed [text-shadow:0_2px_10px_rgba(0,0,0,0.75)]">
@@ -367,7 +365,7 @@
         </div>
       </section>
 
-      <!-- Section 5: Campuses & Locations -->
+      <!-- Section 5: Campuses, Locations & Administration -->
       <section id="campuses" class="snap-section campuses-bg flex items-center justify-center px-4 sm:px-6 py-20 sm:py-28 relative overflow-hidden">
         <div class="absolute inset-0 bg-slate-900/35 backdrop-blur-[0.5px]"></div>
 
@@ -376,7 +374,7 @@
             <span class="inline-block px-4 py-1 rounded-full bg-white/95 text-brand text-xs font-bold tracking-widest uppercase mb-2 sm:mb-3 shadow">
               Global Presence
             </span>
-            <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white drop-shadow-md">Campuses & Locations</h3>
+            <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white drop-shadow-md">Campuses & Administration</h3>
             <p class="text-xs md:text-sm text-slate-100 font-light mt-1 sm:mt-2 drop-shadow">Rooted at Doi Inthanon, connected globally across key urban hubs</p>
           </div>
 
@@ -413,7 +411,7 @@
                 </div>
                 <h4 class="font-bold text-base sm:text-lg text-slate-900 mb-1.5 sm:mb-2">Bangkok Executive Center</h4>
                 <p class="text-xs text-slate-600 leading-relaxed mb-4 sm:mb-6">
-                  The administrative center of the University, located at King Power Mahanakhon.
+                  The administrative center of the University, located at King Power Mahanakhon. It houses the University Council, the President's Office, and the committees overseeing finance and supervision.
                 </p>
               </div>
               <div class="pt-3 sm:pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
@@ -433,7 +431,7 @@
                 </div>
                 <h4 class="font-bold text-base sm:text-lg text-slate-900 mb-1.5 sm:mb-2">Beijing Office</h4>
                 <p class="text-xs text-slate-600 leading-relaxed mb-4 sm:mb-6">
-                  International liaison office supporting the University's external partnerships.
+                  International liaison office supporting the University's external partnerships and academic alliances.
                 </p>
               </div>
               <div class="pt-3 sm:pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
@@ -443,101 +441,57 @@
             </div>
 
           </div>
-        </div>
-      </section>
 
-      <!-- Section 6: Governance & Administration -->
-      <section id="governance" class="snap-section bg-slate-900 flex items-stretch">
-        <div class="w-full grid lg:grid-cols-12 items-stretch">
-          
-          <!-- 左侧文字排版区域 -->
-          <div class="lg:col-span-7 p-6 sm:p-10 md:p-12 lg:p-16 flex flex-col justify-center text-white bg-slate-900 relative z-10">
-            <div class="mb-4 sm:mb-6">
-              <span class="inline-block px-3 py-1 rounded-full bg-white/10 text-slate-300 text-[10px] sm:text-[11px] font-semibold tracking-widest uppercase mb-2">
+          <!-- Governance & Administration Bodies -->
+          <div class="mt-12 sm:mt-16">
+            <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
+              <span class="inline-block px-4 py-1 rounded-full bg-white/95 text-brand text-xs font-bold tracking-widest uppercase mb-2 sm:mb-3 shadow">
                 Institutional Framework
               </span>
-              <h3 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight">Governance & Administration</h3>
+              <h4 class="text-xl sm:text-2xl md:text-3xl font-bold text-white drop-shadow-md">Governance & Administration</h4>
+              <p class="text-xs md:text-sm text-slate-100 font-light mt-1 sm:mt-2 drop-shadow">The bodies that constitute and direct Sibaihua University</p>
             </div>
 
-            <!-- 机构列表 -->
-            <div class="space-y-4 sm:space-y-5 text-left">
-
-              <!-- University Council — supreme governing body -->
-              <div class="border-l-2 border-white pl-4 sm:pl-5 py-1">
-                <div class="flex items-center space-x-2 text-[10px] uppercase font-bold tracking-wider text-slate-300 mb-1">
-                  <span>Supreme Governing Authority · University Governance</span>
+            <div class="grid md:grid-cols-2 gap-4 sm:gap-6">
+              
+              <!-- University Council -->
+              <div class="campus-spotlight-card p-6 sm:p-7 rounded-2xl text-slate-800">
+                <div class="flex items-center space-x-3 mb-2">
+                  <span class="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center text-sm"><i class="fa-solid fa-landmark"></i></span>
+                  <h5 class="font-bold text-base sm:text-lg text-brand">University Council</h5>
                 </div>
-                <h4 class="text-base sm:text-lg md:text-xl font-bold text-white">University Council</h4>
-                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light mt-1">
-                  The supreme governing authority of Sibaihua University.
-                </p>
-                <div class="text-[11px] sm:text-xs text-slate-400 font-light mt-1.5">
-                  <i class="fa-solid fa-location-dot mr-1.5 text-slate-300"></i> King Power Mahanakhon, Bangkok
-                </div>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">The supreme governing authority of Sibaihua University. The Council determines institutional statutes, approves long-term strategy, and oversees the Finance and Supervisory Committees. Seated at the Bangkok Executive Center.</p>
               </div>
 
-              <!-- Committees of the University Council (nested) -->
-              <div class="space-y-4 sm:space-y-5 ml-4 sm:ml-6">
-                <!-- Finance Committee -->
-                <div class="border-l border-white/30 pl-4 sm:pl-5 py-1">
-                  <div class="flex items-center space-x-2 text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
-                    <span>Committee of the University Council</span>
-                  </div>
-                  <h4 class="text-sm sm:text-base md:text-lg font-bold text-white">Finance Committee</h4>
-                  <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light mt-1">
-                    A committee of the University Council responsible for financial oversight and budgetary review.
-                  </p>
+              <!-- Finance Committee -->
+              <div class="campus-spotlight-card p-6 sm:p-7 rounded-2xl text-slate-800">
+                <div class="flex items-center space-x-3 mb-2">
+                  <span class="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center text-sm"><i class="fa-solid fa-coins"></i></span>
+                  <h5 class="font-bold text-base sm:text-lg text-brand">Finance Committee</h5>
                 </div>
-
-                <!-- Supervisory Committee -->
-                <div class="border-l border-white/30 pl-4 sm:pl-5 py-1">
-                  <div class="flex items-center space-x-2 text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
-                    <span>Committee of the University Council</span>
-                  </div>
-                  <h4 class="text-sm sm:text-base md:text-lg font-bold text-white">Supervisory Committee</h4>
-                  <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light mt-1">
-                    A committee of the University Council responsible for institutional oversight and supervision.
-                  </p>
-                </div>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">A committee of the University Council responsible for financial oversight and budgetary review.</p>
               </div>
 
-              <!-- President's Office — principal executive authority -->
-              <div class="border-l-2 border-white pl-4 sm:pl-5 py-1">
-                <div class="flex items-center space-x-2 text-[10px] uppercase font-bold tracking-wider text-slate-300 mb-1">
-                  <span>Executive Authority</span>
+              <!-- Supervisory Committee -->
+              <div class="campus-spotlight-card p-6 sm:p-7 rounded-2xl text-slate-800">
+                <div class="flex items-center space-x-3 mb-2">
+                  <span class="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center text-sm"><i class="fa-solid fa-magnifying-glass"></i></span>
+                  <h5 class="font-bold text-base sm:text-lg text-brand">Supervisory Committee</h5>
                 </div>
-                <h4 class="text-base sm:text-lg md:text-xl font-bold text-white">President's Office</h4>
-                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light mt-1">
-                  The University's principal executive authority, responsible for day-to-day administration and implementation of the Council's decisions.
-                </p>
-                <div class="text-[11px] sm:text-xs text-slate-400 font-light mt-1.5">
-                  <i class="fa-solid fa-location-dot mr-1.5 text-slate-300"></i> King Power Mahanakhon, Bangkok
-                </div>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">A committee of the University Council responsible for institutional oversight and supervision.</p>
               </div>
 
-              <!-- Beijing Office — international liaison -->
-              <div class="border-l border-white/20 pl-4 sm:pl-5 py-1">
-                <div class="flex items-center space-x-2 text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
-                  <span>International Liaison · China Mission</span>
+              <!-- President's Office -->
+              <div class="campus-spotlight-card p-6 sm:p-7 rounded-2xl text-slate-800">
+                <div class="flex items-center space-x-3 mb-2">
+                  <span class="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center text-sm"><i class="fa-solid fa-building-columns"></i></span>
+                  <h5 class="font-bold text-base sm:text-lg text-brand">President's Office</h5>
                 </div>
-                <h4 class="text-sm sm:text-base md:text-lg font-bold text-white">Beijing Office</h4>
-                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light mt-1">
-                  Functions as the primary external mission managing bilateral academic alliances, joint educational programs, and strategic collaborations across China.
-                </p>
-                <div class="text-[11px] sm:text-xs text-slate-400 font-light mt-1.5">
-                  <i class="fa-solid fa-location-dot mr-1.5 text-slate-300"></i> International Liaison, Beijing
-                </div>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">The University's principal executive authority, responsible for day-to-day administration and implementation of the Council's decisions. Seated at the Bangkok Executive Center.</p>
               </div>
 
             </div>
           </div>
-
-          <!-- 右侧大图 -->
-          <div class="lg:col-span-5 relative w-full h-64 sm:h-80 lg:h-auto min-h-[320px] overflow-hidden bg-slate-900">
-            <img src="https://cdn.mriders.cn/img/2026/01/696c9b046fc92.jpg" alt="Governance Architecture" class="absolute inset-0 w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gradient-to-t sm:bg-gradient-to-t lg:bg-gradient-to-r from-slate-900 via-transparent lg:via-transparent to-slate-900 lg:to-transparent"></div>
-          </div>
-
         </div>
       </section>
 
@@ -551,22 +505,6 @@
           </div>
 
           <div class="grid md:grid-cols-2 gap-5 sm:gap-7">
-            <div class="p-6 sm:p-7 bg-brand-bgLight rounded-2xl">
-              <div class="flex items-center space-x-3 mb-2">
-                <span class="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center text-sm"><i class="fa-solid fa-landmark"></i></span>
-                <h4 class="font-bold text-base sm:text-lg text-brand">University Council</h4>
-              </div>
-              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">The Council determines institutional statutes, approves long-term strategy, and oversees the Finance and Supervisory Committees. Its seat is the Bangkok Executive Center.</p>
-            </div>
-
-            <div class="p-6 sm:p-7 bg-brand-bgLight rounded-2xl">
-              <div class="flex items-center space-x-3 mb-2">
-                <span class="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center text-sm"><i class="fa-solid fa-building-columns"></i></span>
-                <h4 class="font-bold text-base sm:text-lg text-brand">President's Office</h4>
-              </div>
-              <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">The chief executive organ of the University. It executes Council resolutions and directs academic affairs, scientific research, and the operations of every faculty and campus.</p>
-            </div>
-
             <div class="p-6 sm:p-7 bg-brand-bgLight rounded-2xl">
               <div class="flex items-center space-x-3 mb-2">
                 <span class="w-8 h-8 rounded-full bg-brand/10 text-brand flex items-center justify-center text-sm"><i class="fa-solid fa-graduation-cap"></i></span>
