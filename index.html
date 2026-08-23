@@ -204,18 +204,15 @@
           <!-- Logged In State -->
           <div v-else-if="user" class="flex items-center space-x-2">
             <!-- Go to My E-Campus Card Link -->
-            <a href="https://e.sibaihua.com" 
-               target="_blank"
-               title="Go to E-Campus"
-               :class="isScrolled ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200' : 'bg-white/20 hover:bg-white/30 backdrop-blur-md border-white/40 text-white'"
-               class="inline-flex items-center space-x-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-medium border transition shadow-sm">
-              <i class="fa-solid fa-user-graduate"></i>
-              <div class="flex flex-col text-left leading-tight">
-                <span class="font-semibold">{{ user.englishName || user.username }}</span>
-                <span class="text-[10px] opacity-80 uppercase tracking-wider capitalize">{{ user.role || 'Member' }}</span>
-              </div>
-              <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1 opacity-70"></i>
-            </a>
+              <a href="https://e.sibaihua.com" 
+                 target="_blank"
+                 title="Open E-Campus"
+                 :class="isScrolled ? 'bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-200' : 'bg-white/20 hover:bg-white/30 backdrop-blur-md border-white/40 text-white'"
+                 class="rainbow-btn-hover inline-flex items-center space-x-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-medium border transition shadow-sm whitespace-nowrap">
+                <i class="fa-solid fa-user-graduate"></i>
+                <span>E-Campus</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-0.5 opacity-70"></i>
+              </a>
 
             <!-- Logout Button -->
             <button @click="logout" 
@@ -322,7 +319,11 @@
             </p>
 
             <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              With administrative and supervisory offices at King Power Mahanakhon in Bangkok and a direct liaison hub in Beijing, Sibaihua University connects Southeast Asian intellectual vitality with academic networks around the world.
+              With administrative and supervisory offices at King Power Mahanakhon in Bangkok and an international liaison office in Beijing, Sibaihua University connects Southeast Asian intellectual vitality with academic networks around the world.
+            </p>
+
+            <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mt-3">
+              GayG is an independent digital network partner of Sibaihua University, providing email and selected communication services to the university community.
             </p>
           </div>
           
@@ -445,7 +446,7 @@
             <div class="campus-spotlight-card p-6 sm:p-8 rounded-2xl text-slate-800 flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between mb-3 sm:mb-4">
-                  <span class="text-[10px] font-bold tracking-wider uppercase text-brand bg-slate-100 px-3 py-1 rounded-full">Main Campus</span>
+                  <span class="text-[10px] font-bold tracking-wider uppercase text-brand bg-slate-100 px-3 py-1 rounded-full">Academic Campus</span>
                   <div class="w-6 sm:w-7 h-6 sm:h-7 rounded-full bg-brand/10 text-brand flex items-center justify-center text-xs">
                     <i class="fa-solid fa-mountain"></i>
                   </div>
@@ -457,7 +458,7 @@
               </div>
               <div class="pt-3 sm:pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
                 <span><i class="fa-solid fa-location-dot text-brand mr-1"></i> Chiang Mai, Thailand</span>
-                <span class="text-brand font-semibold">Main Campus</span>
+                <span class="text-brand font-semibold">Academic Campus</span>
               </div>
             </div>
 
@@ -465,7 +466,7 @@
             <div class="campus-spotlight-card p-6 sm:p-8 rounded-2xl text-slate-800 flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between mb-3 sm:mb-4">
-                  <span class="text-[10px] font-bold tracking-wider uppercase text-brand bg-slate-100 px-3 py-1 rounded-full">Executive Center</span>
+                  <span class="text-[10px] font-bold tracking-wider uppercase text-brand bg-slate-100 px-3 py-1 rounded-full">University Administration</span>
                   <div class="w-6 sm:w-7 h-6 sm:h-7 rounded-full bg-brand/10 text-brand flex items-center justify-center text-xs">
                     <i class="fa-solid fa-building-columns"></i>
                   </div>
@@ -477,7 +478,7 @@
               </div>
               <div class="pt-3 sm:pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
                 <span><i class="fa-solid fa-location-dot text-brand mr-1"></i> King Power Mahanakhon</span>
-                <span class="text-brand font-semibold">Executive Center</span>
+                <span class="text-brand font-semibold">University Administration</span>
               </div>
             </div>
 
@@ -485,19 +486,19 @@
             <div class="campus-spotlight-card p-6 sm:p-8 rounded-2xl text-slate-800 flex flex-col justify-between">
               <div>
                 <div class="flex items-center justify-between mb-3 sm:mb-4">
-                  <span class="text-[10px] font-bold tracking-wider uppercase text-brand bg-slate-100 px-3 py-1 rounded-full">Liaison Mission</span>
+                  <span class="text-[10px] font-bold tracking-wider uppercase text-brand bg-slate-100 px-3 py-1 rounded-full">International Liaison</span>
                   <div class="w-6 sm:w-7 h-6 sm:h-7 rounded-full bg-brand/10 text-brand flex items-center justify-center text-xs">
                     <i class="fa-solid fa-globe"></i>
                   </div>
                 </div>
                 <h4 class="font-bold text-base sm:text-lg text-slate-900 mb-1.5 sm:mb-2">Beijing Office</h4>
                 <p class="text-xs text-slate-600 leading-relaxed mb-4 sm:mb-6">
-                  University-level representative entity coordinating institutional partnerships and academic initiatives across China.
+                  Handles international liaison for the University, coordinating institutional partnerships and academic initiatives across China.
                 </p>
               </div>
               <div class="pt-3 sm:pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
                 <span><i class="fa-solid fa-location-dot mr-1 text-slate-300"></i> Beijing, China</span>
-                <span class="text-brand font-semibold">Liaison Office</span>
+                <span class="text-brand font-semibold">International Liaison</span>
               </div>
             </div>
 
@@ -524,7 +525,7 @@
               <!-- 1. President's Office -->
               <div class="border-l-2 border-white pl-4 sm:pl-5 py-1">
                 <div class="flex items-center space-x-2 text-[10px] uppercase font-bold tracking-wider text-slate-300 mb-1">
-                  <span>Executive Headquarters · Central Hub</span>
+                  <span>Executive Authority</span>
                 </div>
                 <h4 class="text-base sm:text-lg md:text-xl font-bold text-white">President's Office</h4>
                 <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light mt-1">
@@ -538,7 +539,7 @@
               <!-- 2. University Council -->
               <div class="border-l border-white/20 pl-4 sm:pl-5 py-1">
                 <div class="flex items-center space-x-2 text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
-                  <span>Supreme Governing Body · Statutory</span>
+                  <span>Supreme Governing Body · University Governance</span>
                 </div>
                 <h4 class="text-sm sm:text-base md:text-lg font-bold text-white">University Council</h4>
                 <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light mt-1">
@@ -552,14 +553,14 @@
               <!-- 3. Beijing Office -->
               <div class="border-l border-white/20 pl-4 sm:pl-5 py-1">
                 <div class="flex items-center space-x-2 text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">
-                  <span>External Liaison · China Mission</span>
+                  <span>International Liaison · China Mission</span>
                 </div>
                 <h4 class="text-sm sm:text-base md:text-lg font-bold text-white">Beijing Office</h4>
                 <p class="text-xs sm:text-sm text-slate-300 leading-relaxed font-light mt-1">
                   Functions as the primary external mission managing bilateral academic alliances, joint educational programs, and strategic collaborations across China.
                 </p>
                 <div class="text-[11px] sm:text-xs text-slate-400 font-light mt-1.5">
-                  <i class="fa-solid fa-location-dot mr-1.5 text-slate-300"></i> Liaison Headquarters, Beijing
+                  <i class="fa-solid fa-location-dot mr-1.5 text-slate-300"></i> International Liaison, Beijing
                 </div>
               </div>
 
@@ -656,7 +657,7 @@
             </div>
             <div class="bg-brand p-6 sm:p-7">
               <div class="text-[10px] uppercase tracking-widest text-slate-300 font-semibold mb-1">Main Campus</div>
-              <div class="text-lg sm:text-xl font-semibold text-white">Doi Inthanon, Chiang Mai</div>
+              <div class="text-lg sm:text-xl font-semibold text-white">Doi Inthanon, Chiang Mai, Thailand</div>
             </div>
             <div class="bg-brand p-6 sm:p-7">
               <div class="text-[10px] uppercase tracking-widest text-slate-300 font-semibold mb-1">Digital Campus</div>
@@ -673,7 +674,7 @@
           </div>
 
           <p class="text-center text-xs sm:text-sm text-slate-300 mt-8 sm:mt-10 max-w-2xl mx-auto leading-relaxed">
-            Sibaihua University is an academic institution. Its sole campus setting is the Doi Inthanon Campus; the Bangkok Executive Center serves administration, the Beijing Office handles external liaison, the E-Campus is its digital campus, and GayG is its independent network partner.
+            Sibaihua University is an academic institution. Its sole campus setting is the Doi Inthanon Campus; the Bangkok Executive Center serves university administration, the Beijing Office handles international liaison, the E-Campus is its digital campus, and GayG is its independent network partner.
           </p>
         </div>
       </section>
@@ -690,8 +691,8 @@
             <div class="font-bold text-white text-sm sm:text-base mb-1.5 sm:mb-2">Sibaihua University</div>
             <p class="leading-relaxed text-slate-200">
               Main Campus: Doi Inthanon, Chiang Mai, Thailand<br>
-              Administrative Presence: King Power Mahanakhon, Bangkok<br>
-              Liaison Hub: Beijing, China
+              Bangkok Executive Center: King Power Mahanakhon, Bangkok<br>
+              Beijing Office: Beijing, China
             </p>
           </div>
           <div>
@@ -699,7 +700,7 @@
             <p class="leading-relaxed text-slate-200">
               Supreme Governing Body: University Council (King Power Mahanakhon)<br>
               Executive Authority: President's Office (King Power Mahanakhon)<br>
-              Liaison Office: Beijing Office
+              International Liaison: Beijing Office
             </p>
           </div>
           <div>
@@ -715,7 +716,7 @@
 
         <div class="pt-4 sm:pt-6 text-center text-xs text-slate-300 flex flex-col items-center space-y-1.5">
           <div class="flex items-center space-x-2">
-            <span class="uppercase tracking-widest text-slate-400">Network Partners</span>
+            <span class="uppercase tracking-widest text-slate-400">Network Partner</span>
             <span class="text-slate-500">·</span>
             <a href="https://gayg.de" target="_blank" rel="noopener" class="text-white font-medium hover:underline">GayG</a>
           </div>
