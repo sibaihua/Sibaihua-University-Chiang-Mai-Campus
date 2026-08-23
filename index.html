@@ -53,7 +53,7 @@
     }
 
     .hero-bg {
-      background-image: url('https://cdn.mriders.cn/img/2026/08/6a8a90e82ec17.jpg');
+      background-image: url('https://cdn.mriders.cn/img/2026/08/6a8a93de4afec.jpg');
       background-size: cover;
       background-position: center;
     }
@@ -223,14 +223,16 @@
             </button>
           </div>
 
-          <!-- Not Logged In State -->
-          <button v-else 
-                  @click="login"
-                  :class="isScrolled ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-white/20 backdrop-blur-md border border-white/40 text-white hover:bg-white/30'"
-                  class="rainbow-btn-hover inline-flex items-center space-x-1.5 sm:space-x-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition shadow-sm whitespace-nowrap focus:outline-none">
-            <i class="fa-solid fa-right-to-bracket"></i>
+          <!-- E-Campus: pure redirect to the digital campus (login handled there) -->
+          <a v-else
+             href="https://e.sibaihua.com"
+             target="_blank"
+             rel="noopener"
+             :class="isScrolled ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-white/20 backdrop-blur-md border border-white/40 text-white hover:bg-white/30'"
+             class="rainbow-btn-hover inline-flex items-center space-x-1.5 sm:space-x-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition shadow-sm whitespace-nowrap">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
             <span>E-Campus</span>
-          </button>
+          </a>
 
           <button @click="mobileMenuOpen = !mobileMenuOpen" 
                   :class="isScrolled ? 'text-slate-800' : 'text-white'"
@@ -255,12 +257,12 @@
           <a href="#governance" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Governance & Administration</a>
           <a href="#charter" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">University Charter</a>
           <a href="#identity" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">University Identity</a>
-          <div v-if="user" class="pt-3 border-t border-slate-200 flex justify-between items-center text-xs">
-            <a href="https://e.sibaihua.com" target="_blank" class="text-brand font-semibold flex items-center space-x-1">
+          <div class="pt-3 border-t border-slate-200 flex justify-between items-center text-xs">
+            <a href="https://e.sibaihua.com" target="_blank" rel="noopener" class="text-brand font-semibold flex items-center space-x-1">
               <span>E-Campus</span>
               <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
             </a>
-            <button @click="logout" class="text-red-600 font-medium">Logout</button>
+            <button v-if="user" @click="logout" class="text-red-600 font-medium">Logout</button>
           </div>
         </div>
       </transition>
@@ -286,14 +288,6 @@
               <span>Explore the University</span>
               <i class="fa-solid fa-arrow-down text-xs"></i>
             </a>
-            <a v-if="user" href="https://e.sibaihua.com" target="_blank" class="inline-flex items-center space-x-2 px-6 sm:px-8 py-3 rounded-full bg-brand text-white font-semibold text-sm shadow-lg hover:bg-brand-dark transition">
-              <i class="fa-solid fa-arrow-up-right-from-square"></i>
-              <span>E-Campus</span>
-            </a>
-            <button v-else @click="login" class="rainbow-btn-hover inline-flex items-center space-x-2 px-6 sm:px-8 py-3 rounded-full bg-brand text-white font-semibold text-sm shadow-lg transition focus:outline-none">
-              <i class="fa-solid fa-right-to-bracket"></i>
-              <span>E-Campus</span>
-            </button>
           </div>
         </div>
         <a href="#about" class="relative z-10 absolute bottom-6 sm:bottom-8 left-1/2 transform -translate-x-1/2 text-white/80 hover:text-white transition animate-bounce">
@@ -328,10 +322,10 @@
           </div>
           
           <div class="relative w-full h-72 sm:h-96 lg:h-full min-h-[300px] lg:min-h-full overflow-hidden group">
-            <img src="https://cdn.mriders.cn/img/2026/08/6a8a90e82ec17.jpg" alt="Sibaihua University Campus Landscape" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+            <img src="https://cdn.mriders.cn/img/2026/08/6a8a93de4afec.jpg" alt="Sibaihua University Campus Landscape" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
             <div class="absolute bottom-4 right-5 z-10 flex items-center space-x-2 pointer-events-none drop-shadow-md">
               <span class="w-4 h-[1px] bg-white/60"></span>
-              <span class="text-[10px] font-sans tracking-widest text-white/90 uppercase font-light">Photo / Wison Tungthunya</span>
+              <span class="text-[10px] font-sans tracking-widest text-white/90 uppercase font-light">Photo / Maxx Nikonov</span>
             </div>
           </div>
         </div>
@@ -693,17 +687,13 @@
               <div class="text-lg sm:text-xl font-semibold text-white"><a href="https://e.sibaihua.com" target="_blank" rel="noopener" class="hover:underline">e.sibaihua.com</a></div>
             </div>
             <div class="bg-brand p-6 sm:p-7">
-              <div class="text-[10px] uppercase tracking-widest text-slate-300 font-semibold mb-1">Network Partner</div>
-              <div class="text-lg sm:text-xl font-semibold text-white"><a href="https://gayg.de" target="_blank" rel="noopener" class="hover:underline">GayG</a></div>
-            </div>
-            <div class="bg-brand p-6 sm:p-7">
               <div class="text-[10px] uppercase tracking-widest text-slate-300 font-semibold mb-1">Motto</div>
               <div class="text-lg sm:text-xl font-semibold text-white">One World, One Dream</div>
             </div>
           </div>
 
           <p class="text-center text-xs sm:text-sm text-slate-300 mt-8 sm:mt-10 max-w-2xl mx-auto leading-relaxed">
-            Sibaihua University is an academic institution. Its sole campus setting is the Chiang Mai Campus; the Bangkok Executive Center serves university administration, the Beijing Office handles international liaison, the E-Campus is its digital campus, and GayG is its independent network partner.
+            Sibaihua University is an academic institution. Its sole campus setting is the Chiang Mai Campus; the Bangkok Executive Center serves university administration, the Beijing Office handles international liaison, and the E-Campus is its digital campus.
           </p>
         </div>
       </section>
@@ -731,7 +721,7 @@
               University Council: <a href="mailto:admin@sibaihua.com" class="text-white font-medium hover:underline">admin@sibaihua.com</a><br>
               President's Office: <a href="mailto:office@sibaihua.com" class="text-white font-medium hover:underline">office@sibaihua.com</a><br>
               Admissions Office: <a href="mailto:iam@gayg.de" class="text-white font-medium hover:underline">iam@gayg.de</a><br>
-              Campus Mail Gateway: <a href="https://gayg.de" target="_blank" class="hover:underline text-white font-medium">gayg.de</a>
+              Campus Mail: <a href="https://e.sibaihua.com" target="_blank" rel="noopener" class="hover:underline text-white font-medium">e.sibaihua.com</a>
             </p>
           </div>
         </div>
