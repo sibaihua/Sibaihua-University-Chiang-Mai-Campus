@@ -1,0 +1,13 @@
+{
+  "name": "sibaihua-university-chiang-mai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Sibaihua University, Chiang Mai Campus — official single-page site",
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/tailwind.css -o ./css/tailwind.css --minify",
+    "watch:css": "tailwindcss -i ./src/tailwind.css -o ./css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

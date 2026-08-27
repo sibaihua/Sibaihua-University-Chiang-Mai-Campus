@@ -3,7 +3,7 @@
 > A single-page showcase website for **Sibaihua University, Chiang Mai Campus**.
 > Motto: *One World, One Dream.*
 
-This repository contains the official homepage of Sibaihua University's Chiang Mai Campus. The entire site is delivered as a **single static file** — `index.html` — with no build step, no backend, and no framework dependencies to install.
+This repository contains the official homepage of Sibaihua University's Chiang Mai Campus. The entire site is delivered as a **single static file** — `index.html` — with a pre-built Tailwind CSS bundle (compiled locally and committed as `css/tailwind.css`), no backend, and no framework dependencies required at runtime.
 
 ---
 
@@ -16,7 +16,7 @@ This repository contains the official homepage of Sibaihua University's Chiang M
 | **Repository** | https://github.com/sibaihua/Sibaihua-University-Chiang-Mai-Campus |
 | **Delivery** | One static `index.html` (no bundler / no server-side code) |
 | **Deployment** | Cloudflare Pages (auto-deploys on push to `main`) |
-| **Stack** | HTML5 · Tailwind CSS (CDN) · Vue 3 (CDN) · FontAwesome (CDN) |
+| **Stack** | HTML5 · Tailwind CSS (local production build) · Vue 3 (CDN) · FontAwesome (CDN) |
 
 ---
 
@@ -33,18 +33,40 @@ python3 -m http.server 8080
 # then visit http://localhost:8080
 ```
 
-No `npm install`, no environment variables, and no compilation are required.
+No framework dependencies are required at runtime. To **rebuild the Tailwind CSS** after editing classes, Node.js + the Tailwind CLI are needed (see *Building the CSS*).
 
 ---
 
 ## Tech stack
 
-All libraries are loaded from public CDNs, so the page works as-is out of the box:
+Vue and FontAwesome are loaded from public CDNs; Tailwind CSS is compiled ahead of time into a static bundle:
 
-- **Tailwind CSS** (`cdn.tailwindcss.com`) — utility-first styling. The `brand` color palette is defined inline in `tailwind.config` (`#1E3A5F` and variants).
+- **Tailwind CSS** — compiled with the Tailwind CLI into `css/tailwind.css` (minified, committed). The `brand` color palette is defined in `tailwind.config.js` (`#1E3A5F` and variants). See *Building the CSS* below.
 - **Vue 3** (`unpkg.com/vue@3`) — used only for lightweight client interactions (mobile menu toggle, scroll-state styling). The app mounts on `#app`.
 - **FontAwesome 6.4** (`cdnjs.cloudflare.com`) — icons.
-- **Background images & favicon** — served from `cdn.mriders.cn`.
+- **Background images & favicon** — served from `cdn.sibh.cn`.
+
+---
+
+## Building the CSS
+
+The site no longer uses the Tailwind Play CDN (`cdn.tailwindcss.com`) in production. Styles are compiled to a static file so the page works without a runtime CDN dependency for CSS.
+
+```bash
+# install dev dependency (Tailwind CLI) — one time
+npm install
+
+# rebuild the production stylesheet (output: css/tailwind.css)
+npm run build:css
+
+# during development, watch for changes:
+npm run watch:css
+```
+
+- Source entry: `src/tailwind.css` (the three `@tailwind` directives).
+- Scan target: `tailwind.config.js` → `content: ["./index.html"]` (only the deployed page is scanned).
+- The compiled `css/tailwind.css` is **committed** and served directly by Cloudflare Pages — there is no build step on the hosting side.
+- ⚠️ After adding or changing any Tailwind class in `index.html`, **rebuild `css/tailwind.css` and commit it**, otherwise the new classes will not be styled.
 
 ---
 
@@ -79,7 +101,7 @@ The `index.html` `<script>` block still contains a **legacy, unused** OAuth 2.0 
 
 - **Single source of truth:** everything lives in `index.html`. Edit text, sections, and styles there.
 - **Images:** swap CDN URLs in the `<style>` block (`.hero-bg`, `.campuses-bg`) or in `<img>` tags directly.
-- **Brand colors:** adjust the `brand` palette in the inline `tailwind.config`.
+- **Brand colors:** adjust the `brand` palette in `tailwind.config.js`, then run `npm run build:css` and commit the regenerated `css/tailwind.css`.
 - **Keep it lean:** the site is intentionally content-light; avoid stacking duplicate or redundant copy across sections.
 
 ---
