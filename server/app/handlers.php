@@ -289,6 +289,19 @@ function route(string $path, string $method): void
         '/api/auth/me' => ['GET' => 'handle_me'],
         '/api/auth/change-password' => ['POST' => 'handle_change_password'],
         '/api/posts' => ['GET' => 'handle_posts_index', 'POST' => 'handle_posts_create'],
+
+        // OpenID Connect discovery + JWKS (served from /.well-known/*)
+        '/.well-known/openid-configuration' => ['GET' => 'handle_oidc_discovery'],
+        '/.well-known/jwks.json' => ['GET' => 'handle_oidc_jwks'],
+
+        // OAuth 2.0 / OIDC protocol endpoints
+        '/oauth/authorize' => ['GET' => 'handle_oauth_authorize_get', 'POST' => 'handle_oauth_authorize_post'],
+        '/api/oauth/token' => ['POST' => 'handle_oauth_token'],
+        '/api/oauth/userinfo' => ['GET' => 'handle_oauth_userinfo', 'POST' => 'handle_oauth_userinfo'],
+        '/api/oauth/revoke' => ['POST' => 'handle_oauth_revoke'],
+
+        // Admin: OAuth client management
+        '/api/admin/oauth-clients' => ['GET' => 'handle_admin_clients_index', 'POST' => 'handle_admin_clients_create'],
     ];
 
     if (isset($routes[$path])) {
@@ -298,6 +311,14 @@ function route(string $path, string $method): void
         }
         $handlers[$method]();
         return;
+    }
+
+    if (preg_match('#^/api/admin/oauth-clients/([^/]+)$#', $path, $m)) {
+        $key = rawurldecode($m[1]);
+        if ($method === 'DELETE') {
+            handle_admin_clients_delete($key);
+        }
+        fail(405, '方法不允许');
     }
 
     if (preg_match('#^/api/posts/([^/]+)$#', $path, $m)) {

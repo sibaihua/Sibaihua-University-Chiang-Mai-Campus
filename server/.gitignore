@@ -1,2 +1,6 @@
 # Never commit real credentials
 app/config.php
+
+# OIDC signing key (generated on the server)
+app/oidc-key.pem
+*.pem

@@ -17,4 +17,12 @@ return [
         'user' => 'sibaihua',
         'password' => 'CHANGE_ME',
     ],
+
+    // OpenID Connect provider settings.
+    // `issuer` must exactly match the host members use — pick one canonical host
+    // (apex) and 301 the other, or tokens will carry a mismatched issuer.
+    'oidc' => [
+        'issuer' => 'https://sibaihua.com',
+        'key_path' => '/www/server/sibaihua-app/oidc-key.pem',
+    ],
 ];

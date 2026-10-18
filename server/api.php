@@ -12,6 +12,7 @@ define('SIB_APP_DIR', '/www/server/sibaihua-app');
 
 require SIB_APP_DIR . '/bootstrap.php';
 require SIB_APP_DIR . '/handlers.php';
+require SIB_APP_DIR . '/oidc.php';
 
 function db_error(PDOException $e): void
 {

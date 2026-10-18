@@ -43,3 +43,55 @@ CREATE TABLE IF NOT EXISTS posts (
   KEY idx_posts_status (status, published_at),
   CONSTRAINT fk_posts_author FOREIGN KEY (author_id) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- OAuth 2.0 / OpenID Connect provider
+-- This site acts as the identity provider: third-party applications register
+-- here and send members to /oauth/authorize.
+-- ─────────────────────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS oauth_clients (
+  id                 INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  client_id          VARCHAR(64)  NOT NULL,
+  client_secret_hash VARCHAR(255) NOT NULL DEFAULT '',
+  name               VARCHAR(120) NOT NULL,
+  redirect_uris      TEXT         NOT NULL,
+  scopes             VARCHAR(255) NOT NULL DEFAULT 'openid profile email',
+  is_confidential    TINYINT(1)   NOT NULL DEFAULT 1,
+  status             VARCHAR(16)  NOT NULL DEFAULT 'active',
+  created_at         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY uniq_client_id (client_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS oauth_codes (
+  code                  CHAR(64)     NOT NULL,
+  client_id             VARCHAR(64)  NOT NULL,
+  user_id               INT UNSIGNED NOT NULL,
+  redirect_uri          VARCHAR(400) NOT NULL,
+  scope                 VARCHAR(255) NOT NULL,
+  nonce                 VARCHAR(200) NOT NULL DEFAULT '',
+  code_challenge        VARCHAR(128) NOT NULL DEFAULT '',
+  code_challenge_method VARCHAR(10)  NOT NULL DEFAULT '',
+  expires_at            BIGINT       NOT NULL,
+  used                  TINYINT(1)   NOT NULL DEFAULT 0,
+  created_at            DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (code),
+  KEY idx_codes_client (client_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS oauth_tokens (
+  access_token       CHAR(64)     NOT NULL,
+  refresh_token      CHAR(64)     DEFAULT NULL,
+  client_id          VARCHAR(64)  NOT NULL,
+  user_id            INT UNSIGNED NOT NULL,
+  scope              VARCHAR(255) NOT NULL,
+  expires_at         BIGINT       NOT NULL,
+  refresh_expires_at BIGINT       DEFAULT NULL,
+  revoked            TINYINT(1)   NOT NULL DEFAULT 0,
+  created_at         DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (access_token),
+  UNIQUE KEY uniq_refresh_token (refresh_token),
+  KEY idx_tokens_user (user_id),
+  KEY idx_tokens_client (client_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

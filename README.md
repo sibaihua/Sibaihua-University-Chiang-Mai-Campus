@@ -31,12 +31,14 @@ an **Oracle Cloud** instance, with the apex domain `sibaihua.com`.
 ├── news.html           # Public newsroom: article list + article detail
 ├── admin.html          # Editorial console: sign in, write/publish/delete articles
 ├── server/             # backend source (deployed outside the web root)
-│   ├── api.php         # front controller for /api/*
-│   ├── schema.sql      # MySQL schema (users, sessions, posts)
-│   ├── .gitignore      # keeps app/config.php out of git
+│   ├── api.php         # front controller for /api/*, /.well-known/*, /oauth/*
+│   ├── schema.sql      # MySQL schema (users, sessions, posts, oauth_*)
+│   ├── patch-nginx.sh  # idempotently restores the /api/ and OIDC nginx rules
+│   ├── .gitignore      # keeps app/config.php and the signing key out of git
 │   └── app/
 │       ├── bootstrap.php      # config, PDO, sessions, cookies, markdown, helpers
 │       ├── handlers.php       # setup / auth / posts handlers + router
+│       ├── oidc.php           # OAuth 2.0 / OpenID Connect provider
 │       └── config.example.php # copy to config.php on the server
 └── README.md
 ```
@@ -96,6 +98,63 @@ or scripts.
 
 Publish the first article from the console; it appears immediately in the homepage
 **News & Announcements** section and on `news.html`.
+
+---
+
+## OpenID Connect / OAuth 2.0 provider
+
+This site is also the university's **identity provider**: other applications can let
+members sign in with their Sibaihua University account instead of holding passwords
+themselves. Nothing is shared between sites except short-lived tokens.
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /.well-known/openid-configuration` | OIDC discovery document |
+| `GET /.well-known/jwks.json` | public signing keys (RS256) |
+| `GET/POST /oauth/authorize` | consent screen; issues the authorization code |
+| `POST /api/oauth/token` | exchange code (PKCE) or refresh token |
+| `GET /api/oauth/userinfo` | claims for a Bearer access token |
+| `POST /api/oauth/revoke` | RFC 7009 revocation |
+
+Grant types: `authorization_code`, `refresh_token`. PKCE `S256` is supported and is
+**mandatory for public clients**. ID tokens are signed with RS256; the key is
+`/www/server/sibaihua-app/oidc-key.pem` (generated with OpenSSL, never committed):
+
+```bash
+sudo openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 \
+     -out /www/server/sibaihua-app/oidc-key.pem
+sudo chown www:www /www/server/sibaihua-app/oidc-key.pem
+sudo chmod 640 /www/server/sibaihua-app/oidc-key.pem
+```
+
+### Registering an application
+
+`/admin.html` → **Applications** → *New application*. Fill in a name and one or more
+redirect URIs (one per line). The `client_id` — and, for confidential clients, the
+`client_secret` — is shown **once**; only a bcrypt hash of the secret is stored.
+
+Uncheck *Confidential client* for browser or mobile apps that cannot keep a secret.
+
+### Integration sketch
+
+```
+GET  /oauth/authorize?response_type=code&client_id=…&redirect_uri=…
+     &scope=openid%20profile%20email&state=…&nonce=…
+     &code_challenge=…&code_challenge_method=S256
+
+POST /api/oauth/token
+     grant_type=authorization_code&code=…&redirect_uri=…
+     code_verifier=…            (client_secret too, unless public)
+
+GET  /api/oauth/userinfo        Authorization: Bearer <access_token>
+```
+
+Scopes: `openid` (required), `profile`, `email`, `offline_access` (refresh token).
+Claims: `sub`, `iss`, `aud`, `exp`, `iat`, `auth_time`, `nonce`, `name`,
+`preferred_username`, `email`, `email_verified`.
+
+> Because the issuer is `https://sibaihua.com`, serving the same app on `www` would
+> produce a second issuer and break token validation. Keep the `www` → apex 301.
 
 ---
 

@@ -240,6 +240,37 @@
     .side-note li { margin-bottom: 0.2rem; }
     .side-note code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text-mid); }
 
+    /* ── tabs (Articles / Applications) ───────────────────────────────── */
+    .tabs {
+      display: flex; gap: 0.35rem; margin-bottom: 1.3rem;
+      border-bottom: 1px solid var(--border); padding-bottom: 0.6rem;
+    }
+    .tab {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0.5rem 0.9rem; border-radius: 9999px;
+      font-size: 0.8rem; font-weight: 550; color: var(--text-mute);
+      transition: background 0.15s, color 0.15s;
+    }
+    .tab:hover { background: var(--border-soft); color: var(--brand); }
+    .tab.active { background: var(--brand); color: #fff; }
+
+    .secret-box {
+      margin-top: 0.9rem; padding: 0.7rem 0.8rem;
+      background: var(--ok-bg); border: 1px solid var(--ok-border);
+      border-radius: 0.5rem; font-size: 0.72rem; color: var(--ok); line-height: 1.6;
+    }
+    .secret-box code {
+      display: block; margin-top: 0.3rem; word-break: break-all;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.72rem; color: #0f172a; background: #fff;
+      border: 1px solid var(--ok-border); border-radius: 0.35rem; padding: 0.35rem 0.45rem;
+    }
+    .checkline {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-top: 0.5rem; font-size: 0.78rem; color: var(--text-mid);
+    }
+    .checkline input { width: auto; }
+
     /* ── dialog ──────────────────────────────────────────────────────── */
     .overlay {
       position: fixed; inset: 0; z-index: 40;
@@ -345,6 +376,15 @@
   <!-- Console -->
   <main id="console" class="console hidden">
 
+    <nav class="tabs">
+      <button id="tabArticles" class="tab active" type="button">
+        <i class="fa-regular fa-file-lines"></i><span>Articles</span>
+      </button>
+      <button id="tabApps" class="tab" type="button">
+        <i class="fa-solid fa-plug"></i><span>Applications</span>
+      </button>
+    </nav>
+
     <!-- list view -->
     <div id="listView">
       <div class="console-head">
@@ -432,6 +472,22 @@
     </div>
   </main>
 
+  <!-- OAuth applications view -->
+  <div id="appsView" class="console hidden">
+    <div class="console-head">
+      <div>
+        <h2>OAuth applications</h2>
+        <p>Applications that can sign members in through this site (OpenID Connect).</p>
+      </div>
+      <button id="newAppBtn" class="solid-btn" type="button">
+        <i class="fa-solid fa-plus"></i><span>New application</span>
+      </button>
+    </div>
+    <div id="appsPanel" class="panel">
+      <div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>Loading applications…</div>
+    </div>
+  </div>
+
   <!-- Change-password dialog -->
   <div id="pwOverlay" class="overlay hidden">
     <div class="card">
@@ -457,6 +513,42 @@
         <button id="pwCancel" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">
           Cancel
         </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- New OAuth application dialog -->
+  <div id="appOverlay" class="overlay hidden">
+    <div class="card">
+      <h1>New application</h1>
+      <p class="lede">Register a site that may sign members in with their Sibaihua University account.</p>
+      <form id="appForm" autocomplete="off">
+        <div class="field">
+          <label for="appName">Application name</label>
+          <input id="appName" type="text" placeholder="e.g. Campus Library" required>
+        </div>
+        <div class="field">
+          <label for="appUris">Redirect URIs</label>
+          <textarea id="appUris" rows="3" placeholder="https://library.example.edu/callback"></textarea>
+          <div class="hint">One per line. Must match exactly what the application sends.</div>
+        </div>
+        <div class="field">
+          <label>Allowed scopes</label>
+          <label class="checkline"><input type="checkbox" class="appScope" value="openid" checked disabled> openid (required)</label>
+          <label class="checkline"><input type="checkbox" class="appScope" value="profile" checked> profile</label>
+          <label class="checkline"><input type="checkbox" class="appScope" value="email" checked> email</label>
+          <label class="checkline"><input type="checkbox" class="appScope" value="offline_access"> offline_access</label>
+        </div>
+        <div class="field">
+          <label class="checkline"><input type="checkbox" id="appConfidential" checked> Confidential client (issues a client secret)</label>
+          <div class="hint">Uncheck for browser or mobile applications that cannot keep a secret — PKCE is then required.</div>
+        </div>
+        <div id="appAlert" class="alert hidden"></div>
+        <div id="appSecretBox" class="secret-box hidden"></div>
+        <button id="appSubmit" class="primary-btn" type="submit">
+          <i class="fa-solid fa-plug"></i><span>Create application</span>
+        </button>
+        <button id="appCancel" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">Close</button>
       </form>
     </div>
   </div>
@@ -531,7 +623,7 @@
     };
 
     /* ── state ───────────────────────────────────────────────────────── */
-    const state = { user: null, posts: [], editingId: null, editingStatus: 'draft' };
+    const state = { user: null, posts: [], apps: [], editingId: null, editingStatus: 'draft' };
 
     /* ── gate ────────────────────────────────────────────────────────── */
     const showGate = (pane) => {
@@ -694,9 +786,14 @@
     const signOutLocal = () => {
       state.user = null;
       state.posts = [];
+      state.apps = [];
       $('who').classList.add('hidden');
       $('signOutBtn').classList.add('hidden');
       $('passwordBtn').classList.add('hidden');
+      $('appsView').classList.add('hidden');
+      $('appOverlay').classList.add('hidden');
+      $('tabApps').classList.remove('active');
+      $('tabArticles').classList.add('active');
     };
 
     const signOut = async () => {
@@ -827,7 +924,137 @@
     });
 
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') $('pwOverlay').classList.add('hidden');
+      if (event.key === 'Escape') {
+        $('pwOverlay').classList.add('hidden');
+        $('appOverlay').classList.add('hidden');
+      }
+    });
+
+    /* ── OAuth applications ─────────────────────────────────────────── */
+    const showTab = (tab) => {
+      const articles = tab === 'articles';
+      $('tabArticles').classList.toggle('active', articles);
+      $('tabApps').classList.toggle('active', !articles);
+      $('listView').classList.toggle('hidden', !articles);
+      $('editorView').classList.add('hidden');
+      $('appsView').classList.toggle('hidden', articles);
+      if (articles) { showList(); loadPosts(); } else { loadApps(); }
+    };
+
+    const loadApps = async () => {
+      const panel = $('appsPanel');
+      panel.innerHTML = '<div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>Loading applications…</div>';
+      try {
+        const data = await api('/api/admin/oauth-clients');
+        state.apps = data.clients || [];
+        renderApps();
+      } catch (err) {
+        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
+        panel.innerHTML = '<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>' + esc(err.message) + '</div>';
+      }
+    };
+
+    const renderApps = () => {
+      const panel = $('appsPanel');
+      if (!state.apps.length) {
+        panel.innerHTML = '<div class="empty"><i class="fa-solid fa-plug"></i>No applications yet. Use “New application” to register one.</div>';
+        return;
+      }
+      panel.innerHTML = state.apps.map((app) => {
+        const uris = (app.redirect_uris || []).map((u) => '<code>' + esc(u) + '</code>').join(' ');
+        const kind = app.is_confidential
+          ? '<span class="badge published"><i class="fa-solid fa-lock"></i>Confidential</span>'
+          : '<span class="badge draft"><i class="fa-solid fa-unlock"></i>Public + PKCE</span>';
+        return '' +
+          '<div class="row">' +
+            '<div class="row-main">' +
+              '<div class="row-title">' + esc(app.name) + '</div>' +
+              '<div class="row-meta">' + kind +
+                '<code>' + esc(app.client_id) + '</code>' +
+                '<span>' + esc(app.scopes) + '</span>' +
+              '</div>' +
+              '<div class="row-meta">' + uris + '</div>' +
+            '</div>' +
+            '<div class="row-actions">' +
+              '<button class="icon-btn danger" type="button" data-delapp="' + esc(app.id) + '" title="Delete"><i class="fa-solid fa-trash-can"></i></button>' +
+            '</div>' +
+          '</div>';
+      }).join('');
+    };
+
+    const deleteApp = async (id) => {
+      if (!window.confirm('Delete this application? Its tokens stop working immediately.')) return;
+      try {
+        await api('/api/admin/oauth-clients/' + encodeURIComponent(id), { method: 'DELETE' });
+        toast('Application deleted.');
+        await loadApps();
+      } catch (err) {
+        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
+        toast(err.message, true);
+      }
+    };
+
+    $('tabArticles').addEventListener('click', () => showTab('articles'));
+    $('tabApps').addEventListener('click', () => showTab('apps'));
+
+    $('newAppBtn').addEventListener('click', () => {
+      $('appForm').reset();
+      $('appConfidential').checked = true;
+      setAlert('appAlert', '');
+      $('appSecretBox').classList.add('hidden');
+      $('appOverlay').classList.remove('hidden');
+      $('appName').focus();
+    });
+    $('appCancel').addEventListener('click', () => $('appOverlay').classList.add('hidden'));
+    $('appOverlay').addEventListener('click', (event) => {
+      if (event.target === $('appOverlay')) $('appOverlay').classList.add('hidden');
+    });
+
+    $('appsPanel').addEventListener('click', (event) => {
+      const del = event.target.closest('[data-delapp]');
+      if (del) deleteApp(del.getAttribute('data-delapp'));
+    });
+
+    $('appForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setAlert('appAlert', '');
+      $('appSecretBox').classList.add('hidden');
+
+      const body = {
+        name: $('appName').value.trim(),
+        redirect_uris: $('appUris').value,
+        is_confidential: $('appConfidential').checked,
+        scopes: Array.from(document.querySelectorAll('.appScope'))
+          .filter((c) => c.checked)
+          .map((c) => c.value)
+      };
+
+      const btn = $('appSubmit');
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Creating…</span>';
+      try {
+        const data = await api('/api/admin/oauth-clients', { method: 'POST', body });
+        const c = data.client;
+        let html = 'Created. Copy these now — the secret is shown only once:'
+          + '<code>client_id: ' + esc(c.client_id) + '</code>';
+        if (c.client_secret) {
+          html += '<code>client_secret: ' + esc(c.client_secret) + '</code>';
+        }
+        const box = $('appSecretBox');
+        box.innerHTML = html;
+        box.classList.remove('hidden');
+        $('appName').value = '';
+        $('appUris').value = '';
+        await loadApps();
+        toast('Application created.');
+      } catch (err) {
+        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
+        setAlert('appAlert', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
     });
 
     boot();

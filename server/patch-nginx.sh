@@ -1,8 +1,8 @@
 #!/bin/bash
-# 幂等地（重新）补上本站点 API 所需的两条 Nginx 规则。
+# 幂等地（重新）补上本站点所需的 Nginx 规则。
 # 面板改动站点设置会重写 vhost，随时可以再跑一次本脚本恢复。
 #
-#   用法：bash patch-nginx.sh [vhost 路径]
+#   用法：sudo bash patch-nginx.sh [vhost 路径]
 #
 set -u
 CONF="${1:-/www/server/panel/vhost/nginx/sibaihua.com.conf}"
@@ -14,13 +14,27 @@ SOCK=/run/php/php8.3-fpm.sock
 echo "=== 备份 ==="
 sudo cp -a "$CONF" "$CONF.bak.fix.$(date +%s)" && echo "已备份"
 
-echo "=== 补 /api/ 规则 ==="
+echo "=== 补规则 ==="
 sudo python3 - "$CONF" <<'PY'
 import re, sys
+
 p = sys.argv[1]
 s = open(p, encoding='utf-8').read()
 
-block = """
+oidc_block = """
+    # ── OIDC discovery / JWKS / 授权端点 ──
+    location = /.well-known/openid-configuration {
+        rewrite ^ /api.php last;
+    }
+    location = /.well-known/jwks.json {
+        rewrite ^ /api.php last;
+    }
+    location = /oauth/authorize {
+        rewrite ^ /api.php last;
+    }
+"""
+
+api_block = """
     # ── API 前置控制器：/api/* -> /api.php ──
     # 规则必须带斜杠，否则 /api.php 会被再次匹配造成 rewrite 死循环
     location = /api {
@@ -31,12 +45,18 @@ block = """
     }
 """
 
-if 'rewrite ^/api/' in s:
-    print('API 规则已存在，跳过')
+needed = ''
+if 'openid-configuration' not in s:
+    needed += oidc_block
+if 'rewrite ^/api/' not in s:
+    needed += api_block
+
+if not needed:
+    print('规则已齐全，跳过')
 else:
     # 插在 root 指令之后，这是 Baota vhost 里最稳定的锚点
-    s, n = re.subn(r'(^[ \t]*root[ \t]+[^\n]*\n)', lambda m: m.group(1) + block, s, count=1, flags=re.M)
-    print('已插入 API 规则' if n else 'WARN: 未找到 root 锚点，请手工插入')
+    s, n = re.subn(r'(^[ \t]*root[ \t]+[^\n]*\n)', lambda m: m.group(1) + needed, s, count=1, flags=re.M)
+    print('已插入缺失规则' if n else 'WARN: 未找到 root 锚点，请手工插入')
 
 open(p, 'w', encoding='utf-8').write(s)
 PY
@@ -56,7 +76,9 @@ sudo "$NGINX" -s reload && echo "已重载"
 sleep 1
 
 echo "=== 验证 ==="
-printf 'GET /            '; curl -ks --resolve sibaihua.com:443:127.0.0.1 -o /dev/null -w "%{http_code}\n" https://sibaihua.com/
-printf 'GET /api/setup   '; curl -ks --resolve sibaihua.com:443:127.0.0.1 -o /dev/null -w "%{http_code}\n" https://sibaihua.com/api/setup
-printf 'GET /api/posts   '; curl -ks --resolve sibaihua.com:443:127.0.0.1 -o /dev/null -w "%{http_code}\n" https://sibaihua.com/api/posts
-echo -n 'body: '; curl -ks --resolve sibaihua.com:443:127.0.0.1 https://sibaihua.com/api/setup; echo
+printf 'GET /                        '; curl -ks --resolve sibaihua.com:443:127.0.0.1 -o /dev/null -w "%{http_code}\n" https://sibaihua.com/
+printf 'GET /api/setup               '; curl -ks --resolve sibaihua.com:443:127.0.0.1 -o /dev/null -w "%{http_code}\n" https://sibaihua.com/api/setup
+printf 'GET /api/posts               '; curl -ks --resolve sibaihua.com:443:127.0.0.1 -o /dev/null -w "%{http_code}\n" https://sibaihua.com/api/posts
+printf 'GET /.well-known/jwks.json   '; curl -ks --resolve sibaihua.com:443:127.0.0.1 -o /dev/null -w "%{http_code}\n" https://sibaihua.com/.well-known/jwks.json
+echo -n 'discovery: '
+curl -ks --resolve sibaihua.com:443:127.0.0.1 https://sibaihua.com/.well-known/openid-configuration | head -c 220; echo
