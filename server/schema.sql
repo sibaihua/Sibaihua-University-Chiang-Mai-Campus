@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS oauth_clients (
   id                 INT UNSIGNED NOT NULL AUTO_INCREMENT,
   client_id          VARCHAR(64)  NOT NULL,
   client_secret_hash VARCHAR(255) NOT NULL DEFAULT '',
+  client_secret_enc  TEXT         DEFAULT NULL,
   name               VARCHAR(120) NOT NULL,
   redirect_uris      TEXT         NOT NULL,
   scopes             VARCHAR(255) NOT NULL DEFAULT 'openid profile email',

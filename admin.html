@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>Editorial Console — Sibaihua University</title>
+  <title>编辑控制台 — Sibaihua University</title>
   <link rel="icon" href="https://cdn.sibh.cn/img/2026/08/6a82000f8ce84.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -273,6 +273,54 @@
 
     .account-sep { margin: 1.5rem 0 1.4rem; border-top: 1px solid var(--border-soft); }
 
+    /* ── documentation ───────────────────────────────────────────────── */
+    .doc-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem 1.35rem;
+    }
+    .doc-section + .doc-section { margin-top: 1rem; }
+    .doc-section h3 { margin: 0 0 0.55rem; font-size: 0.85rem; font-weight: 650; color: var(--brand); }
+    .doc-section p { margin: 0; font-size: 0.78rem; line-height: 1.75; color: var(--text-mid); }
+    .doc-section p + p { margin-top: 0.5rem; }
+    .doc-section b { color: var(--text); font-weight: 650; }
+    .doc-table { width: 100%; border-collapse: collapse; margin-top: 0.6rem; font-size: 0.74rem; }
+    .doc-table th, .doc-table td {
+      text-align: left; padding: 0.45rem 0.5rem;
+      border-bottom: 1px solid var(--border-soft); vertical-align: top;
+    }
+    .doc-table th {
+      color: var(--text-faint); font-weight: 600; font-size: 0.66rem;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .doc-table td { color: var(--text-mid); }
+    .doc-table td code, .doc-section p code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.72rem; color: var(--brand-dark);
+      background: var(--border-soft); padding: 0.08rem 0.3rem; border-radius: 0.25rem;
+      word-break: break-all;
+    }
+    .doc-code {
+      display: block; margin-top: 0.55rem; padding: 0.7rem 0.8rem;
+      background: #0f172a; color: #e2e8f0; border-radius: 0.5rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.71rem; line-height: 1.65;
+      white-space: pre-wrap; word-break: break-all;
+    }
+    .copy-chip {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      margin: 0.5rem 0.35rem 0 0; padding: 0.22rem 0.6rem;
+      border: 1px solid var(--border); border-radius: 9999px;
+      font-size: 0.68rem; color: var(--text-mute); background: #fff;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .copy-chip:hover { background: var(--border-soft); color: var(--brand); border-color: #cbd5e1; }
+    .doc-note {
+      margin-top: 0.65rem; padding: 0.55rem 0.7rem;
+      font-size: 0.73rem; line-height: 1.65; border-radius: 0.5rem;
+      color: var(--brand); background: #eff6ff; border: 1px solid #bfdbfe;
+    }
+    .doc-note code { background: #dbeafe; color: var(--brand-dark); }
+
     /* ── dialog ──────────────────────────────────────────────────────── */
     .overlay {
       position: fixed; inset: 0; z-index: 40;
@@ -302,19 +350,19 @@
       <img src="https://cdn.sibh.cn/img/2026/08/6a82000f8ce84.png" alt="Sibaihua University Crest">
       <div>
         <div class="brand-name">Sibaihua University</div>
-        <div class="brand-sub">Editorial Console</div>
+        <div class="brand-sub">编辑控制台</div>
       </div>
     </div>
     <div class="topbar-actions">
       <span id="who" class="who hidden"></span>
       <button id="passwordBtn" class="ghost-btn hidden" type="button">
-        <i class="fa-solid fa-key"></i><span>Account</span>
+        <i class="fa-solid fa-key"></i><span>账户</span>
       </button>
       <a class="ghost-btn" href="./index.html">
-        <i class="fa-solid fa-arrow-up-right-from-square"></i><span>View site</span>
+        <i class="fa-solid fa-arrow-up-right-from-square"></i><span>查看网站</span>
       </a>
       <button id="signOutBtn" class="ghost-btn hidden" type="button">
-        <i class="fa-solid fa-right-from-bracket"></i><span>Sign out</span>
+        <i class="fa-solid fa-right-from-bracket"></i><span>退出登录</span>
       </button>
     </div>
   </header>
@@ -325,51 +373,51 @@
       <img class="card-crest" src="https://cdn.sibh.cn/img/2026/08/6a82000f8ce84.png" alt="Sibaihua University Crest">
 
       <div id="setupPane" class="hidden">
-        <h1>Create administrator</h1>
-        <p class="lede">This site has no account yet. Choose the credentials for the first administrator. This form disappears once the account exists.</p>
+        <h1>创建管理员</h1>
+        <p class="lede">本站还没有任何账号。请设定第一位管理员的登录凭据；账号建立后此表单将不再出现。</p>
         <form id="setupForm" autocomplete="off">
           <div class="field">
-            <label for="setupUser">Username</label>
+            <label for="setupUser">用户名</label>
             <input id="setupUser" type="text" autocomplete="username" placeholder="e.g. admin" required>
-            <div class="hint">3–32 characters: letters, digits, dot, underscore or hyphen.</div>
+            <div class="hint">3–32 位，可用字母、数字、点、下划线或短横线。</div>
           </div>
           <div class="field">
-            <label for="setupPass">Password</label>
-            <input id="setupPass" type="password" autocomplete="new-password" placeholder="At least 8 characters" required>
+            <label for="setupPass">密码</label>
+            <input id="setupPass" type="password" autocomplete="new-password" placeholder="至少 8 位" required>
           </div>
           <div class="field">
-            <label for="setupPass2">Confirm password</label>
-            <input id="setupPass2" type="password" autocomplete="new-password" placeholder="Repeat the password" required>
+            <label for="setupPass2">确认密码</label>
+            <input id="setupPass2" type="password" autocomplete="new-password" placeholder="再次输入密码" required>
           </div>
           <div id="setupAlert" class="alert hidden"></div>
           <button id="setupSubmit" class="primary-btn" type="submit">
-            <i class="fa-solid fa-user-shield"></i><span>Create account</span>
+            <i class="fa-solid fa-user-shield"></i><span>创建账号</span>
           </button>
         </form>
       </div>
 
       <div id="loginPane" class="hidden">
-        <h1>Sign in</h1>
-        <p class="lede">Editorial access for Sibaihua University staff.</p>
+        <h1>登录</h1>
+        <p class="lede">Sibaihua University 教职员编辑入口。</p>
         <form id="loginForm" autocomplete="off">
           <div class="field">
-            <label for="loginUser">Username</label>
+            <label for="loginUser">用户名</label>
             <input id="loginUser" type="text" autocomplete="username" required>
           </div>
           <div class="field">
-            <label for="loginPass">Password</label>
+            <label for="loginPass">密码</label>
             <input id="loginPass" type="password" autocomplete="current-password" required>
           </div>
           <div id="loginAlert" class="alert hidden"></div>
           <button id="loginSubmit" class="primary-btn" type="submit">
-            <i class="fa-solid fa-right-to-bracket"></i><span>Sign in</span>
+            <i class="fa-solid fa-right-to-bracket"></i><span>登录</span>
           </button>
         </form>
       </div>
 
       <div id="fatalPane" class="hidden">
-        <h1>Backend not ready</h1>
-        <p class="lede">The console could not reach the site API.</p>
+        <h1>后端未就绪</h1>
+        <p class="lede">控制台无法连接站点 API。</p>
         <div id="fatalAlert" class="alert"></div>
       </div>
     </div>
@@ -380,10 +428,13 @@
 
     <nav class="tabs">
       <button id="tabArticles" class="tab active" type="button">
-        <i class="fa-regular fa-file-lines"></i><span>Articles</span>
+        <i class="fa-regular fa-file-lines"></i><span>文章</span>
       </button>
       <button id="tabApps" class="tab" type="button">
-        <i class="fa-solid fa-plug"></i><span>Applications</span>
+        <i class="fa-solid fa-plug"></i><span>应用</span>
+      </button>
+      <button id="tabDocs" class="tab" type="button">
+        <i class="fa-solid fa-book"></i><span>调用文档</span>
       </button>
     </nav>
 
@@ -391,15 +442,15 @@
     <div id="listView">
       <div class="console-head">
         <div>
-          <h2>Articles</h2>
-          <p id="listSummary">Loading…</p>
+          <h2>文章</h2>
+          <p id="listSummary">加载中…</p>
         </div>
         <button id="newBtn" class="solid-btn" type="button">
-          <i class="fa-solid fa-plus"></i><span>New article</span>
+          <i class="fa-solid fa-plus"></i><span>新建文章</span>
         </button>
       </div>
       <div id="listPanel" class="panel">
-        <div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>Loading articles…</div>
+        <div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>正在加载文章…</div>
       </div>
     </div>
 
@@ -407,26 +458,26 @@
     <div id="editorView" class="hidden">
       <div class="console-head">
         <div>
-          <h2 id="editorHeading">New article</h2>
-          <p id="editorSub">Drafts stay invisible on the public site until you publish them.</p>
+          <h2 id="editorHeading">新建文章</h2>
+          <p id="editorSub">草稿在发布前不会出现在公开网站上。</p>
         </div>
         <button id="backBtn" class="outline-btn" type="button">
-          <i class="fa-solid fa-arrow-left"></i><span>Back to list</span>
+          <i class="fa-solid fa-arrow-left"></i><span>返回列表</span>
         </button>
       </div>
 
       <div class="editor-grid">
         <div class="editor-main">
           <div class="field">
-            <label for="postTitle">Title</label>
-            <input id="postTitle" type="text" placeholder="Article title" maxlength="200">
+            <label for="postTitle">标题</label>
+            <input id="postTitle" type="text" placeholder="文章标题" maxlength="200">
           </div>
           <div class="field">
-            <label for="postExcerpt">Summary</label>
-            <textarea id="postExcerpt" rows="2" maxlength="400" placeholder="One or two sentences shown in lists"></textarea>
+            <label for="postExcerpt">摘要</label>
+            <textarea id="postExcerpt" rows="2" maxlength="400" placeholder="列表里显示的一两句话"></textarea>
           </div>
           <div class="field">
-            <label for="postContent">Body (Markdown)</label>
+            <label for="postContent">正文（Markdown）</label>
             <textarea id="postContent" class="content" placeholder="# Heading&#10;&#10;Paragraph text.&#10;&#10;- list item&#10;- list item"></textarea>
           </div>
 
@@ -434,39 +485,39 @@
 
           <div class="editor-actions">
             <button id="saveBtn" class="solid-btn" type="button">
-              <i class="fa-solid fa-floppy-disk"></i><span>Save</span>
+              <i class="fa-solid fa-floppy-disk"></i><span>保存</span>
             </button>
             <span class="spacer"></span>
             <button id="deleteBtn" class="outline-btn danger hidden" type="button">
-              <i class="fa-solid fa-trash-can"></i><span>Delete</span>
+              <i class="fa-solid fa-trash-can"></i><span>删除</span>
             </button>
           </div>
         </div>
 
         <aside class="editor-side">
           <div class="field" style="margin-top:0">
-            <label for="postStatus">Status</label>
+            <label for="postStatus">状态</label>
             <select id="postStatus">
-              <option value="draft">Draft — hidden from the public site</option>
-              <option value="published">Published — visible on the site</option>
+              <option value="draft">草稿 —— 公开网站不可见</option>
+              <option value="published">已发布 —— 网站上可见</option>
             </select>
           </div>
           <div class="field">
-            <label for="postSlug">URL slug</label>
-            <input id="postSlug" type="text" placeholder="auto-generated from title">
-            <div class="hint">Leave empty to derive it from the title. Duplicates get a numeric suffix.</div>
+            <label for="postSlug">URL 别名</label>
+            <input id="postSlug" type="text" placeholder="留空则按标题自动生成">
+            <div class="hint">留空则按标题生成；重名时自动追加数字后缀。</div>
           </div>
           <div class="field">
             <div class="side-note">
-              <h3>Formatting</h3>
+              <h3>格式语法</h3>
               <ul>
-                <li><code>#</code> heading</li>
-                <li><code>**bold**</code>, <code>*italic*</code></li>
-                <li><code>- item</code> list</li>
-                <li><code>&gt; quote</code></li>
-                <li><code>[text](https://…)</code> link</li>
+                <li><code>#</code> 标题</li>
+                <li><code>**粗体**</code>、<code>*斜体*</code></li>
+                <li><code>- 项目</code> 列表</li>
+                <li><code>&gt; 引用</code></li>
+                <li><code>[文字](https://…)</code> 链接</li>
               </ul>
-              <p style="margin-top:0.6rem">Raw HTML is escaped for safety and will not render.</p>
+              <p style="margin-top:0.6rem">原始 HTML 会被转义，不会渲染。</p>
             </div>
           </div>
         </aside>
@@ -478,57 +529,175 @@
   <div id="appsView" class="console hidden">
     <div class="console-head">
       <div>
-        <h2>OAuth applications</h2>
-        <p>Applications that can sign members in through this site (OpenID Connect).</p>
+        <h2>OAuth 应用</h2>
+        <p>可以通过本站账号登录的第三方应用（OpenID Connect）。</p>
       </div>
       <button id="newAppBtn" class="solid-btn" type="button">
-        <i class="fa-solid fa-plus"></i><span>New application</span>
+        <i class="fa-solid fa-plus"></i><span>新建应用</span>
       </button>
     </div>
     <div id="appsPanel" class="panel">
-      <div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>Loading applications…</div>
+      <div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>正在加载应用…</div>
+    </div>
+  </div>
+
+  <!-- Documentation view -->
+  <div id="docsView" class="console hidden">
+    <div class="console-head">
+      <div>
+        <h2>调用文档 · OpenID Connect / OAuth 2.0</h2>
+        <p>把「用 Sibaihua University 账号登录」接入你自己应用所需的全部信息。</p>
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <h3>1 · 发现地址</h3>
+      <p>客户端只需要 Issuer 地址，其余端点会自动从发现文档中读取。</p>
+      <button class="copy-chip" type="button" data-copy="https://sibaihua.com">
+        <i class="fa-regular fa-copy"></i><span>https://sibaihua.com</span>
+      </button>
+      <button class="copy-chip" type="button" data-copy="https://sibaihua.com/.well-known/openid-configuration">
+        <i class="fa-regular fa-copy"></i><span>/.well-known/openid-configuration</span>
+      </button>
+      <div class="doc-note">
+        Issuer 必须与发现文档中的 <code>issuer</code> 完全一致，即 <code>https://sibaihua.com</code>，
+        <b>结尾不要加斜杠</b>。<code>www</code> 会 301 跳转到裸域，因此只会存在一个 issuer。
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <h3>2 · 端点一览</h3>
+      <table class="doc-table">
+        <thead><tr><th>端点</th><th>方法</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><code>/.well-known/openid-configuration</code></td><td>GET</td><td>OIDC 发现文档</td></tr>
+          <tr><td><code>/.well-known/oauth-authorization-server</code></td><td>GET</td><td>纯 OAuth 客户端用的元数据（RFC 8414）</td></tr>
+          <tr><td><code>/.well-known/jwks.json</code></td><td>GET</td><td>ID Token 验签公钥（RS256）</td></tr>
+          <tr><td><code>/oauth/authorize</code></td><td>GET · POST</td><td>登录与授权同意页</td></tr>
+          <tr><td><code>/api/oauth/token</code></td><td>POST</td><td>用授权码或刷新令牌换取令牌</td></tr>
+          <tr><td><code>/api/oauth/userinfo</code></td><td>GET · POST</td><td>用 Bearer 令牌读取成员信息</td></tr>
+          <tr><td><code>/api/oauth/introspect</code></td><td>POST</td><td>令牌自省（RFC 7662）</td></tr>
+          <tr><td><code>/api/oauth/revoke</code></td><td>POST</td><td>撤销令牌（RFC 7009）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-section">
+      <h3>3 · 接入步骤</h3>
+      <p><b>①</b> 先在「应用」标签里新建应用，填写回调地址，然后复制 <code>client_id</code>；
+        机密客户端还会拿到 <code>client_secret</code>（之后可随时在编辑窗口查看）。</p>
+      <p style="margin-top:.7rem"><b>②</b> 让浏览器跳转到授权端点：</p>
+      <span class="doc-code">GET /oauth/authorize
+  ?response_type=code
+  &amp;client_id=你的_CLIENT_ID
+  &amp;redirect_uri=https://你的应用/callback
+  &amp;scope=openid%20profile%20email
+  &amp;state=随机字符串
+  &amp;nonce=随机字符串
+  &amp;code_challenge=BASE64URL(SHA256(VERIFIER))
+  &amp;code_challenge_method=S256</span>
+      <p style="margin-top:.7rem"><b>③</b> 成员同意后浏览器会回到
+        <code>redirect_uri?code=…&amp;state=…</code>，用授权码换取令牌：</p>
+      <span class="doc-code">POST /api/oauth/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic base64(client_id:client_secret)   # 仅机密客户端
+
+grant_type=authorization_code
+&amp;code=返回的授权码
+&amp;redirect_uri=https://你的应用/callback
+&amp;code_verifier=前面生成的_VERIFIER</span>
+      <p style="margin-top:.7rem"><b>④</b> 用 access_token 读取成员信息；需要长期访问就申请
+        <code>offline_access</code> 并用 refresh_token 续期：</p>
+      <span class="doc-code">GET /api/oauth/userinfo
+Authorization: Bearer ACCESS_TOKEN
+
+POST /api/oauth/token
+grant_type=refresh_token&amp;refresh_token=…&amp;client_id=…&amp;client_secret=…</span>
+    </div>
+
+    <div class="doc-section">
+      <h3>4 · Scope 与返回的字段</h3>
+      <table class="doc-table">
+        <thead><tr><th>Scope</th><th>下发的 claim</th></tr></thead>
+        <tbody>
+          <tr><td><code>openid</code>（必需）</td><td><code>sub</code> —— 稳定的成员标识</td></tr>
+          <tr><td><code>profile</code></td><td><code>name</code>、<code>preferred_username</code></td></tr>
+          <tr><td><code>email</code></td><td><code>email</code>、<code>email_verified</code>（账号需先在「账户」里填邮箱）</td></tr>
+          <tr><td><code>offline_access</code></td><td>签发 <code>refresh_token</code></td></tr>
+        </tbody>
+      </table>
+      <div class="doc-note">
+        ID Token 始终包含 <code>iss</code>、<code>sub</code>、<code>aud</code>、<code>exp</code>、
+        <code>iat</code>、<code>auth_time</code>、<code>at_hash</code>；请求了 <code>nonce</code> 会原样回传。
+        请用 <code>/.well-known/jwks.json</code> 中的公钥验签。
+      </div>
+    </div>
+
+    <div class="doc-section">
+      <h3>5 · 错误码</h3>
+      <table class="doc-table">
+        <thead><tr><th>error</th><th>含义</th></tr></thead>
+        <tbody>
+          <tr><td><code>invalid_client</code></td><td>client_id 不存在，或客户端密钥错误</td></tr>
+          <tr><td><code>invalid_grant</code></td><td>授权码无效 / 已使用 / 已过期，或 PKCE 校验失败</td></tr>
+          <tr><td><code>invalid_scope</code></td><td>请求的 scope 超出该应用允许范围</td></tr>
+          <tr><td><code>invalid_request</code></td><td>缺少必要参数，或公共客户端未使用 PKCE</td></tr>
+          <tr><td><code>unsupported_grant_type</code></td><td>不支持的 grant_type</td></tr>
+          <tr><td><code>access_denied</code></td><td>成员在同意页点了拒绝</td></tr>
+          <tr><td><code>login_required</code></td><td>请求了 <code>prompt=none</code> 但当前没有登录会话</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="doc-section">
+      <h3>6 · 运维要点</h3>
+      <p>· 客户端密钥以加密形式保存在数据库中，<b>可随时在编辑窗口查看</b>；若怀疑泄露，用「更换密钥」立即作废旧密钥，该应用已获得的全部令牌同时失效。</p>
+      <p>· 把应用改成<b>停用</b>可随时切断它的登录，并吊销其所有令牌。</p>
+      <p>· 回调地址必须逐字符一致 —— 协议、端口、结尾斜杠都算。</p>
+      <p>· 有效期：access token 1 小时，refresh token 30 天，授权码 5 分钟且只能使用一次。</p>
+      <p>· 加密依赖 <code>config.php</code> 里的 <code>oidc.secret_key</code>，更换该值会导致已保存的密钥无法解密（需要重新轮换）。</p>
     </div>
   </div>
 
   <!-- Change-password dialog -->
   <div id="pwOverlay" class="overlay hidden">
     <div class="card">
-      <h1>Account</h1>
-      <p class="lede">Your email is shared with applications that request the email scope.</p>
+      <h1>账户</h1>
+      <p class="lede">邮箱会提供给请求 email scope 的应用。</p>
       <form id="emailForm" autocomplete="off">
         <div class="field">
-          <label for="profileEmail">Email address</label>
+          <label for="profileEmail">邮箱</label>
           <input id="profileEmail" type="email" autocomplete="email" placeholder="you@example.com">
         </div>
         <div id="emailAlert" class="alert hidden"></div>
         <button id="emailSubmit" class="primary-btn" type="submit">
-          <i class="fa-solid fa-envelope"></i><span>Save email</span>
+          <i class="fa-solid fa-envelope"></i><span>保存邮箱</span>
         </button>
       </form>
 
       <div class="account-sep"></div>
 
-      <h1>Change password</h1>
-      <p class="lede">Other devices signed in with this account will be signed out.</p>
+      <h1>修改密码</h1>
+      <p class="lede">修改后，该账号在其他设备上的登录会被退出。</p>
       <form id="pwForm" autocomplete="off">
         <div class="field">
-          <label for="pwCurrent">Current password</label>
+          <label for="pwCurrent">当前密码</label>
           <input id="pwCurrent" type="password" autocomplete="current-password" required>
         </div>
         <div class="field">
-          <label for="pwNew">New password</label>
-          <input id="pwNew" type="password" autocomplete="new-password" placeholder="At least 8 characters" required>
+          <label for="pwNew">新密码</label>
+          <input id="pwNew" type="password" autocomplete="new-password" placeholder="至少 8 位" required>
         </div>
         <div class="field">
-          <label for="pwConfirm">Confirm new password</label>
+          <label for="pwConfirm">确认新密码</label>
           <input id="pwConfirm" type="password" autocomplete="new-password" required>
         </div>
         <div id="pwAlert" class="alert hidden"></div>
         <button id="pwSubmit" class="primary-btn" type="submit">
-          <i class="fa-solid fa-key"></i><span>Update password</span>
+          <i class="fa-solid fa-key"></i><span>更新密码</span>
         </button>
         <button id="pwCancel" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">
-          Cancel
+          取消
         </button>
       </form>
     </div>
@@ -537,35 +706,94 @@
   <!-- New OAuth application dialog -->
   <div id="appOverlay" class="overlay hidden">
     <div class="card">
-      <h1>New application</h1>
-      <p class="lede">Register a site that may sign members in with their Sibaihua University account.</p>
+      <h1>新建应用</h1>
+      <p class="lede">登记一个可以使用 Sibaihua University 账号登录的站点。</p>
       <form id="appForm" autocomplete="off">
         <div class="field">
-          <label for="appName">Application name</label>
-          <input id="appName" type="text" placeholder="e.g. Campus Library" required>
+          <label for="appName">应用名称</label>
+          <input id="appName" type="text" placeholder="例如：校园图书馆" required>
         </div>
         <div class="field">
-          <label for="appUris">Redirect URIs</label>
+          <label for="appUris">回调地址</label>
           <textarea id="appUris" rows="3" placeholder="https://library.example.edu/callback"></textarea>
-          <div class="hint">One per line. Must match exactly what the application sends.</div>
+          <div class="hint">一行一个，必须与应用实际发送的地址完全一致。</div>
         </div>
         <div class="field">
-          <label>Allowed scopes</label>
-          <label class="checkline"><input type="checkbox" class="appScope" value="openid" checked disabled> openid (required)</label>
+          <label>允许的 scope</label>
+          <label class="checkline"><input type="checkbox" class="appScope" value="openid" checked disabled> openid（必需）</label>
           <label class="checkline"><input type="checkbox" class="appScope" value="profile" checked> profile</label>
           <label class="checkline"><input type="checkbox" class="appScope" value="email" checked> email</label>
           <label class="checkline"><input type="checkbox" class="appScope" value="offline_access"> offline_access</label>
         </div>
         <div class="field">
-          <label class="checkline"><input type="checkbox" id="appConfidential" checked> Confidential client (issues a client secret)</label>
-          <div class="hint">Uncheck for browser or mobile applications that cannot keep a secret — PKCE is then required.</div>
+          <label class="checkline"><input type="checkbox" id="appConfidential" checked> 机密客户端（会签发客户端密钥）</label>
+          <div class="hint">浏览器或移动端等无法保管密钥的应用请取消勾选，此时强制使用 PKCE。</div>
         </div>
         <div id="appAlert" class="alert hidden"></div>
         <div id="appSecretBox" class="secret-box hidden"></div>
         <button id="appSubmit" class="primary-btn" type="submit">
-          <i class="fa-solid fa-plug"></i><span>Create application</span>
+          <i class="fa-solid fa-plug"></i><span>创建应用</span>
         </button>
-        <button id="appCancel" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">Close</button>
+        <button id="appCancel" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">关闭</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit OAuth application dialog -->
+  <div id="appEditOverlay" class="overlay hidden">
+    <div class="card">
+      <h1>编辑应用</h1>
+      <p class="lede" id="appEditClientId" style="word-break:break-all"></p>
+      <div class="row-meta" style="gap:0.4rem;flex-wrap:wrap;margin-top:0.55rem">
+        <button class="copy-chip" type="button" id="copyClientIdBtn">
+          <i class="fa-regular fa-copy"></i><span>复制 client_id</span>
+        </button>
+        <button class="copy-chip" type="button" id="revealSecretBtn">
+          <i class="fa-solid fa-eye"></i><span>显示客户端密钥</span>
+        </button>
+        <button class="copy-chip" type="button" id="copySecretBtn" style="display:none">
+          <i class="fa-regular fa-copy"></i><span>复制密钥</span>
+        </button>
+      </div>
+      <div id="secretViewBox" class="secret-box hidden"></div>
+      <form id="appEditForm" autocomplete="off">
+        <input type="hidden" id="appEditId">
+        <div class="field">
+          <label for="appEditName">应用名称</label>
+          <input id="appEditName" type="text" required>
+        </div>
+        <div class="field">
+          <label for="appEditUris">回调地址</label>
+          <textarea id="appEditUris" rows="3"></textarea>
+          <div class="hint">一行一个，必须完全一致。</div>
+        </div>
+        <div class="field">
+          <label>允许的 scope</label>
+          <label class="checkline"><input type="checkbox" class="editScope" value="openid" checked disabled> openid（必需）</label>
+          <label class="checkline"><input type="checkbox" class="editScope" value="profile"> profile</label>
+          <label class="checkline"><input type="checkbox" class="editScope" value="email"> email</label>
+          <label class="checkline"><input type="checkbox" class="editScope" value="offline_access"> offline_access</label>
+        </div>
+        <div class="field">
+          <label for="appEditStatus">状态</label>
+          <select id="appEditStatus">
+            <option value="active">启用</option>
+            <option value="disabled">停用 —— 会吊销其全部令牌</option>
+          </select>
+        </div>
+        <div id="appEditAlert" class="alert hidden"></div>
+        <div class="field">
+          <label class="checkline"><input type="checkbox" id="appEditConfidential"> 机密客户端（会签发客户端密钥）</label>
+          <div class="hint">勾选后会立即签发密钥；取消勾选会删除密钥并吊销已发放的令牌。</div>
+        </div>
+        <div id="appRotateBox" class="secret-box hidden"></div>
+        <button id="appEditSave" class="primary-btn" type="submit">
+          <i class="fa-solid fa-floppy-disk"></i><span>保存修改</span>
+        </button>
+        <button id="appRotateBtn" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">
+          <i class="fa-solid fa-rotate"></i><span>更换密钥</span>
+        </button>
+        <button id="appEditCancel" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">关闭</button>
       </form>
     </div>
   </div>
@@ -592,7 +820,7 @@
     const fmtDate = (value) => {
       const date = parseDate(value);
       if (!date) return '—';
-      return date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
+      return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
     };
 
     let toastTimer = null;
@@ -667,13 +895,12 @@
     /* ── posts ───────────────────────────────────────────────────────── */
     const loadPosts = async () => {
       const panel = $('listPanel');
-      panel.innerHTML = '<div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>Loading articles…</div>';
+      panel.innerHTML = '<div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>正在加载文章…</div>';
       try {
         const data = await api('/api/posts?includeDrafts=1&limit=50');
         state.posts = data.posts || [];
         $('listSummary').textContent =
-          state.posts.length + ' article' + (state.posts.length === 1 ? '' : 's') +
-          ' · ' + state.posts.filter((p) => p.status === 'published').length + ' published';
+          state.posts.length + ' 篇文章 · ' + state.posts.filter((p) => p.status === 'published').length + ' 篇已发布';
         renderList();
       } catch (err) {
         if (err.status === 401) { signOutLocal(); showGate('login'); return; }
@@ -684,16 +911,16 @@
     const renderList = () => {
       const panel = $('listPanel');
       if (!state.posts.length) {
-        panel.innerHTML = '<div class="empty"><i class="fa-regular fa-file-lines"></i>No articles yet. Use “New article” to write the first one.</div>';
+        panel.innerHTML = '<div class="empty"><i class="fa-regular fa-file-lines"></i>还没有文章。点「新建文章」写下第一篇。</div>';
         return;
       }
       panel.innerHTML = state.posts.map((post) => {
         const badge = post.status === 'published'
-          ? '<span class="badge published"><i class="fa-solid fa-circle-check"></i>Published</span>'
-          : '<span class="badge draft"><i class="fa-regular fa-clock"></i>Draft</span>';
-        const date = post.status === 'published' ? fmtDate(post.published_at) : 'updated ' + fmtDate(post.updated_at);
+          ? '<span class="badge published"><i class="fa-solid fa-circle-check"></i>已发布</span>'
+          : '<span class="badge draft"><i class="fa-regular fa-clock"></i>草稿</span>';
+        const date = post.status === 'published' ? fmtDate(post.published_at) : '更新于 ' + fmtDate(post.updated_at);
         const viewLink = post.status === 'published'
-          ? '<a class="icon-btn" href="./news.html?id=' + encodeURIComponent(post.id) + '" target="_blank" rel="noopener" title="View on site"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>'
+          ? '<a class="icon-btn" href="./news.html?id=' + encodeURIComponent(post.id) + '" target="_blank" rel="noopener" title="在网站上查看"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>'
           : '';
         return '' +
           '<div class="row">' +
@@ -706,8 +933,8 @@
             '</div>' +
             '<div class="row-actions">' +
               viewLink +
-              '<button class="icon-btn" type="button" data-edit="' + esc(post.id) + '" title="Edit"><i class="fa-solid fa-pen"></i></button>' +
-              '<button class="icon-btn danger" type="button" data-delete="' + esc(post.id) + '" title="Delete"><i class="fa-solid fa-trash-can"></i></button>' +
+              '<button class="icon-btn" type="button" data-edit="' + esc(post.id) + '" title="编辑"><i class="fa-solid fa-pen"></i></button>' +
+              '<button class="icon-btn danger" type="button" data-delete="' + esc(post.id) + '" title="删除"><i class="fa-solid fa-trash-can"></i></button>' +
             '</div>' +
           '</div>';
       }).join('');
@@ -722,10 +949,10 @@
     const showEditor = (post) => {
       $('listView').classList.add('hidden');
       $('editorView').classList.remove('hidden');
-      $('editorHeading').textContent = post ? 'Edit article' : 'New article';
+      $('editorHeading').textContent = post ? '编辑文章' : '新建文章';
       $('editorSub').textContent = post
-        ? 'Last updated ' + fmtDate(post.updated_at) + '.'
-        : 'Drafts stay invisible on the public site until you publish them.';
+        ? '最近更新：' + fmtDate(post.updated_at) + '。'
+        : '草稿在发布前不会出现在公开网站上。';
       $('postTitle').value = post ? post.title : '';
       $('postExcerpt').value = post ? (post.excerpt || '') : '';
       $('postContent').value = post ? (post.content || '') : '';
@@ -748,7 +975,7 @@
 
     const savePost = async () => {
       const title = $('postTitle').value.trim();
-      if (!title) { setAlert('editorAlert', 'A title is required.'); return; }
+      if (!title) { setAlert('editorAlert', '标题不能为空。'); return; }
       const payload = {
         title: title,
         excerpt: $('postExcerpt').value.trim(),
@@ -760,18 +987,18 @@
       const btn = $('saveBtn');
       const original = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Saving…</span>';
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>保存中…</span>';
       try {
         if (state.editingId) {
           const data = await api('/api/posts/' + encodeURIComponent(state.editingId), { method: 'PUT', body: payload });
           state.editingId = data.post.id;
           $('postSlug').value = data.post.slug;
-          toast('Article saved.');
+          toast('文章已保存。');
         } else {
           const data = await api('/api/posts', { method: 'POST', body: payload });
           state.editingId = data.post.id;
           $('postSlug').value = data.post.slug;
-          toast('Article created.');
+          toast('文章已创建。');
         }
         await loadPosts();
         showList();
@@ -786,11 +1013,11 @@
 
     const deletePost = async (id) => {
       const post = state.posts.find((p) => String(p.id) === String(id));
-      const label = post ? '“' + post.title + '”' : 'this article';
-      if (!window.confirm('Delete ' + label + '? This cannot be undone.')) return;
+      const label = post ? '「' + post.title + '」' : '这篇文章';
+      if (!window.confirm('确定删除' + label + '？此操作不可恢复。')) return;
       try {
         await api('/api/posts/' + encodeURIComponent(id), { method: 'DELETE' });
-        toast('Article deleted.');
+        toast('文章已删除。');
         if (String(state.editingId) === String(id)) showList();
         await loadPosts();
       } catch (err) {
@@ -808,8 +1035,11 @@
       $('signOutBtn').classList.add('hidden');
       $('passwordBtn').classList.add('hidden');
       $('appsView').classList.add('hidden');
+      $('docsView').classList.add('hidden');
       $('appOverlay').classList.add('hidden');
+      $('appEditOverlay').classList.add('hidden');
       $('tabApps').classList.remove('active');
+      $('tabDocs').classList.remove('active');
       $('tabArticles').classList.add('active');
     };
 
@@ -817,7 +1047,7 @@
       try { await api('/api/auth/logout', { method: 'POST' }); } catch (err) { /* ignore */ }
       signOutLocal();
       showGate('login');
-      toast('Signed out.');
+      toast('已退出登录。');
     };
 
     /* ── boot ────────────────────────────────────────────────────────── */
@@ -847,17 +1077,17 @@
       const username = $('setupUser').value.trim();
       const password = $('setupPass').value;
       const confirm = $('setupPass2').value;
-      if (password !== confirm) { setAlert('setupAlert', 'The two passwords do not match.'); return; }
+      if (password !== confirm) { setAlert('setupAlert', '两次输入的密码不一致。'); return; }
       setAlert('setupAlert', '');
       const btn = $('setupSubmit');
       const original = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Creating…</span>';
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>创建中…</span>';
       try {
         const data = await api('/api/setup', { method: 'POST', body: { username, password } });
         state.user = data.user;
         await enterConsole();
-        toast('Administrator created.');
+        toast('管理员已创建。');
       } catch (err) {
         setAlert('setupAlert', err.message);
       } finally {
@@ -872,7 +1102,7 @@
       const btn = $('loginSubmit');
       const original = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Signing in…</span>';
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>登录中…</span>';
       try {
         const data = await api('/api/auth/login', {
           method: 'POST',
@@ -925,15 +1155,15 @@
       const btn = $('emailSubmit');
       const original = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Saving…</span>';
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>保存中…</span>';
       try {
         const data = await api('/api/auth/profile', {
           method: 'POST',
           body: { email: $('profileEmail').value.trim() }
         });
         if (data && data.user) state.user = data.user;
-        setAlert('emailAlert', 'Email saved.', 'ok');
-        toast('Email saved.');
+        setAlert('emailAlert', '邮箱已保存。', 'ok');
+        toast('邮箱已保存。');
       } catch (err) {
         if (err.status === 401) { signOutLocal(); showGate('login'); return; }
         setAlert('emailAlert', err.message);
@@ -951,14 +1181,14 @@
       event.preventDefault();
       const newPassword = $('pwNew').value;
       if (newPassword !== $('pwConfirm').value) {
-        setAlert('pwAlert', 'The two new passwords do not match.');
+        setAlert('pwAlert', '两次输入的新密码不一致。');
         return;
       }
       setAlert('pwAlert', '');
       const btn = $('pwSubmit');
       const original = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Updating…</span>';
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>更新中…</span>';
       try {
         await api('/api/auth/change-password', {
           method: 'POST',
@@ -978,23 +1208,29 @@
       if (event.key === 'Escape') {
         $('pwOverlay').classList.add('hidden');
         $('appOverlay').classList.add('hidden');
+        $('appEditOverlay').classList.add('hidden');
       }
     });
 
     /* ── OAuth applications ─────────────────────────────────────────── */
     const showTab = (tab) => {
-      const articles = tab === 'articles';
-      $('tabArticles').classList.toggle('active', articles);
-      $('tabApps').classList.toggle('active', !articles);
-      $('listView').classList.toggle('hidden', !articles);
+      const isArticles = tab === 'articles';
+      const isApps = tab === 'apps';
+      const isDocs = !isArticles && !isApps;
+      $('tabArticles').classList.toggle('active', isArticles);
+      $('tabApps').classList.toggle('active', isApps);
+      $('tabDocs').classList.toggle('active', isDocs);
+      $('listView').classList.toggle('hidden', !isArticles);
       $('editorView').classList.add('hidden');
-      $('appsView').classList.toggle('hidden', articles);
-      if (articles) { showList(); loadPosts(); } else { loadApps(); }
+      $('appsView').classList.toggle('hidden', !isApps);
+      $('docsView').classList.toggle('hidden', !isDocs);
+      if (isArticles) { showList(); loadPosts(); }
+      else if (isApps) { loadApps(); }
     };
 
     const loadApps = async () => {
       const panel = $('appsPanel');
-      panel.innerHTML = '<div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>Loading applications…</div>';
+      panel.innerHTML = '<div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>正在加载应用…</div>';
       try {
         const data = await api('/api/admin/oauth-clients');
         state.apps = data.clients || [];
@@ -1008,45 +1244,188 @@
     const renderApps = () => {
       const panel = $('appsPanel');
       if (!state.apps.length) {
-        panel.innerHTML = '<div class="empty"><i class="fa-solid fa-plug"></i>No applications yet. Use “New application” to register one.</div>';
+        panel.innerHTML = '<div class="empty"><i class="fa-solid fa-plug"></i>还没有应用。点「新建应用」登记一个。</div>';
         return;
       }
       panel.innerHTML = state.apps.map((app) => {
         const uris = (app.redirect_uris || []).map((u) => '<code>' + esc(u) + '</code>').join(' ');
         const kind = app.is_confidential
-          ? '<span class="badge published"><i class="fa-solid fa-lock"></i>Confidential</span>'
-          : '<span class="badge draft"><i class="fa-solid fa-unlock"></i>Public + PKCE</span>';
+          ? '<span class="badge published"><i class="fa-solid fa-lock"></i>机密</span>'
+          : '<span class="badge draft"><i class="fa-solid fa-unlock"></i>公共 + PKCE</span>';
+        const status = app.status === 'active'
+          ? ''
+          : '<span class="badge draft"><i class="fa-solid fa-ban"></i>已停用</span>';
         return '' +
           '<div class="row">' +
             '<div class="row-main">' +
               '<div class="row-title">' + esc(app.name) + '</div>' +
-              '<div class="row-meta">' + kind +
+              '<div class="row-meta">' + kind + status +
                 '<code>' + esc(app.client_id) + '</code>' +
                 '<span>' + esc(app.scopes) + '</span>' +
               '</div>' +
               '<div class="row-meta">' + uris + '</div>' +
             '</div>' +
             '<div class="row-actions">' +
-              '<button class="icon-btn danger" type="button" data-delapp="' + esc(app.id) + '" title="Delete"><i class="fa-solid fa-trash-can"></i></button>' +
+              '<button class="icon-btn" type="button" data-editapp="' + esc(app.id) + '" title="编辑"><i class="fa-solid fa-pen"></i></button>' +
+              '<button class="icon-btn danger" type="button" data-delapp="' + esc(app.id) + '" title="删除"><i class="fa-solid fa-trash-can"></i></button>' +
             '</div>' +
           '</div>';
       }).join('');
     };
 
+    const openEditApp = (id) => {
+      const app = state.apps.find((a) => String(a.id) === String(id));
+      if (!app) return;
+      $('appEditId').value = app.id;
+      $('appEditClientId').textContent = 'client_id: ' + app.client_id;
+      $('appEditName').value = app.name;
+      $('appEditUris').value = (app.redirect_uris || []).join('\n');
+      $('appEditStatus').value = app.status || 'active';
+      $('appEditConfidential').checked = !!app.is_confidential;
+      const granted = String(app.scopes || '').split(/\s+/);
+      document.querySelectorAll('.editScope').forEach((c) => {
+        c.checked = c.value === 'openid' ? true : granted.includes(c.value);
+      });
+      $('appRotateBtn').classList.toggle('hidden', !app.is_confidential);
+      $('revealSecretBtn').classList.toggle('hidden', !app.is_confidential);
+      $('copySecretBtn').style.display = 'none';
+      $('secretViewBox').classList.add('hidden');
+      $('secretViewBox').innerHTML = '';
+      setAlert('appEditAlert', '');
+      $('appRotateBox').classList.add('hidden');
+      $('appEditOverlay').classList.remove('hidden');
+      $('appEditName').focus();
+    };
+
+    $('tabDocs').addEventListener('click', () => showTab('docs'));
+    $('tabArticles').addEventListener('click', () => showTab('articles'));
+    $('tabApps').addEventListener('click', () => showTab('apps'));
+
+    document.addEventListener('click', (event) => {
+      const chip = event.target.closest('[data-copy]');
+      if (!chip) return;
+      const text = chip.getAttribute('data-copy');
+      const done = () => toast('已复制：' + text.slice(0, 60));
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => {
+          window.prompt('请手动复制：', text);
+        });
+      } else {
+        window.prompt('请手动复制：', text);
+      }
+    });
+
+    $('appEditCancel').addEventListener('click', () => $('appEditOverlay').classList.add('hidden'));
+    $('appEditOverlay').addEventListener('click', (event) => {
+      if (event.target === $('appEditOverlay')) $('appEditOverlay').classList.add('hidden');
+    });
+
+    $('appEditForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setAlert('appEditAlert', '');
+      const body = {
+        name: $('appEditName').value.trim(),
+        redirect_uris: $('appEditUris').value,
+        status: $('appEditStatus').value,
+        is_confidential: $('appEditConfidential').checked,
+        scopes: Array.from(document.querySelectorAll('.editScope')).filter((c) => c.checked).map((c) => c.value)
+      };
+      const btn = $('appEditSave');
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>保存中…</span>';
+      try {
+        const data = await api('/api/admin/oauth-clients/' + encodeURIComponent($('appEditId').value), { method: 'PUT', body });
+        toast('应用已更新。');
+        if (data && data.client && data.client.client_secret) {
+          const box = $('secretViewBox');
+          box.innerHTML = '客户端密钥：<code>' + esc(data.client.client_secret) + '</code>';
+          box.classList.remove('hidden');
+          $('revealSecretBtn').classList.remove('hidden');
+          $('copySecretBtn').style.display = '';
+          $('copySecretBtn').onclick = () => copyText(data.client.client_secret);
+        }
+        await loadApps();
+        $('appEditOverlay').classList.add('hidden');
+      } catch (err) {
+        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
+        setAlert('appEditAlert', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    });
+
+    const copyText = (text) => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(() => toast('已复制'))
+          .catch(() => window.prompt('请手动复制：', text));
+      } else {
+        window.prompt('请手动复制：', text);
+      }
+    };
+
+    const currentApp = () => state.apps.find((a) => String(a.id) === String($('appEditId').value));
+
+    $('copyClientIdBtn').addEventListener('click', () => {
+      const app = currentApp();
+      if (app) copyText(app.client_id);
+    });
+
+    $('revealSecretBtn').addEventListener('click', async () => {
+      const id = $('appEditId').value;
+      if (!id) return;
+      setAlert('appEditAlert', '');
+      const box = $('secretViewBox');
+      try {
+        const data = await api('/api/admin/oauth-clients/' + encodeURIComponent(id) + '/reveal-secret', { method: 'POST' });
+        box.innerHTML = '客户端密钥：<code>' + esc(data.client_secret) + '</code>';
+        box.classList.remove('hidden');
+        $('copySecretBtn').style.display = '';
+        $('copySecretBtn').onclick = () => copyText(data.client_secret);
+      } catch (err) {
+        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
+        setAlert('appEditAlert', err.message);
+      }
+    });
+
+    $('appRotateBtn').addEventListener('click', async () => {
+      const id = $('appEditId').value;
+      if (!id) return;
+      if (!window.confirm('确定更换密钥？该应用已获得的所有令牌都会立即失效。')) return;
+      setAlert('appEditAlert', '');
+      const btn = $('appRotateBtn');
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>更换中…</span>';
+      try {
+        const data = await api('/api/admin/oauth-clients/' + encodeURIComponent(id) + '/rotate-secret', { method: 'POST' });
+        const box = $('appRotateBox');
+        box.innerHTML = '新的客户端密钥（已保存，可随时查看）：<code>' + esc(data.client_secret) + '</code>';
+        box.classList.remove('hidden');
+        toast('密钥已更换。');
+        await loadApps();
+      } catch (err) {
+        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
+        setAlert('appEditAlert', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    });
+
     const deleteApp = async (id) => {
-      if (!window.confirm('Delete this application? Its tokens stop working immediately.')) return;
+      if (!window.confirm('确定删除该应用？它已获得的令牌会立即失效。')) return;
       try {
         await api('/api/admin/oauth-clients/' + encodeURIComponent(id), { method: 'DELETE' });
-        toast('Application deleted.');
+        toast('应用已删除。');
         await loadApps();
       } catch (err) {
         if (err.status === 401) { signOutLocal(); showGate('login'); return; }
         toast(err.message, true);
       }
     };
-
-    $('tabArticles').addEventListener('click', () => showTab('articles'));
-    $('tabApps').addEventListener('click', () => showTab('apps'));
 
     $('newAppBtn').addEventListener('click', () => {
       $('appForm').reset();
@@ -1062,6 +1441,8 @@
     });
 
     $('appsPanel').addEventListener('click', (event) => {
+      const edit = event.target.closest('[data-editapp]');
+      if (edit) { openEditApp(edit.getAttribute('data-editapp')); return; }
       const del = event.target.closest('[data-delapp]');
       if (del) deleteApp(del.getAttribute('data-delapp'));
     });
@@ -1083,11 +1464,11 @@
       const btn = $('appSubmit');
       const original = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Creating…</span>';
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>创建中…</span>';
       try {
         const data = await api('/api/admin/oauth-clients', { method: 'POST', body });
         const c = data.client;
-        let html = 'Created. Copy these now — the secret is shown only once:'
+        let html = '创建成功。以下凭据可随时在「编辑」中再次查看：'
           + '<code>client_id: ' + esc(c.client_id) + '</code>';
         if (c.client_secret) {
           html += '<code>client_secret: ' + esc(c.client_secret) + '</code>';
@@ -1098,7 +1479,7 @@
         $('appName').value = '';
         $('appUris').value = '';
         await loadApps();
-        toast('Application created.');
+        toast('应用已创建。');
       } catch (err) {
         if (err.status === 401) { signOutLocal(); showGate('login'); return; }
         setAlert('appAlert', err.message);

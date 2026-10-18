@@ -24,5 +24,9 @@ return [
     'oidc' => [
         'issuer' => 'https://sibaihua.com',
         'key_path' => '/www/server/sibaihua-app/oidc-key.pem',
+        // 32 random bytes, base64. Encrypts client secrets at rest so the console
+        // can show them again. Generate with:
+        //   openssl rand -base64 32
+        'secret_key' => 'CHANGE_ME_32_BYTES_BASE64',
     ],
 ];

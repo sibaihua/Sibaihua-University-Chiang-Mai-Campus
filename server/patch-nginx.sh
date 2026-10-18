@@ -21,14 +21,15 @@ import re, sys
 p = sys.argv[1]
 s = open(p, encoding='utf-8').read()
 
-oidc_block = """
-    # ── OIDC discovery / JWKS / 授权端点 ──
-    location = /.well-known/openid-configuration {
+wellknown_block = """
+    # ── OIDC / OAuth 发现文档 ──
+    location ~ ^/\\.well-known/(openid-configuration|oauth-authorization-server|jwks\\.json)$ {
         rewrite ^ /api.php last;
     }
-    location = /.well-known/jwks.json {
-        rewrite ^ /api.php last;
-    }
+"""
+
+authorize_block = """
+    # ── OAuth 授权端点 ──
     location = /oauth/authorize {
         rewrite ^ /api.php last;
     }
@@ -45,16 +46,24 @@ api_block = """
     }
 """
 
+# 清理早期写下的精确匹配版本，统一改成上面的正则形式
+for old in (
+    r'\n[ \t]*location = /\.well-known/openid-configuration\s*\{[^}]*\}\n',
+    r'\n[ \t]*location = /\.well-known/jwks\.json\s*\{[^}]*\}\n',
+):
+    s = re.sub(old, '\n', s)
+
 needed = ''
-if 'openid-configuration' not in s:
-    needed += oidc_block
+if 'oauth-authorization-server' not in s:
+    needed += wellknown_block
+if 'location = /oauth/authorize' not in s:
+    needed += authorize_block
 if 'rewrite ^/api/' not in s:
     needed += api_block
 
 if not needed:
     print('规则已齐全，跳过')
 else:
-    # 插在 root 指令之后，这是 Baota vhost 里最稳定的锚点
     s, n = re.subn(r'(^[ \t]*root[ \t]+[^\n]*\n)', lambda m: m.group(1) + needed, s, count=1, flags=re.M)
     print('已插入缺失规则' if n else 'WARN: 未找到 root 锚点，请手工插入')
 
@@ -76,9 +85,13 @@ sudo "$NGINX" -s reload && echo "已重载"
 sleep 1
 
 echo "=== 验证 ==="
-printf 'GET /                        '; curl -ks --resolve sibaihua.com:443:127.0.0.1 -o /dev/null -w "%{http_code}\n" https://sibaihua.com/
-printf 'GET /api/setup               '; curl -ks --resolve sibaihua.com:443:127.0.0.1 -o /dev/null -w "%{http_code}\n" https://sibaihua.com/api/setup
-printf 'GET /api/posts               '; curl -ks --resolve sibaihua.com:443:127.0.0.1 -o /dev/null -w "%{http_code}\n" https://sibaihua.com/api/posts
-printf 'GET /.well-known/jwks.json   '; curl -ks --resolve sibaihua.com:443:127.0.0.1 -o /dev/null -w "%{http_code}\n" https://sibaihua.com/.well-known/jwks.json
-echo -n 'discovery: '
-curl -ks --resolve sibaihua.com:443:127.0.0.1 https://sibaihua.com/.well-known/openid-configuration | head -c 220; echo
+probe() {
+  printf '%-42s ' "$1"
+  curl -ks --resolve sibaihua.com:443:127.0.0.1 -o /dev/null -w "%{http_code}\n" "https://sibaihua.com$1"
+}
+probe /
+probe /api/setup
+probe /api/posts
+probe /.well-known/openid-configuration
+probe /.well-known/oauth-authorization-server
+probe /.well-known/jwks.json

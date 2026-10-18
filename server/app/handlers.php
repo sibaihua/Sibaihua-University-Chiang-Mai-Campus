@@ -322,6 +322,7 @@ function route(string $path, string $method): void
 
         // OpenID Connect discovery + JWKS (served from /.well-known/*)
         '/.well-known/openid-configuration' => ['GET' => 'handle_oidc_discovery'],
+        '/.well-known/oauth-authorization-server' => ['GET' => 'handle_oidc_oauth_metadata'],
         '/.well-known/jwks.json' => ['GET' => 'handle_oidc_jwks'],
 
         // OAuth 2.0 / OIDC protocol endpoints
@@ -329,6 +330,7 @@ function route(string $path, string $method): void
         '/api/oauth/token' => ['POST' => 'handle_oauth_token'],
         '/api/oauth/userinfo' => ['GET' => 'handle_oauth_userinfo', 'POST' => 'handle_oauth_userinfo'],
         '/api/oauth/revoke' => ['POST' => 'handle_oauth_revoke'],
+        '/api/oauth/introspect' => ['POST' => 'handle_oauth_introspect'],
 
         // Admin: OAuth client management
         '/api/admin/oauth-clients' => ['GET' => 'handle_admin_clients_index', 'POST' => 'handle_admin_clients_create'],
@@ -343,8 +345,22 @@ function route(string $path, string $method): void
         return;
     }
 
+    if (preg_match('#^/api/admin/oauth-clients/([^/]+)/(rotate-secret|reveal-secret)$#', $path, $m)) {
+        $key = rawurldecode($m[1]);
+        if ($method === 'POST' && $m[2] === 'rotate-secret') {
+            handle_admin_clients_rotate($key);
+        }
+        if ($method === 'POST' && $m[2] === 'reveal-secret') {
+            handle_admin_clients_reveal($key);
+        }
+        fail(405, '方法不允许');
+    }
+
     if (preg_match('#^/api/admin/oauth-clients/([^/]+)$#', $path, $m)) {
         $key = rawurldecode($m[1]);
+        if ($method === 'PUT') {
+            handle_admin_clients_update($key);
+        }
         if ($method === 'DELETE') {
             handle_admin_clients_delete($key);
         }

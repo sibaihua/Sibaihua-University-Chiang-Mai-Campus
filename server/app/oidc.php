@@ -98,6 +98,54 @@ function oidc_sign_jwt(array $claims): string
     return $signingInput . '.' . b64url($signature);
 }
 
+/* ─────────────────── client secret at rest (AES-256-GCM) ───────────────────
+ * The console must be able to show a client secret at any time, so it is stored
+ * recoverable — but encrypted with a key that lives in config.php, never in the
+ * database. A dump of the database alone does not reveal any secret.
+ */
+
+function oidc_secret_key(): string
+{
+    $c = config();
+    $raw = (string) ($c['oidc']['secret_key'] ?? '');
+    if ($raw === '') {
+        throw new RuntimeException('缺少 oidc.secret_key，无法加解密客户端密钥');
+    }
+    $bin = base64_decode($raw, true);
+    if ($bin === false || strlen($bin) !== 32) {
+        throw new RuntimeException('oidc.secret_key 必须是 32 字节的 base64 字符串');
+    }
+    return $bin;
+}
+
+function oidc_encrypt_secret(string $plain): string
+{
+    $iv = random_bytes(12);
+    $tag = '';
+    $cipher = openssl_encrypt($plain, 'aes-256-gcm', oidc_secret_key(), OPENSSL_RAW_DATA, $iv, $tag);
+    if ($cipher === false) {
+        throw new RuntimeException('加密客户端密钥失败');
+    }
+    return base64_encode($iv . $tag . $cipher);
+}
+
+function oidc_decrypt_secret(string $encoded): string
+{
+    $bin = base64_decode($encoded, true);
+    if ($bin === false || strlen($bin) < 29) {
+        return '';
+    }
+    $plain = openssl_decrypt(
+        substr($bin, 28),
+        'aes-256-gcm',
+        oidc_secret_key(),
+        OPENSSL_RAW_DATA,
+        substr($bin, 0, 12),
+        substr($bin, 12, 16)
+    );
+    return $plain === false ? '' : $plain;
+}
+
 /** Reads request parameters from a JSON body or a classic form post. */
 function oidc_params(): array
 {
@@ -219,6 +267,70 @@ function handle_oidc_jwks(): void
     json_response(200, ['keys' => [$jwk]], ['Cache-Control' => 'public, max-age=3600']);
 }
 
+/** RFC 8414 metadata, for OAuth clients that are not OIDC-aware. */
+function handle_oidc_oauth_metadata(): void
+{
+    $issuer = oidc_issuer();
+    json_response(200, [
+        'issuer' => $issuer,
+        'authorization_endpoint' => $issuer . '/oauth/authorize',
+        'token_endpoint' => $issuer . '/api/oauth/token',
+        'userinfo_endpoint' => $issuer . '/api/oauth/userinfo',
+        'jwks_uri' => $issuer . '/.well-known/jwks.json',
+        'revocation_endpoint' => $issuer . '/api/oauth/revoke',
+        'introspection_endpoint' => $issuer . '/api/oauth/introspect',
+        'response_types_supported' => ['code'],
+        'grant_types_supported' => ['authorization_code', 'refresh_token'],
+        'token_endpoint_auth_methods_supported' => ['client_secret_basic', 'client_secret_post', 'none'],
+        'code_challenge_methods_supported' => ['S256'],
+        'scopes_supported' => OIDC_SUPPORTED_SCOPES,
+        'service_documentation' => $issuer . '/admin.html',
+    ]);
+}
+
+/** RFC 7662 token introspection (client-authenticated). */
+function handle_oauth_introspect(): void
+{
+    $params = oidc_params();
+    $client = oidc_authenticate_client($params);
+    if ($client === null) {
+        oidc_error(401, 'invalid_client', '客户端认证失败');
+    }
+    $token = (string) ($params['token'] ?? '');
+    if ($token === '') {
+        oidc_error(400, 'invalid_request', '缺少 token');
+    }
+
+    $inactive = ['active' => false];
+    $stmt = db()->prepare('SELECT * FROM oauth_tokens WHERE access_token = ? OR refresh_token = ? LIMIT 1');
+    $stmt->execute([$token, $token]);
+    $row = $stmt->fetch();
+
+    if (!$row) {
+        json_response(200, $inactive);
+    }
+    if ((string) $row['client_id'] !== (string) $client['client_id'] || (int) $row['revoked'] === 1) {
+        json_response(200, $inactive);
+    }
+    $isRefresh = ((string) ($row['refresh_token'] ?? '') === $token);
+    $expires = $isRefresh ? (int) ($row['refresh_expires_at'] ?? 0) : (int) $row['expires_at'];
+    if ($expires <= time()) {
+        json_response(200, $inactive);
+    }
+
+    $user = oidc_user_row((int) $row['user_id']);
+    json_response(200, [
+        'active' => true,
+        'scope' => (string) $row['scope'],
+        'client_id' => (string) $row['client_id'],
+        'sub' => (string) $row['user_id'],
+        'username' => $user['username'] ?? null,
+        'token_type' => $isRefresh ? 'refresh_token' : 'Bearer',
+        'exp' => $expires,
+        'iss' => oidc_issuer(),
+    ]);
+}
+
 /* ─────────────────────────── authorize (consent page) ─────────────────────────── */
 
 function oidc_page(string $title, string $bodyHtml): void
@@ -321,6 +433,7 @@ function handle_oauth_authorize_get(): void
     $nonce = (string) ($p['nonce'] ?? '');
     $codeChallenge = (string) ($p['code_challenge'] ?? '');
     $codeChallengeMethod = (string) ($p['code_challenge_method'] ?? '');
+    $prompt = strtolower(trim((string) ($p['prompt'] ?? '')));
 
     $client = $clientId !== '' ? oidc_find_client($clientId) : null;
     if (!$client) {
@@ -351,6 +464,12 @@ function handle_oauth_authorize_get(): void
     $user = current_user();
     $clientName = htmlspecialchars((string) $client['name'], ENT_QUOTES, 'UTF-8');
     $host = htmlspecialchars((string) parse_url($redirectUri, PHP_URL_HOST), ENT_QUOTES, 'UTF-8');
+
+    if ($user === null && $prompt === 'none') {
+        // prompt=none means "never show UI": report the condition instead of rendering a form.
+        oidc_redirect_error($redirectUri, 'login_required', '当前没有登录会话', $state);
+        return;
+    }
 
     if ($user === null) {
         // Not signed in yet: show a sign-in form that keeps the whole OAuth request intact.
@@ -495,7 +614,7 @@ function oidc_user_row(int $userId): ?array
     return $row ?: null;
 }
 
-function oidc_id_token(array $user, string $clientId, string $scope, string $nonce): string
+function oidc_id_token(array $user, string $clientId, string $scope, string $nonce, string $accessToken = ''): string
 {
     $now = time();
     $claims = [
@@ -508,6 +627,10 @@ function oidc_id_token(array $user, string $clientId, string $scope, string $non
     ];
     if ($nonce !== '') {
         $claims['nonce'] = $nonce;
+    }
+    if ($accessToken !== '') {
+        // at_hash binds the ID token to the access token (OIDC Core 3.1.3.6).
+        $claims['at_hash'] = b64url(substr(hash('sha256', $accessToken, true), 0, 16));
     }
     $scopes = preg_split('/\s+/', $scope) ?: [];
     if (in_array('profile', $scopes, true)) {
@@ -557,13 +680,26 @@ function oidc_issue_tokens(array $client, int $userId, string $scope, string $no
         $response['refresh_token'] = $refreshToken;
     }
     if (in_array('openid', $scopes, true)) {
-        $response['id_token'] = oidc_id_token($user, (string) $client['client_id'], $scope, $nonce);
+        $response['id_token'] = oidc_id_token($user, (string) $client['client_id'], $scope, $nonce, $accessToken);
     }
     return $response;
 }
 
+/** Opportunistic housekeeping: expired codes and dead tokens do not accumulate. */
+function oidc_gc(): void
+{
+    $now = time();
+    db()->prepare('DELETE FROM oauth_codes WHERE used = 1 OR expires_at < ?')->execute([$now]);
+    db()->prepare(
+        'DELETE FROM oauth_tokens
+          WHERE expires_at < ?
+            AND (refresh_expires_at IS NULL OR refresh_expires_at < ?)'
+    )->execute([$now - 86400, $now]);
+}
+
 function handle_oauth_token(): void
 {
+    oidc_gc();
     $params = oidc_params();
     $client = oidc_authenticate_client($params);
     if ($client === null) {
@@ -711,7 +847,7 @@ function handle_oauth_revoke(): void
 function handle_admin_clients_index(): void
 {
     require_admin();
-    $rows = db()->query('SELECT id, client_id, name, redirect_uris, scopes, is_confidential, status, created_at FROM oauth_clients ORDER BY id DESC')->fetchAll();
+    $rows = db()->query('SELECT id, client_id, name, redirect_uris, scopes, is_confidential, status, created_at, client_secret_enc FROM oauth_clients ORDER BY id DESC')->fetchAll();
     $clients = [];
     foreach ($rows as $r) {
         $clients[] = [
@@ -721,6 +857,7 @@ function handle_admin_clients_index(): void
             'redirect_uris' => oidc_client_redirect_uris($r),
             'scopes' => $r['scopes'],
             'is_confidential' => (int) $r['is_confidential'] === 1,
+            'secret_revealable' => !empty($r['client_secret_enc']),
             'status' => $r['status'],
             'created_at' => iso_date($r['created_at']),
         ];
@@ -778,11 +915,12 @@ function handle_admin_clients_create(): void
     $clientId = 'sib_' . bin2hex(random_bytes(8));
     $plainSecret = $confidential ? 'sib_cs_' . bin2hex(random_bytes(24)) : '';
     $secretHash = $confidential ? password_hash($plainSecret, PASSWORD_DEFAULT) : '';
+    $secretEnc = $confidential ? oidc_encrypt_secret($plainSecret) : null;
 
     db()->prepare(
-        'INSERT INTO oauth_clients (client_id, client_secret_hash, name, redirect_uris, scopes, is_confidential)
-         VALUES (?, ?, ?, ?, ?, ?)'
-    )->execute([$clientId, $secretHash, $name, implode("\n", $uris), implode(' ', $scopes), $confidential ? 1 : 0]);
+        'INSERT INTO oauth_clients (client_id, client_secret_hash, client_secret_enc, name, redirect_uris, scopes, is_confidential)
+         VALUES (?, ?, ?, ?, ?, ?, ?)'
+    )->execute([$clientId, $secretHash, $secretEnc, $name, implode("\n", $uris), implode(' ', $scopes), $confidential ? 1 : 0]);
 
     ok([
         'client' => [
@@ -796,6 +934,169 @@ function handle_admin_clients_create(): void
             'is_confidential' => $confidential,
         ],
     ], '应用已创建');
+}
+
+/** Parses redirect URIs coming from the admin console (array, newline or comma separated). */
+function oidc_parse_redirect_uris($raw): array
+{
+    if (is_array($raw)) {
+        $raw = implode("\n", $raw);
+    }
+    $uris = [];
+    foreach (preg_split('/[\r\n,]+/', (string) $raw) ?: [] as $u) {
+        $u = trim($u);
+        if ($u === '') {
+            continue;
+        }
+        if (!preg_match('~^https?://[^\s]+$~i', $u)) {
+            fail(400, '回调地址必须以 http:// 或 https:// 开头：' . $u);
+        }
+        $uris[] = $u;
+    }
+    if ($uris === []) {
+        fail(400, '至少填写一个回调地址（redirect URI）');
+    }
+    return $uris;
+}
+
+function oidc_parse_scopes($raw): array
+{
+    if (is_string($raw)) {
+        $raw = preg_split('/\s+/', $raw) ?: [];
+    }
+    if (!is_array($raw)) {
+        $raw = [];
+    }
+    $scopes = [];
+    foreach ($raw as $s) {
+        if (in_array($s, OIDC_SUPPORTED_SCOPES, true)) {
+            $scopes[] = $s;
+        }
+    }
+    if (!in_array('openid', $scopes, true)) {
+        $scopes[] = 'openid';
+    }
+    return $scopes;
+}
+
+function handle_admin_clients_update(string $id): void
+{
+    require_admin();
+    $stmt = db()->prepare('SELECT * FROM oauth_clients WHERE id = ? LIMIT 1');
+    $stmt->execute([(int) $id]);
+    $row = $stmt->fetch();
+    if (!$row) {
+        fail(404, '应用不存在');
+    }
+    $body = read_json();
+    if ($body === null) {
+        fail(400, '请求格式错误');
+    }
+
+    $name = array_key_exists('name', $body) ? trim((string) $body['name']) : (string) $row['name'];
+    if ($name === '' || str_len($name) > 120) {
+        fail(400, '应用名称需为 1-120 字');
+    }
+
+    $uris = array_key_exists('redirect_uris', $body)
+        ? oidc_parse_redirect_uris($body['redirect_uris'])
+        : oidc_client_redirect_uris($row);
+
+    $scopes = array_key_exists('scopes', $body)
+        ? oidc_parse_scopes($body['scopes'])
+        : oidc_parse_scopes($row['scopes']);
+
+    $status = in_array(($body['status'] ?? ''), ['active', 'disabled'], true)
+        ? (string) $body['status']
+        : (string) $row['status'];
+
+    $wasConfidential = (int) $row['is_confidential'] === 1;
+    $makeConfidential = array_key_exists('is_confidential', $body)
+        ? (bool) $body['is_confidential']
+        : $wasConfidential;
+
+    // Switching to confidential issues a secret right away; switching to public
+    // wipes it (and revokes tokens, since the client can no longer authenticate).
+    $newSecret = null;
+    if ($makeConfidential && !$wasConfidential) {
+        $newSecret = 'sib_cs_' . bin2hex(random_bytes(24));
+        db()->prepare('UPDATE oauth_clients SET client_secret_hash = ?, client_secret_enc = ? WHERE id = ?')
+            ->execute([password_hash($newSecret, PASSWORD_DEFAULT), oidc_encrypt_secret($newSecret), (int) $row['id']]);
+    } elseif (!$makeConfidential && $wasConfidential) {
+        db()->prepare("UPDATE oauth_clients SET client_secret_hash = '', client_secret_enc = NULL WHERE id = ?")
+            ->execute([(int) $row['id']]);
+        db()->prepare('UPDATE oauth_tokens SET revoked = 1 WHERE client_id = ?')->execute([(string) $row['client_id']]);
+    }
+
+    db()->prepare('UPDATE oauth_clients SET name = ?, redirect_uris = ?, scopes = ?, status = ?, is_confidential = ? WHERE id = ?')
+        ->execute([$name, implode("\n", $uris), implode(' ', $scopes), $status, $makeConfidential ? 1 : 0, (int) $row['id']]);
+
+    if ($status === 'disabled') {
+        // A disabled application must not keep working tokens.
+        db()->prepare('UPDATE oauth_tokens SET revoked = 1 WHERE client_id = ?')->execute([(string) $row['client_id']]);
+    }
+
+    ok([
+        'client' => [
+            'id' => (int) $row['id'],
+            'client_id' => $row['client_id'],
+            'name' => $name,
+            'redirect_uris' => $uris,
+            'scopes' => implode(' ', $scopes),
+            'status' => $status,
+            'is_confidential' => $makeConfidential,
+            'client_secret' => $newSecret,
+            'secret_revealable' => $makeConfidential,
+        ],
+    ], '应用已更新');
+}
+
+function handle_admin_clients_rotate(string $id): void
+{
+    require_admin();
+    $stmt = db()->prepare('SELECT * FROM oauth_clients WHERE id = ? LIMIT 1');
+    $stmt->execute([(int) $id]);
+    $row = $stmt->fetch();
+    if (!$row) {
+        fail(404, '应用不存在');
+    }
+    if ((int) $row['is_confidential'] !== 1) {
+        fail(400, '公共客户端没有客户端密钥');
+    }
+
+    $secret = 'sib_cs_' . bin2hex(random_bytes(24));
+    db()->prepare('UPDATE oauth_clients SET client_secret_hash = ?, client_secret_enc = ? WHERE id = ?')
+        ->execute([password_hash($secret, PASSWORD_DEFAULT), oidc_encrypt_secret($secret), (int) $row['id']]);
+    db()->prepare('UPDATE oauth_tokens SET revoked = 1 WHERE client_id = ?')->execute([(string) $row['client_id']]);
+
+    ok([
+        'client_id' => $row['client_id'],
+        'client_secret' => $secret,
+    ], '密钥已轮换，旧令牌全部撤销');
+}
+
+/** Returns the stored client secret so the console can show it again at any time. */
+function handle_admin_clients_reveal(string $id): void
+{
+    require_admin();
+    $stmt = db()->prepare('SELECT id, client_id, is_confidential, client_secret_enc FROM oauth_clients WHERE id = ? LIMIT 1');
+    $stmt->execute([(int) $id]);
+    $row = $stmt->fetch();
+    if (!$row) {
+        fail(404, '应用不存在');
+    }
+    if ((int) $row['is_confidential'] !== 1) {
+        fail(400, '公共客户端没有客户端密钥');
+    }
+    $enc = (string) ($row['client_secret_enc'] ?? '');
+    if ($enc === '') {
+        fail(409, '该应用创建于旧版本，密钥未以可回显方式保存，请先轮换密钥');
+    }
+    $secret = oidc_decrypt_secret($enc);
+    if ($secret === '') {
+        fail(500, '密钥解密失败，请检查 config.php 里的 oidc.secret_key 是否被更换过');
+    }
+    ok(['client_id' => (string) $row['client_id'], 'client_secret' => $secret], '密钥已读取');
 }
 
 function handle_admin_clients_delete(string $id): void
