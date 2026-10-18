@@ -56,7 +56,7 @@ function handle_login(): void
         fail(400, '请输入用户名和密码');
     }
 
-    $stmt = db()->prepare('SELECT id, username, role, status, password_hash FROM users WHERE username = ? LIMIT 1');
+    $stmt = db()->prepare('SELECT id, username, role, status, email, password_hash FROM users WHERE username = ? LIMIT 1');
     $stmt->execute([$username]);
     $user = $stmt->fetch();
 
@@ -72,7 +72,14 @@ function handle_login(): void
     }
 
     set_session_cookie(create_session((int) $user['id']));
-    ok(['user' => ['id' => (int) $user['id'], 'username' => $user['username'], 'role' => $user['role']]], '登录成功');
+    ok([
+        'user' => [
+            'id' => (int) $user['id'],
+            'username' => $user['username'],
+            'role' => $user['role'],
+            'email' => (string) $user['email'],
+        ],
+    ], '登录成功');
 }
 
 function handle_logout(): void
@@ -119,6 +126,28 @@ function handle_change_password(): void
     db()->prepare('DELETE FROM sessions WHERE user_id = ? AND token <> ?')->execute([$user['id'], $token]);
 
     ok(null, '密码已更新');
+}
+
+function handle_update_profile(): void
+{
+    $user = require_login();
+    $body = read_json();
+    if ($body === null) {
+        fail(400, '请求格式错误');
+    }
+    $email = trim((string) ($body['email'] ?? ''));
+    if ($email !== '' && (!filter_var($email, FILTER_VALIDATE_EMAIL) || str_len($email) > 190)) {
+        fail(400, '邮箱格式不正确');
+    }
+    db()->prepare('UPDATE users SET email = ? WHERE id = ?')->execute([$email, (int) $user['id']]);
+    ok([
+        'user' => [
+            'id' => $user['id'],
+            'username' => $user['username'],
+            'role' => $user['role'],
+            'email' => $email,
+        ],
+    ], '资料已更新');
 }
 
 /* ─────────────────────────── posts ─────────────────────────── */
@@ -288,6 +317,7 @@ function route(string $path, string $method): void
         '/api/auth/logout' => ['POST' => 'handle_logout'],
         '/api/auth/me' => ['GET' => 'handle_me'],
         '/api/auth/change-password' => ['POST' => 'handle_change_password'],
+        '/api/auth/profile' => ['POST' => 'handle_update_profile'],
         '/api/posts' => ['GET' => 'handle_posts_index', 'POST' => 'handle_posts_create'],
 
         // OpenID Connect discovery + JWKS (served from /.well-known/*)

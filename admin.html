@@ -271,6 +271,8 @@
     }
     .checkline input { width: auto; }
 
+    .account-sep { margin: 1.5rem 0 1.4rem; border-top: 1px solid var(--border-soft); }
+
     /* ── dialog ──────────────────────────────────────────────────────── */
     .overlay {
       position: fixed; inset: 0; z-index: 40;
@@ -306,7 +308,7 @@
     <div class="topbar-actions">
       <span id="who" class="who hidden"></span>
       <button id="passwordBtn" class="ghost-btn hidden" type="button">
-        <i class="fa-solid fa-key"></i><span>Password</span>
+        <i class="fa-solid fa-key"></i><span>Account</span>
       </button>
       <a class="ghost-btn" href="./index.html">
         <i class="fa-solid fa-arrow-up-right-from-square"></i><span>View site</span>
@@ -491,6 +493,21 @@
   <!-- Change-password dialog -->
   <div id="pwOverlay" class="overlay hidden">
     <div class="card">
+      <h1>Account</h1>
+      <p class="lede">Your email is shared with applications that request the email scope.</p>
+      <form id="emailForm" autocomplete="off">
+        <div class="field">
+          <label for="profileEmail">Email address</label>
+          <input id="profileEmail" type="email" autocomplete="email" placeholder="you@example.com">
+        </div>
+        <div id="emailAlert" class="alert hidden"></div>
+        <button id="emailSubmit" class="primary-btn" type="submit">
+          <i class="fa-solid fa-envelope"></i><span>Save email</span>
+        </button>
+      </form>
+
+      <div class="account-sep"></div>
+
       <h1>Change password</h1>
       <p class="lede">Other devices signed in with this account will be signed out.</p>
       <form id="pwForm" autocomplete="off">
@@ -887,9 +904,43 @@
 
     $('passwordBtn').addEventListener('click', () => {
       $('pwForm').reset();
+      $('emailForm').reset();
       setAlert('pwAlert', '');
+      setAlert('emailAlert', '');
+      $('profileEmail').value = (state.user && state.user.email) || '';
       $('pwOverlay').classList.remove('hidden');
       $('pwCurrent').focus();
+      // Refresh from the server so the field is never stale.
+      api('/api/auth/me').then((data) => {
+        if (data && data.user) {
+          state.user = data.user;
+          $('profileEmail').value = data.user.email || '';
+        }
+      }).catch(() => {});
+    });
+
+    $('emailForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setAlert('emailAlert', '');
+      const btn = $('emailSubmit');
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Saving…</span>';
+      try {
+        const data = await api('/api/auth/profile', {
+          method: 'POST',
+          body: { email: $('profileEmail').value.trim() }
+        });
+        if (data && data.user) state.user = data.user;
+        setAlert('emailAlert', 'Email saved.', 'ok');
+        toast('Email saved.');
+      } catch (err) {
+        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
+        setAlert('emailAlert', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
     });
     $('pwCancel').addEventListener('click', () => $('pwOverlay').classList.add('hidden'));
     $('pwOverlay').addEventListener('click', (event) => {

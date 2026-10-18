@@ -164,7 +164,7 @@ function current_user(): ?array
         return null;
     }
     $stmt = db()->prepare(
-        'SELECT u.id, u.username, u.role, u.status, s.expires_at
+        'SELECT u.id, u.username, u.role, u.status, u.email, s.expires_at
            FROM sessions s JOIN users u ON u.id = s.user_id
           WHERE s.token = ? LIMIT 1'
     );
@@ -180,7 +180,12 @@ function current_user(): ?array
     if ($row['status'] !== 'active') {
         return null;
     }
-    $user = ['id' => (int) $row['id'], 'username' => $row['username'], 'role' => $row['role']];
+    $user = [
+        'id' => (int) $row['id'],
+        'username' => $row['username'],
+        'role' => $row['role'],
+        'email' => (string) $row['email'],
+    ];
     return $user;
 }
 
