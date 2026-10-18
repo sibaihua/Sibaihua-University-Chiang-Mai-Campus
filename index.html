@@ -115,6 +115,136 @@
       }
     }
 
+    /* ── Official-site sign-in (in-page, no redirect) ─────────────────── */
+    .auth-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      background: rgba(15, 23, 42, 0.5);
+      -webkit-backdrop-filter: blur(3px);
+      backdrop-filter: blur(3px);
+    }
+    .auth-card {
+      position: relative;
+      width: 100%;
+      max-width: 23rem;
+      padding: 1.75rem;
+      background: #ffffff;
+      border-radius: 1rem;
+      box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.5);
+    }
+    .auth-close {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 9999px;
+      background: transparent;
+      color: #94a3b8;
+      transition: background 0.15s, color 0.15s;
+    }
+    .auth-close:hover { background: #f1f5f9; color: #475569; }
+    .auth-crest {
+      width: 2.25rem;
+      height: 2.25rem;
+      margin-bottom: 0.75rem;
+      padding: 0.15rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 9999px;
+      object-fit: contain;
+    }
+    .auth-title { font-size: 1.0625rem; font-weight: 600; color: #1e3a5f; letter-spacing: -0.01em; }
+    .auth-sub { margin-top: 0.3rem; font-size: 0.75rem; line-height: 1.6; color: #64748b; }
+    .auth-form { margin-top: 1.25rem; }
+    .auth-field + .auth-field { margin-top: 0.875rem; }
+    .auth-label { display: block; margin-bottom: 0.375rem; font-size: 0.75rem; font-weight: 500; color: #475569; }
+    .auth-input {
+      width: 100%;
+      padding: 0.625rem 0.75rem;
+      font-size: 0.875rem;
+      color: #0f172a;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.625rem;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .auth-input::placeholder { color: #94a3b8; }
+    .auth-input:focus { background: #ffffff; border-color: #1e3a5f; box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12); }
+    .auth-error {
+      margin-top: 0.875rem;
+      padding: 0.5rem 0.625rem;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: #b42318;
+      background: #fef3f2;
+      border: 1px solid #fecdca;
+      border-radius: 0.5rem;
+    }
+    .auth-submit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      width: 100%;
+      margin-top: 1.25rem;
+      padding: 0.7rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #ffffff;
+      background: #1e3a5f;
+      border-radius: 9999px;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .auth-submit:hover { background: #142740; }
+    .auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .auth-foot { margin-top: 0.875rem; font-size: 0.6875rem; line-height: 1.6; color: #94a3b8; text-align: center; }
+
+    .auth-fade-enter-active, .auth-fade-leave-active { transition: opacity 0.18s ease; }
+    .auth-fade-enter-from, .auth-fade-leave-to { opacity: 0; }
+    .auth-fade-enter-active .auth-card, .auth-fade-leave-active .auth-card { transition: transform 0.18s ease; }
+    .auth-fade-enter-from .auth-card, .auth-fade-leave-to .auth-card { transform: translateY(8px) scale(0.98); }
+
+    /* ── Signed-in account menu ───────────────────────────────────────── */
+    .user-menu { position: relative; }
+    .user-menu-panel {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 0.5rem);
+      z-index: 60;
+      min-width: 13rem;
+      padding: 0.5rem;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      box-shadow: 0 18px 35px -12px rgba(15, 23, 42, 0.3);
+    }
+    .user-menu-head { margin-bottom: 0.35rem; padding: 0.4rem 0.6rem 0.6rem; border-bottom: 1px solid #f1f5f9; }
+    .user-menu-name { font-size: 0.8125rem; font-weight: 600; color: #1e3a5f; word-break: break-all; }
+    .user-menu-role { margin-top: 0.1rem; font-size: 0.6875rem; color: #94a3b8; text-transform: capitalize; }
+    .user-menu-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      font-size: 0.8125rem;
+      color: #475569;
+      text-align: left;
+      background: transparent;
+      border-radius: 0.5rem;
+      transition: background 0.15s, color 0.15s;
+    }
+    .user-menu-item:hover { background: #f1f5f9; color: #1e3a5f; }
+
   </style>
 </head>
 <body class="bg-white text-slate-800 antialiased font-sans selection:bg-slate-200">
@@ -141,6 +271,7 @@
           <a href="#about" class="hover:opacity-80 transition">About</a>
           <a href="#science" class="hover:opacity-80 transition">Science</a>
           <a href="#faculties" class="hover:opacity-80 transition">Faculties</a>
+          <a href="#news" class="hover:opacity-80 transition">News</a>
           <a href="#campuses" class="hover:opacity-80 transition">Campuses</a>
           <a href="#charter" class="hover:opacity-80 transition">Charter</a>
           <a href="#identity" class="hover:opacity-80 transition">Identity</a>
@@ -155,15 +286,39 @@
             <span>Authenticating...</span>
           </div>
 
-          <!-- E-Campus: pure redirect to the digital campus (login handled there) -->
-          <a href="https://e.sibaihua.com"
-             target="_blank"
-             rel="noopener"
-             :class="isScrolled ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-white/20 backdrop-blur-md border border-white/40 text-white hover:bg-white/30'"
-             class="inline-flex items-center space-x-1.5 sm:space-x-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition shadow-sm whitespace-nowrap">
-            <i class="fa-solid fa-arrow-up-right-from-square"></i>
-            <span>E-Campus</span>
-          </a>
+          <!-- Official-site sign-in: authenticates in place, no redirect to the digital campus -->
+          <button v-if="!user"
+                  @click="openLogin"
+                  :class="isScrolled ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-white/20 backdrop-blur-md border border-white/40 text-white hover:bg-white/30'"
+                  class="inline-flex items-center space-x-1.5 sm:space-x-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition shadow-sm whitespace-nowrap">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span>Sign In</span>
+          </button>
+
+          <!-- Signed-in state -->
+          <div v-else class="user-menu">
+            <button @click="userMenuOpen = !userMenuOpen"
+                    :class="isScrolled ? 'bg-brand text-white hover:bg-brand-dark' : 'bg-white/20 backdrop-blur-md border border-white/40 text-white hover:bg-white/30'"
+                    class="inline-flex items-center space-x-1.5 sm:space-x-2 px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs font-medium transition shadow-sm">
+              <i class="fa-solid fa-circle-user"></i>
+              <span style="max-width:8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ displayName }}</span>
+              <i class="fa-solid fa-chevron-down text-[9px] opacity-80"></i>
+            </button>
+            <div v-if="userMenuOpen" class="user-menu-panel">
+              <div class="user-menu-head">
+                <div class="user-menu-name">{{ displayName }}</div>
+                <div v-if="user.role" class="user-menu-role">{{ user.role }}</div>
+              </div>
+              <a v-if="isAdmin" class="user-menu-item" href="./admin.html">
+                <i class="fa-solid fa-sliders"></i>
+                <span>Editorial Console</span>
+              </a>
+              <button class="user-menu-item" @click="logout">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
 
           <button @click="mobileMenuOpen = !mobileMenuOpen" 
                   :class="isScrolled ? 'text-slate-800' : 'text-white'"
@@ -184,14 +339,25 @@
           <a href="#about" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">About University</a>
           <a href="#science" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Faculty of Science</a>
           <a href="#faculties" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Specialized Faculties</a>
+          <a href="#news" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">News &amp; Announcements</a>
           <a href="#campuses" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">Campuses & Locations</a>
           <a href="#charter" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">University Charter</a>
           <a href="#identity" @click="mobileMenuOpen = false" class="block py-2 hover:text-brand transition">University Identity</a>
-          <div class="pt-3 border-t border-slate-200 flex items-center text-xs">
-            <a href="https://e.sibaihua.com" target="_blank" rel="noopener" class="text-brand font-semibold flex items-center space-x-1">
-              <span>E-Campus</span>
-              <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-            </a>
+          <div class="pt-3 border-t border-slate-200 flex items-center justify-between text-xs">
+            <button v-if="!user" @click="openLogin" class="text-brand font-semibold flex items-center space-x-1.5">
+              <i class="fa-solid fa-right-to-bracket text-[11px]"></i>
+              <span>Sign In</span>
+            </button>
+            <template v-else>
+              <span class="text-brand font-semibold flex items-center space-x-1.5">
+                <i class="fa-solid fa-circle-user text-[11px]"></i>
+                <span>{{ displayName }}</span>
+              </span>
+              <button @click="logout" class="text-slate-500 flex items-center space-x-1.5">
+                <i class="fa-solid fa-right-from-bracket text-[11px]"></i>
+                <span>Sign Out</span>
+              </button>
+            </template>
           </div>
         </div>
       </transition>
@@ -244,7 +410,7 @@
             </p>
 
             <p class="text-xs sm:text-sm text-slate-600 leading-relaxed mt-3">
-              The Sibaihua E-Campus is the university's integrated digital gateway, bringing together admissions and enrollment, campus cloud services, and secure OAuth-based single sign-on. Through the E-Campus, prospective and current members can apply for admission, access academic and administrative cloud resources, and authenticate once to reach every connected university service.
+              This website is the university's own digital home. Members sign in directly on the site, and official announcements, admissions notices and academic updates are published here through the university's editorial console.
             </p>
           </div>
           
@@ -344,6 +510,47 @@
               </div>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      <!-- News & Announcements (published from the university's own console) -->
+      <section id="news" class="snap-section bg-white flex items-center justify-center px-4 sm:px-6 py-20 sm:py-24">
+        <div class="max-w-5xl mx-auto w-full">
+          <div class="text-center mb-8 sm:mb-10">
+            <span class="block text-xs uppercase tracking-widest text-brand font-bold mb-2 sm:mb-3">Newsroom</span>
+            <h3 class="text-2xl sm:text-3xl md:text-4xl font-semibold text-brand leading-snug">News &amp; Announcements</h3>
+          </div>
+
+          <div v-if="postsLoading" class="text-center text-sm text-slate-500 py-10">
+            <i class="fa-solid fa-circle-notch fa-spin mr-1"></i>
+            <span>Loading announcements…</span>
+          </div>
+
+          <div v-else-if="posts.length" class="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
+            <a v-for="post in posts"
+               :key="post.id"
+               :href="'./news.html?id=' + post.id"
+               class="bg-brand-bgLight p-6 rounded-2xl border border-slate-100 hover:bg-slate-100 transition flex flex-col">
+              <div class="text-[10px] uppercase tracking-widest text-brand-subtle font-semibold mb-2">{{ formatDate(post.published_at || post.created_at) }}</div>
+              <div class="text-base sm:text-lg font-semibold text-brand leading-snug mb-2">{{ post.title }}</div>
+              <p v-if="post.excerpt" class="text-xs sm:text-sm text-slate-600 leading-relaxed">{{ post.excerpt }}</p>
+              <span class="text-brand font-semibold text-xs inline-flex items-center space-x-1 mt-3">
+                <span>Read article</span>
+                <i class="fa-solid fa-arrow-right text-[9px]"></i>
+              </span>
+            </a>
+          </div>
+
+          <div v-else class="text-center text-sm text-slate-500 py-10">
+            No announcements have been published yet.
+          </div>
+
+          <div class="text-center mt-8 sm:mt-10">
+            <a href="./news.html" class="inline-flex items-center space-x-2 px-6 sm:px-8 py-3 rounded-full bg-brand text-white font-semibold text-sm shadow-sm hover:bg-brand-dark transition">
+              <span>View all news</span>
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+            </a>
           </div>
         </div>
       </section>
@@ -550,17 +757,13 @@
               <div class="text-lg sm:text-xl font-semibold text-white">Doi Inthanon, Chiang Mai, Thailand</div>
             </div>
             <div class="bg-brand p-6 sm:p-7">
-              <div class="text-[10px] uppercase tracking-widest text-slate-300 font-semibold mb-1">Digital Campus</div>
-              <div class="text-lg sm:text-xl font-semibold text-white"><a href="https://e.sibaihua.com" target="_blank" rel="noopener" class="hover:underline">e.sibaihua.com</a></div>
-            </div>
-            <div class="bg-brand p-6 sm:p-7">
               <div class="text-[10px] uppercase tracking-widest text-slate-300 font-semibold mb-1">Motto</div>
               <div class="text-lg sm:text-xl font-semibold text-white">One World, One Dream</div>
             </div>
           </div>
 
           <p class="text-center text-xs sm:text-sm text-slate-300 mt-8 sm:mt-10 max-w-2xl mx-auto leading-relaxed">
-            Sibaihua University is an academic institution. Its sole campus setting is the Chiang Mai Campus; the Bangkok Executive Center serves university administration, the Beijing Office handles international liaison, and the E-Campus is its digital campus.
+            Sibaihua University is an academic institution. Its sole campus setting is the Chiang Mai Campus; the Bangkok Executive Center serves university administration, and the Beijing Office handles international liaison.
           </p>
         </div>
       </section>
@@ -586,7 +789,7 @@
             <div class="font-semibold text-white text-xs sm:text-sm mb-1.5 sm:mb-2">Official Contacts & Services</div>
             <p class="leading-relaxed text-slate-200">
               President's Office: <a href="mailto:office@sibaihua.com" class="text-white font-medium hover:underline">office@sibaihua.com</a><br>
-              E-Campus: <a href="https://e.sibaihua.com" target="_blank" rel="noopener" class="text-white font-medium hover:underline">e.sibaihua.com</a><br>
+              Newsroom: <a href="./news.html" class="text-white font-medium hover:underline">news.html</a><br>
               Campus Mail: <a href="https://mail.sibaihua.com" target="_blank" rel="noopener" class="text-white font-medium hover:underline">mail.sibaihua.com</a>
             </p>
           </div>
@@ -598,38 +801,99 @@
       </div>
     </footer>
 
+    <!-- Official-site sign-in dialog (credentials stay on this site) -->
+    <transition name="auth-fade">
+      <div v-if="loginOpen" class="auth-overlay" @click.self="closeLogin">
+        <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+          <button class="auth-close" @click="closeLogin" aria-label="Close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+
+          <img src="https://cdn.sibh.cn/img/2026/08/6a82000f8ce84.png"
+               alt="Sibaihua University Crest"
+               class="auth-crest">
+          <h2 id="auth-title" class="auth-title">Sign In</h2>
+          <p class="auth-sub">Sign in with your Sibaihua University account.</p>
+
+          <form class="auth-form" @submit.prevent="submitLogin">
+            <div class="auth-field">
+              <label class="auth-label" for="auth-username">Username</label>
+              <input id="auth-username"
+                     ref="usernameInput"
+                     v-model="loginUsername"
+                     class="auth-input"
+                     type="text"
+                     autocomplete="username"
+                     placeholder="Your university username"
+                     :disabled="loginBusy">
+            </div>
+            <div class="auth-field">
+              <label class="auth-label" for="auth-password">Password</label>
+              <input id="auth-password"
+                     v-model="loginPassword"
+                     class="auth-input"
+                     type="password"
+                     autocomplete="current-password"
+                     placeholder="Your password"
+                     :disabled="loginBusy">
+            </div>
+
+            <div v-if="loginError" class="auth-error">{{ loginError }}</div>
+
+            <button type="submit" class="auth-submit" :disabled="loginBusy">
+              <i :class="loginBusy ? 'fa-solid fa-circle-notch fa-spin' : 'fa-solid fa-right-to-bracket'"></i>
+              <span>{{ loginBusy ? 'Signing in…' : 'Sign In' }}</span>
+            </button>
+          </form>
+
+          <p class="auth-foot">Your password is verified on this site and is never stored on this device.</p>
+        </div>
+      </div>
+    </transition>
+
   </div>
 
-  <!-- Client-side Logic & OAuth Implementation -->
+  <!-- Client-side logic: site account, newsroom, navigation -->
   <script>
-    const { createApp, ref, onMounted, onUnmounted } = Vue;
+    const { createApp, ref, computed, watch, nextTick, onMounted, onUnmounted } = Vue;
 
-    // OAuth 2.0 Authorization Code + PKCE for browser-only clients.
-    // Browser code only uses public client_id.
-    const OAUTH_CONFIG = {
-      baseUrl: 'https://e.sibaihua.com',
-      clientId: 'sib_8d94818346c53b1b',
-      redirectUri: 'https://sibaihua.com'
+    // Everything runs same-origin: the site's own Pages Functions expose
+    // /api/auth/* and /api/posts, and the session lives in an HttpOnly cookie
+    // that page JavaScript cannot read.
+    const USER_CACHE_KEY = 'sib_cached_user';
+
+    const apiRequest = async (path, options = {}) => {
+      const init = { method: options.method || 'GET', credentials: 'same-origin', headers: {} };
+      if (options.body !== undefined) {
+        init.headers['Content-Type'] = 'application/json';
+        init.body = JSON.stringify(options.body);
+      }
+
+      let res;
+      try {
+        res = await fetch(path, init);
+      } catch (err) {
+        const netErr = new Error('network');
+        netErr.network = true;
+        throw netErr;
+      }
+
+      let payload = null;
+      try { payload = await res.json(); } catch (err) { payload = null; }
+      if (!res.ok || !payload || payload.code !== 200) {
+        const apiErr = new Error((payload && payload.message) || ('HTTP ' + res.status));
+        apiErr.status = res.status;
+        throw apiErr;
+      }
+      return payload.data;
     };
 
-    const PKCE_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-
-    const randomString = (length = 64) => {
-      const values = new Uint8Array(length);
-      crypto.getRandomValues(values);
-      return Array.from(values, (v) => PKCE_CHARS[v % PKCE_CHARS.length]).join('');
-    };
-
-    const base64Url = (buffer) => {
-      const bytes = new Uint8Array(buffer);
-      let binary = '';
-      for (const b of bytes) binary += String.fromCharCode(b);
-      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
-    };
-
-    const sha256Base64Url = async (value) => {
-      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
-      return base64Url(digest);
+    const parseDate = (value) => {
+      if (!value) return null;
+      const text = String(value);
+      const iso = /Z$|[+-]\d{2}:?\d{2}$/.test(text) ? text : text.replace(' ', 'T') + 'Z';
+      const date = new Date(iso);
+      return Number.isNaN(date.getTime()) ? null : date;
     };
 
     createApp({
@@ -639,134 +903,166 @@
         const user = ref(null);
         const authLoading = ref(false);
 
+        // Sign-in dialog
+        const loginOpen = ref(false);
+        const loginBusy = ref(false);
+        const loginError = ref('');
+        const loginUsername = ref('');
+        const loginPassword = ref('');
+        const usernameInput = ref(null);
+        const userMenuOpen = ref(false);
+
+        // Newsroom
+        const posts = ref([]);
+        const postsLoading = ref(true);
+
+        const displayName = computed(() => {
+          if (!user.value) return '';
+          return user.value.displayName || user.value.nickname || user.value.username || 'Account';
+        });
+
+        const isAdmin = computed(() => !!user.value && user.value.role === 'admin');
+
+        const formatDate = (value) => {
+          const date = parseDate(value);
+          if (!date) return '';
+          return date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
+        };
+
         const handleScroll = () => {
           isScrolled.value = window.scrollY > 40;
         };
 
-        // Step 1: Redirect to OAuth Authorize Page with PKCE
-        const login = async () => {
-          const state = randomString(32);
-          const codeVerifier = randomString(64);
-          const codeChallenge = await sha256Base64Url(codeVerifier);
-
-          sessionStorage.setItem('oauth_state', state);
-          sessionStorage.setItem('oauth_code_verifier', codeVerifier);
-
-          const authUrl = `${OAUTH_CONFIG.baseUrl}/oauth?response_type=code` +
-            `&client_id=${encodeURIComponent(OAUTH_CONFIG.clientId)}` +
-            `&redirect_uri=${encodeURIComponent(OAUTH_CONFIG.redirectUri)}` +
-            `&state=${encodeURIComponent(state)}` +
-            `&code_challenge=${encodeURIComponent(codeChallenge)}` +
-            `&code_challenge_method=S256`;
-
-          window.location.href = authUrl;
+        const cacheUser = (profile) => {
+          if (profile) localStorage.setItem(USER_CACHE_KEY, JSON.stringify(profile));
+          else localStorage.removeItem(USER_CACHE_KEY);
         };
 
-        // Step 2 & 3: Handle OAuth Callback (Exchange Code + PKCE verifier for Token & Fetch User Profile)
-        const handleCallback = async () => {
-          const urlParams = new URLSearchParams(window.location.search);
-          const code = urlParams.get('code');
-          const state = urlParams.get('state');
-
-          if (!code) return;
-
-          const savedState = sessionStorage.getItem('oauth_state');
-          const codeVerifier = sessionStorage.getItem('oauth_code_verifier');
-          if (!savedState || state !== savedState) {
-            console.error('Invalid OAuth state');
-            return;
-          }
-          if (!codeVerifier) {
-            console.error('Missing OAuth PKCE code_verifier');
-            return;
-          }
-          sessionStorage.removeItem('oauth_state');
-          sessionStorage.removeItem('oauth_code_verifier');
-
-          // Clean URL parameters cleanly
-          window.history.replaceState({}, document.title, window.location.pathname);
-
-          authLoading.value = true;
-          try {
-            // Exchange authorization code for access token with PKCE verifier.
-            const tokenRes = await fetch(`${OAUTH_CONFIG.baseUrl}/api/oauth/token`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                grant_type: 'authorization_code',
-                client_id: OAUTH_CONFIG.clientId,
-                code: code,
-                redirect_uri: OAUTH_CONFIG.redirectUri,
-                code_verifier: codeVerifier
-              })
-            });
-
-            const tokenData = await tokenRes.json();
-            if (tokenData.code === 200 && tokenData.data?.access_token) {
-              const accessToken = tokenData.data.access_token;
-              localStorage.setItem('oauth_access_token', accessToken);
-              await fetchUserInfo(accessToken);
-            } else {
-              console.error('Failed to obtain token:', tokenData.message);
-            }
-          } catch (err) {
-            console.error('OAuth Exchange Error:', err);
-          } finally {
-            authLoading.value = false;
-          }
-        };
-
-        // Step 4: Fetch User Profile via Access Token
-        const fetchUserInfo = async (token) => {
-          try {
-            const res = await fetch(`${OAUTH_CONFIG.baseUrl}/api/oauth/userinfo`, {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            });
-            const data = await res.json();
-            if (data.code === 200 && data.data) {
-              user.value = data.data;
-              localStorage.setItem('oauth_user', JSON.stringify(data.data));
-            } else {
-              logout();
-            }
-          } catch (err) {
-            console.error('Failed to fetch user info:', err);
-            logout();
-          }
-        };
-
-        const logout = () => {
-          localStorage.removeItem('oauth_access_token');
-          localStorage.removeItem('oauth_user');
-          sessionStorage.removeItem('oauth_state');
-          sessionStorage.removeItem('oauth_code_verifier');
+        const clearSession = () => {
+          localStorage.removeItem(USER_CACHE_KEY);
           user.value = null;
         };
 
-        onMounted(async () => {
-          window.addEventListener('scroll', handleScroll, { passive: true });
+        const refreshProfile = async () => {
+          try {
+            const data = await apiRequest('/api/auth/me');
+            user.value = data.user;
+            cacheUser(data.user);
+          } catch (err) {
+            if (err.status === 401) clearSession();
+          }
+        };
 
-          // Load cached user profile if exists
-          const cachedUser = localStorage.getItem('oauth_user');
-          const token = localStorage.getItem('oauth_access_token');
+        const loadPosts = async () => {
+          postsLoading.value = true;
+          try {
+            const data = await apiRequest('/api/posts?limit=3');
+            posts.value = data.posts || [];
+          } catch (err) {
+            posts.value = [];
+          } finally {
+            postsLoading.value = false;
+          }
+        };
 
-          if (cachedUser && token) {
-            try {
-              user.value = JSON.parse(cachedUser);
-              fetchUserInfo(token); // Silent background refresh
-            } catch (e) {
-              logout();
-            }
+        const openLogin = async () => {
+          userMenuOpen.value = false;
+          mobileMenuOpen.value = false;
+          loginError.value = '';
+          loginPassword.value = '';
+          loginOpen.value = true;
+          await nextTick();
+          if (usernameInput.value) usernameInput.value.focus();
+        };
+
+        const closeLogin = () => {
+          if (loginBusy.value) return;
+          loginOpen.value = false;
+          loginError.value = '';
+          loginPassword.value = '';
+        };
+
+        const submitLogin = async () => {
+          if (loginBusy.value) return;
+          const username = loginUsername.value.trim();
+          const password = loginPassword.value;
+          if (!username || !password) {
+            loginError.value = 'Please enter both your username and password.';
+            return;
           }
 
-          // Check if returned from OAuth redirect
-          await handleCallback();
+          loginBusy.value = true;
+          loginError.value = '';
+          try {
+            const data = await apiRequest('/api/auth/login', { method: 'POST', body: { username, password } });
+            user.value = data.user || { username };
+            cacheUser(user.value);
+            loginPassword.value = '';
+            loginOpen.value = false;
+          } catch (err) {
+            if (err.network) {
+              loginError.value = 'Unable to reach the server. Please check your connection and try again.';
+            } else if (err.status === 401) {
+              loginError.value = 'Incorrect username or password.';
+            } else if (err.status === 403) {
+              loginError.value = 'This account has been disabled.';
+            } else {
+              loginError.value = 'Sign-in failed. Please try again later.';
+            }
+          } finally {
+            loginBusy.value = false;
+          }
+        };
+
+        const logout = async () => {
+          userMenuOpen.value = false;
+          try {
+            await apiRequest('/api/auth/logout', { method: 'POST' });
+          } catch (err) {
+            // The local view is cleared regardless of the network result.
+          }
+          clearSession();
+        };
+
+        const onKeydown = (event) => {
+          if (event.key !== 'Escape') return;
+          if (loginOpen.value) closeLogin();
+          userMenuOpen.value = false;
+        };
+
+        const onDocumentClick = (event) => {
+          if (!userMenuOpen.value) return;
+          const target = event.target;
+          const inside = target && target.closest && target.closest('.user-menu');
+          if (!inside) userMenuOpen.value = false;
+        };
+
+        watch(loginOpen, (open) => {
+          document.body.style.overflow = open ? 'hidden' : '';
+        });
+
+        onMounted(async () => {
+          window.addEventListener('scroll', handleScroll, { passive: true });
+          document.addEventListener('keydown', onKeydown);
+          document.addEventListener('click', onDocumentClick);
+
+          const cached = localStorage.getItem(USER_CACHE_KEY);
+          if (cached) {
+            try { user.value = JSON.parse(cached); } catch (err) { user.value = null; }
+          }
+
+          authLoading.value = true;
+          await refreshProfile();
+          authLoading.value = false;
+
+          await loadPosts();
         });
 
         onUnmounted(() => {
           window.removeEventListener('scroll', handleScroll);
+          document.removeEventListener('keydown', onKeydown);
+          document.removeEventListener('click', onDocumentClick);
+          document.body.style.overflow = '';
         });
 
         return {
@@ -774,7 +1070,21 @@
           isScrolled,
           user,
           authLoading,
-          login,
+          displayName,
+          isAdmin,
+          formatDate,
+          posts,
+          postsLoading,
+          loginOpen,
+          loginBusy,
+          loginError,
+          loginUsername,
+          loginPassword,
+          usernameInput,
+          userMenuOpen,
+          openLogin,
+          closeLogin,
+          submitLogin,
           logout
         };
       }

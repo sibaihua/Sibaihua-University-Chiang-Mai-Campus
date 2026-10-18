@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Editorial Console — Sibaihua University</title>
+  <link rel="icon" href="https://cdn.sibh.cn/img/2026/08/6a82000f8ce84.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --brand: #1e3a5f;
+      --brand-dark: #142740;
+      --brand-subtle: #5a7394;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --border: #e2e8f0;
+      --border-soft: #f1f5f9;
+      --text: #1e293b;
+      --text-mid: #475569;
+      --text-mute: #64748b;
+      --text-faint: #94a3b8;
+      --danger: #b42318;
+      --danger-bg: #fef3f2;
+      --danger-border: #fecdca;
+      --ok: #067647;
+      --ok-bg: #ecfdf3;
+      --ok-border: #abefc6;
+      --radius: 0.75rem;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+      --shadow-md: 0 10px 30px -16px rgba(15, 23, 42, 0.28);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; }
+    input, textarea, select { font: inherit; color: inherit; }
+
+    .hidden { display: none !important; }
+
+    /* ── top bar ─────────────────────────────────────────────────────── */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--brand);
+      color: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+    .brand { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
+    .brand img {
+      width: 2rem; height: 2rem; border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.45); padding: 2px; object-fit: contain;
+    }
+    .brand-name { font-size: 0.9rem; font-weight: 650; letter-spacing: -0.01em; white-space: nowrap; }
+    .brand-sub { font-size: 0.68rem; color: rgba(255, 255, 255, 0.72); white-space: nowrap; }
+    .topbar-actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+    .who { font-size: 0.75rem; color: rgba(255, 255, 255, 0.8); margin-right: 0.25rem; }
+
+    .ghost-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.42rem 0.75rem; border-radius: 9999px;
+      font-size: 0.75rem; font-weight: 500;
+      color: #fff; background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .ghost-btn:hover { background: rgba(255, 255, 255, 0.28); }
+
+    /* ── gate (login / first-run setup) ─────────────────────────────── */
+    .gate {
+      min-height: calc(100vh - 3.5rem);
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem 1rem;
+    }
+    .card {
+      width: 100%; max-width: 24rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.9rem;
+      box-shadow: var(--shadow-md);
+    }
+    .card-crest {
+      width: 2.6rem; height: 2.6rem; border-radius: 9999px;
+      border: 1px solid var(--border); padding: 3px; object-fit: contain; margin-bottom: 1rem;
+    }
+    .card h1 { font-size: 1.1rem; font-weight: 650; color: var(--brand); letter-spacing: -0.015em; }
+    .card .lede { margin-top: 0.4rem; font-size: 0.78rem; line-height: 1.65; color: var(--text-mute); }
+
+    .field { margin-top: 1rem; }
+    .field label { display: block; margin-bottom: 0.35rem; font-size: 0.75rem; font-weight: 550; color: var(--text-mid); }
+    .field input, .field textarea, .field select {
+      width: 100%; padding: 0.62rem 0.75rem;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 0.6rem;
+      font-size: 0.85rem; outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      background: #fff; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12);
+    }
+    .field textarea { resize: vertical; }
+    .field .hint { margin-top: 0.3rem; font-size: 0.7rem; color: var(--text-faint); line-height: 1.5; }
+
+    .primary-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      width: 100%; margin-top: 1.3rem; padding: 0.7rem 1rem;
+      background: var(--brand); color: #fff;
+      border-radius: 9999px; font-size: 0.85rem; font-weight: 600;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .primary-btn:hover { background: var(--brand-dark); }
+    .primary-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .alert {
+      margin-top: 1rem; padding: 0.55rem 0.7rem;
+      font-size: 0.75rem; line-height: 1.55;
+      border-radius: 0.5rem;
+      color: var(--danger); background: var(--danger-bg); border: 1px solid var(--danger-border);
+    }
+    .alert.info { color: var(--brand); background: #eff6ff; border-color: #bfdbfe; }
+    .alert.ok { color: var(--ok); background: var(--ok-bg); border-color: var(--ok-border); }
+
+    /* ── console ─────────────────────────────────────────────────────── */
+    .console { max-width: 68rem; margin: 0 auto; padding: 1.75rem 1.25rem 4rem; }
+    .console-head {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 1rem; flex-wrap: wrap; margin-bottom: 1.15rem;
+    }
+    .console-head h2 { font-size: 1.05rem; font-weight: 650; color: var(--brand); }
+    .console-head p { margin-top: 0.25rem; font-size: 0.75rem; color: var(--text-mute); }
+
+    .solid-btn {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0.55rem 0.95rem; border-radius: 9999px;
+      background: var(--brand); color: #fff;
+      font-size: 0.78rem; font-weight: 600;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .solid-btn:hover { background: var(--brand-dark); }
+
+    .panel {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+
+    .row {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.95rem 1.1rem;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .row:last-child { border-bottom: 0; }
+    .row:hover { background: #fbfdff; }
+    .row-main { flex: 1; min-width: 0; }
+    .row-title {
+      font-size: 0.88rem; font-weight: 600; color: var(--text);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .row-meta {
+      margin-top: 0.28rem; font-size: 0.7rem; color: var(--text-faint);
+      display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .row-meta code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.68rem; color: var(--text-mute);
+    }
+    .row-actions { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; }
+
+    .icon-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 2rem; height: 2rem; border-radius: 0.5rem;
+      color: var(--text-faint); border: 1px solid transparent;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .icon-btn:hover { background: var(--border-soft); color: var(--brand); border-color: var(--border); }
+    .icon-btn.danger:hover { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border); }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.15rem 0.5rem; border-radius: 9999px;
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .badge.published { color: var(--ok); background: var(--ok-bg); border: 1px solid var(--ok-border); }
+    .badge.draft { color: var(--text-mute); background: var(--border-soft); border: 1px solid var(--border); }
+
+    .empty { padding: 2.5rem 1.25rem; text-align: center; color: var(--text-faint); font-size: 0.82rem; }
+    .empty i { display: block; font-size: 1.4rem; margin-bottom: 0.6rem; opacity: 0.5; }
+
+    /* ── editor ──────────────────────────────────────────────────────── */
+    .editor-grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+    @media (min-width: 900px) { .editor-grid { grid-template-columns: minmax(0, 1fr) 16rem; } }
+
+    .editor-main, .editor-side {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .editor-main .field:first-child { margin-top: 0; }
+    .editor-main textarea.content {
+      min-height: 22rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.8rem; line-height: 1.7;
+    }
+    .editor-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 1.25rem; flex-wrap: wrap; }
+    .editor-actions .spacer { flex: 1; }
+
+    .outline-btn {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      padding: 0.55rem 0.95rem; border-radius: 9999px;
+      border: 1px solid var(--border); background: #fff;
+      font-size: 0.78rem; font-weight: 550; color: var(--text-mid);
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .outline-btn:hover { background: var(--border-soft); color: var(--brand); border-color: #cbd5e1; }
+    .outline-btn.danger { color: var(--danger); }
+    .outline-btn.danger:hover { background: var(--danger-bg); border-color: var(--danger-border); }
+
+    .side-note { font-size: 0.7rem; line-height: 1.65; color: var(--text-faint); }
+    .side-note h3 { font-size: 0.72rem; font-weight: 650; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .side-note ul { margin: 0.4rem 0 0; padding-left: 1rem; }
+    .side-note li { margin-bottom: 0.2rem; }
+    .side-note code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text-mid); }
+
+    /* ── dialog ──────────────────────────────────────────────────────── */
+    .overlay {
+      position: fixed; inset: 0; z-index: 40;
+      display: flex; align-items: center; justify-content: center; padding: 1.25rem;
+      background: rgba(15, 23, 42, 0.45);
+      -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+    }
+
+    /* ── toast ───────────────────────────────────────────────────────── */
+    .toast {
+      position: fixed; left: 50%; bottom: 1.5rem; transform: translate(-50%, 1rem);
+      z-index: 60; max-width: min(90vw, 28rem);
+      padding: 0.65rem 1rem; border-radius: 9999px;
+      background: #0f172a; color: #fff;
+      font-size: 0.78rem; box-shadow: 0 18px 40px -18px rgba(15, 23, 42, 0.6);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .toast.error { background: var(--danger); }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <img src="https://cdn.sibh.cn/img/2026/08/6a82000f8ce84.png" alt="Sibaihua University Crest">
+      <div>
+        <div class="brand-name">Sibaihua University</div>
+        <div class="brand-sub">Editorial Console</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <span id="who" class="who hidden"></span>
+      <button id="passwordBtn" class="ghost-btn hidden" type="button">
+        <i class="fa-solid fa-key"></i><span>Password</span>
+      </button>
+      <a class="ghost-btn" href="./index.html">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i><span>View site</span>
+      </a>
+      <button id="signOutBtn" class="ghost-btn hidden" type="button">
+        <i class="fa-solid fa-right-from-bracket"></i><span>Sign out</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- First-run setup / sign-in -->
+  <section id="gate" class="gate hidden">
+    <div class="card">
+      <img class="card-crest" src="https://cdn.sibh.cn/img/2026/08/6a82000f8ce84.png" alt="Sibaihua University Crest">
+
+      <div id="setupPane" class="hidden">
+        <h1>Create administrator</h1>
+        <p class="lede">This site has no account yet. Choose the credentials for the first administrator. This form disappears once the account exists.</p>
+        <form id="setupForm" autocomplete="off">
+          <div class="field">
+            <label for="setupUser">Username</label>
+            <input id="setupUser" type="text" autocomplete="username" placeholder="e.g. admin" required>
+            <div class="hint">3–32 characters: letters, digits, dot, underscore or hyphen.</div>
+          </div>
+          <div class="field">
+            <label for="setupPass">Password</label>
+            <input id="setupPass" type="password" autocomplete="new-password" placeholder="At least 8 characters" required>
+          </div>
+          <div class="field">
+            <label for="setupPass2">Confirm password</label>
+            <input id="setupPass2" type="password" autocomplete="new-password" placeholder="Repeat the password" required>
+          </div>
+          <div id="setupAlert" class="alert hidden"></div>
+          <button id="setupSubmit" class="primary-btn" type="submit">
+            <i class="fa-solid fa-user-shield"></i><span>Create account</span>
+          </button>
+        </form>
+      </div>
+
+      <div id="loginPane" class="hidden">
+        <h1>Sign in</h1>
+        <p class="lede">Editorial access for Sibaihua University staff.</p>
+        <form id="loginForm" autocomplete="off">
+          <div class="field">
+            <label for="loginUser">Username</label>
+            <input id="loginUser" type="text" autocomplete="username" required>
+          </div>
+          <div class="field">
+            <label for="loginPass">Password</label>
+            <input id="loginPass" type="password" autocomplete="current-password" required>
+          </div>
+          <div id="loginAlert" class="alert hidden"></div>
+          <button id="loginSubmit" class="primary-btn" type="submit">
+            <i class="fa-solid fa-right-to-bracket"></i><span>Sign in</span>
+          </button>
+        </form>
+      </div>
+
+      <div id="fatalPane" class="hidden">
+        <h1>Backend not ready</h1>
+        <p class="lede">The console could not reach the site API.</p>
+        <div id="fatalAlert" class="alert"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Console -->
+  <main id="console" class="console hidden">
+
+    <!-- list view -->
+    <div id="listView">
+      <div class="console-head">
+        <div>
+          <h2>Articles</h2>
+          <p id="listSummary">Loading…</p>
+        </div>
+        <button id="newBtn" class="solid-btn" type="button">
+          <i class="fa-solid fa-plus"></i><span>New article</span>
+        </button>
+      </div>
+      <div id="listPanel" class="panel">
+        <div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>Loading articles…</div>
+      </div>
+    </div>
+
+    <!-- editor view -->
+    <div id="editorView" class="hidden">
+      <div class="console-head">
+        <div>
+          <h2 id="editorHeading">New article</h2>
+          <p id="editorSub">Drafts stay invisible on the public site until you publish them.</p>
+        </div>
+        <button id="backBtn" class="outline-btn" type="button">
+          <i class="fa-solid fa-arrow-left"></i><span>Back to list</span>
+        </button>
+      </div>
+
+      <div class="editor-grid">
+        <div class="editor-main">
+          <div class="field">
+            <label for="postTitle">Title</label>
+            <input id="postTitle" type="text" placeholder="Article title" maxlength="200">
+          </div>
+          <div class="field">
+            <label for="postExcerpt">Summary</label>
+            <textarea id="postExcerpt" rows="2" maxlength="400" placeholder="One or two sentences shown in lists"></textarea>
+          </div>
+          <div class="field">
+            <label for="postContent">Body (Markdown)</label>
+            <textarea id="postContent" class="content" placeholder="# Heading&#10;&#10;Paragraph text.&#10;&#10;- list item&#10;- list item"></textarea>
+          </div>
+
+          <div id="editorAlert" class="alert hidden"></div>
+
+          <div class="editor-actions">
+            <button id="saveBtn" class="solid-btn" type="button">
+              <i class="fa-solid fa-floppy-disk"></i><span>Save</span>
+            </button>
+            <span class="spacer"></span>
+            <button id="deleteBtn" class="outline-btn danger hidden" type="button">
+              <i class="fa-solid fa-trash-can"></i><span>Delete</span>
+            </button>
+          </div>
+        </div>
+
+        <aside class="editor-side">
+          <div class="field" style="margin-top:0">
+            <label for="postStatus">Status</label>
+            <select id="postStatus">
+              <option value="draft">Draft — hidden from the public site</option>
+              <option value="published">Published — visible on the site</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="postSlug">URL slug</label>
+            <input id="postSlug" type="text" placeholder="auto-generated from title">
+            <div class="hint">Leave empty to derive it from the title. Duplicates get a numeric suffix.</div>
+          </div>
+          <div class="field">
+            <div class="side-note">
+              <h3>Formatting</h3>
+              <ul>
+                <li><code>#</code> heading</li>
+                <li><code>**bold**</code>, <code>*italic*</code></li>
+                <li><code>- item</code> list</li>
+                <li><code>&gt; quote</code></li>
+                <li><code>[text](https://…)</code> link</li>
+              </ul>
+              <p style="margin-top:0.6rem">Raw HTML is escaped for safety and will not render.</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <!-- Change-password dialog -->
+  <div id="pwOverlay" class="overlay hidden">
+    <div class="card">
+      <h1>Change password</h1>
+      <p class="lede">Other devices signed in with this account will be signed out.</p>
+      <form id="pwForm" autocomplete="off">
+        <div class="field">
+          <label for="pwCurrent">Current password</label>
+          <input id="pwCurrent" type="password" autocomplete="current-password" required>
+        </div>
+        <div class="field">
+          <label for="pwNew">New password</label>
+          <input id="pwNew" type="password" autocomplete="new-password" placeholder="At least 8 characters" required>
+        </div>
+        <div class="field">
+          <label for="pwConfirm">Confirm new password</label>
+          <input id="pwConfirm" type="password" autocomplete="new-password" required>
+        </div>
+        <div id="pwAlert" class="alert hidden"></div>
+        <button id="pwSubmit" class="primary-btn" type="submit">
+          <i class="fa-solid fa-key"></i><span>Update password</span>
+        </button>
+        <button id="pwCancel" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">
+          Cancel
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    /* ── helpers ─────────────────────────────────────────────────────── */
+    const $ = (id) => document.getElementById(id);
+
+    const esc = (value) =>
+      String(value === null || value === undefined ? '' : value).replace(/[&<>"']/g, (c) => (
+        { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
+      ));
+
+    const parseDate = (value) => {
+      if (!value) return null;
+      const text = String(value);
+      const iso = /Z$|[+-]\d{2}:?\d{2}$/.test(text) ? text : text.replace(' ', 'T') + 'Z';
+      const date = new Date(iso);
+      return Number.isNaN(date.getTime()) ? null : date;
+    };
+
+    const fmtDate = (value) => {
+      const date = parseDate(value);
+      if (!date) return '—';
+      return date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
+    };
+
+    let toastTimer = null;
+    const toast = (message, isError) => {
+      const el = $('toast');
+      el.textContent = message;
+      el.classList.toggle('error', !!isError);
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+    };
+
+    const api = async (path, options = {}) => {
+      const init = { method: options.method || 'GET', credentials: 'same-origin', headers: {} };
+      if (options.body !== undefined) {
+        init.headers['Content-Type'] = 'application/json';
+        init.body = JSON.stringify(options.body);
+      }
+      const res = await fetch(path, init);
+      let payload = null;
+      try { payload = await res.json(); } catch (err) { payload = null; }
+      if (!res.ok || !payload || payload.code !== 200) {
+        const error = new Error((payload && payload.message) || ('HTTP ' + res.status));
+        error.status = res.status;
+        throw error;
+      }
+      return payload.data;
+    };
+
+    const setAlert = (id, message, kind) => {
+      const el = $(id);
+      if (!message) { el.classList.add('hidden'); el.textContent = ''; return; }
+      el.textContent = message;
+      el.className = 'alert' + (kind ? ' ' + kind : '');
+    };
+
+    const setBusy = (buttonId, busy, labelIdle, labelBusy) => {
+      const btn = $(buttonId);
+      if (!btn) return;
+      btn.disabled = busy;
+      const label = btn.querySelector('span');
+      const icon = btn.querySelector('i');
+      if (label) label.textContent = busy ? labelBusy : labelIdle;
+      if (icon) icon.className = busy ? 'fa-solid fa-circle-notch fa-spin' : 'fa-solid fa-floppy-disk';
+    };
+
+    /* ── state ───────────────────────────────────────────────────────── */
+    const state = { user: null, posts: [], editingId: null, editingStatus: 'draft' };
+
+    /* ── gate ────────────────────────────────────────────────────────── */
+    const showGate = (pane) => {
+      $('gate').classList.remove('hidden');
+      $('console').classList.add('hidden');
+      $('setupPane').classList.toggle('hidden', pane !== 'setup');
+      $('loginPane').classList.toggle('hidden', pane !== 'login');
+      $('fatalPane').classList.toggle('hidden', pane !== 'fatal');
+      if (pane === 'setup') $('setupUser').focus();
+      if (pane === 'login') $('loginUser').focus();
+    };
+
+    const enterConsole = async () => {
+      $('gate').classList.add('hidden');
+      $('console').classList.remove('hidden');
+      $('who').textContent = state.user ? state.user.username : '';
+      $('who').classList.remove('hidden');
+      $('signOutBtn').classList.remove('hidden');
+      $('passwordBtn').classList.remove('hidden');
+      showList();
+      await loadPosts();
+    };
+
+    /* ── posts ───────────────────────────────────────────────────────── */
+    const loadPosts = async () => {
+      const panel = $('listPanel');
+      panel.innerHTML = '<div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>Loading articles…</div>';
+      try {
+        const data = await api('/api/posts?includeDrafts=1&limit=50');
+        state.posts = data.posts || [];
+        $('listSummary').textContent =
+          state.posts.length + ' article' + (state.posts.length === 1 ? '' : 's') +
+          ' · ' + state.posts.filter((p) => p.status === 'published').length + ' published';
+        renderList();
+      } catch (err) {
+        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
+        panel.innerHTML = '<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>' + esc(err.message) + '</div>';
+      }
+    };
+
+    const renderList = () => {
+      const panel = $('listPanel');
+      if (!state.posts.length) {
+        panel.innerHTML = '<div class="empty"><i class="fa-regular fa-file-lines"></i>No articles yet. Use “New article” to write the first one.</div>';
+        return;
+      }
+      panel.innerHTML = state.posts.map((post) => {
+        const badge = post.status === 'published'
+          ? '<span class="badge published"><i class="fa-solid fa-circle-check"></i>Published</span>'
+          : '<span class="badge draft"><i class="fa-regular fa-clock"></i>Draft</span>';
+        const date = post.status === 'published' ? fmtDate(post.published_at) : 'updated ' + fmtDate(post.updated_at);
+        const viewLink = post.status === 'published'
+          ? '<a class="icon-btn" href="./news.html?id=' + encodeURIComponent(post.id) + '" target="_blank" rel="noopener" title="View on site"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>'
+          : '';
+        return '' +
+          '<div class="row">' +
+            '<div class="row-main">' +
+              '<div class="row-title">' + esc(post.title) + '</div>' +
+              '<div class="row-meta">' + badge +
+                '<span>' + esc(date) + '</span>' +
+                '<code>/' + esc(post.slug) + '</code>' +
+              '</div>' +
+            '</div>' +
+            '<div class="row-actions">' +
+              viewLink +
+              '<button class="icon-btn" type="button" data-edit="' + esc(post.id) + '" title="Edit"><i class="fa-solid fa-pen"></i></button>' +
+              '<button class="icon-btn danger" type="button" data-delete="' + esc(post.id) + '" title="Delete"><i class="fa-solid fa-trash-can"></i></button>' +
+            '</div>' +
+          '</div>';
+      }).join('');
+    };
+
+    const showList = () => {
+      $('listView').classList.remove('hidden');
+      $('editorView').classList.add('hidden');
+      state.editingId = null;
+    };
+
+    const showEditor = (post) => {
+      $('listView').classList.add('hidden');
+      $('editorView').classList.remove('hidden');
+      $('editorHeading').textContent = post ? 'Edit article' : 'New article';
+      $('editorSub').textContent = post
+        ? 'Last updated ' + fmtDate(post.updated_at) + '.'
+        : 'Drafts stay invisible on the public site until you publish them.';
+      $('postTitle').value = post ? post.title : '';
+      $('postExcerpt').value = post ? (post.excerpt || '') : '';
+      $('postContent').value = post ? (post.content || '') : '';
+      $('postSlug').value = post ? post.slug : '';
+      $('postStatus').value = post ? post.status : 'draft';
+      state.editingId = post ? post.id : null;
+      $('deleteBtn').classList.toggle('hidden', !post);
+      setAlert('editorAlert', '');
+      $('postTitle').focus();
+    };
+
+    const openEditor = async (id) => {
+      try {
+        const data = await api('/api/posts/' + encodeURIComponent(id));
+        showEditor(data.post);
+      } catch (err) {
+        toast(err.message, true);
+      }
+    };
+
+    const savePost = async () => {
+      const title = $('postTitle').value.trim();
+      if (!title) { setAlert('editorAlert', 'A title is required.'); return; }
+      const payload = {
+        title: title,
+        excerpt: $('postExcerpt').value.trim(),
+        content: $('postContent').value,
+        slug: $('postSlug').value.trim(),
+        status: $('postStatus').value
+      };
+      setAlert('editorAlert', '');
+      const btn = $('saveBtn');
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Saving…</span>';
+      try {
+        if (state.editingId) {
+          const data = await api('/api/posts/' + encodeURIComponent(state.editingId), { method: 'PUT', body: payload });
+          state.editingId = data.post.id;
+          $('postSlug').value = data.post.slug;
+          toast('Article saved.');
+        } else {
+          const data = await api('/api/posts', { method: 'POST', body: payload });
+          state.editingId = data.post.id;
+          $('postSlug').value = data.post.slug;
+          toast('Article created.');
+        }
+        await loadPosts();
+        showList();
+      } catch (err) {
+        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
+        setAlert('editorAlert', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    };
+
+    const deletePost = async (id) => {
+      const post = state.posts.find((p) => String(p.id) === String(id));
+      const label = post ? '“' + post.title + '”' : 'this article';
+      if (!window.confirm('Delete ' + label + '? This cannot be undone.')) return;
+      try {
+        await api('/api/posts/' + encodeURIComponent(id), { method: 'DELETE' });
+        toast('Article deleted.');
+        if (String(state.editingId) === String(id)) showList();
+        await loadPosts();
+      } catch (err) {
+        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
+        toast(err.message, true);
+      }
+    };
+
+    /* ── auth ────────────────────────────────────────────────────────── */
+    const signOutLocal = () => {
+      state.user = null;
+      state.posts = [];
+      $('who').classList.add('hidden');
+      $('signOutBtn').classList.add('hidden');
+      $('passwordBtn').classList.add('hidden');
+    };
+
+    const signOut = async () => {
+      try { await api('/api/auth/logout', { method: 'POST' }); } catch (err) { /* ignore */ }
+      signOutLocal();
+      showGate('login');
+      toast('Signed out.');
+    };
+
+    /* ── boot ────────────────────────────────────────────────────────── */
+    const boot = async () => {
+      let setup;
+      try {
+        setup = await api('/api/setup');
+      } catch (err) {
+        $('fatalAlert').textContent = err.message +
+          ' — bind a D1 database named DB to this Pages project and run schema.sql first.';
+        showGate('fatal');
+        return;
+      }
+      if (setup.needsSetup) { showGate('setup'); return; }
+      try {
+        const data = await api('/api/auth/me');
+        state.user = data.user;
+        await enterConsole();
+      } catch (err) {
+        showGate('login');
+      }
+    };
+
+    /* ── events ──────────────────────────────────────────────────────── */
+    $('setupForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const username = $('setupUser').value.trim();
+      const password = $('setupPass').value;
+      const confirm = $('setupPass2').value;
+      if (password !== confirm) { setAlert('setupAlert', 'The two passwords do not match.'); return; }
+      setAlert('setupAlert', '');
+      const btn = $('setupSubmit');
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Creating…</span>';
+      try {
+        const data = await api('/api/setup', { method: 'POST', body: { username, password } });
+        state.user = data.user;
+        await enterConsole();
+        toast('Administrator created.');
+      } catch (err) {
+        setAlert('setupAlert', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    });
+
+    $('loginForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      setAlert('loginAlert', '');
+      const btn = $('loginSubmit');
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Signing in…</span>';
+      try {
+        const data = await api('/api/auth/login', {
+          method: 'POST',
+          body: { username: $('loginUser').value.trim(), password: $('loginPass').value }
+        });
+        state.user = data.user;
+        $('loginPass').value = '';
+        await enterConsole();
+      } catch (err) {
+        setAlert('loginAlert', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    });
+
+    $('newBtn').addEventListener('click', () => showEditor(null));
+    $('backBtn').addEventListener('click', () => { showList(); loadPosts(); });
+    $('saveBtn').addEventListener('click', savePost);
+    $('deleteBtn').addEventListener('click', () => { if (state.editingId) deletePost(state.editingId); });
+    $('signOutBtn').addEventListener('click', signOut);
+
+    $('listPanel').addEventListener('click', (event) => {
+      const editBtn = event.target.closest('[data-edit]');
+      if (editBtn) { openEditor(editBtn.getAttribute('data-edit')); return; }
+      const deleteBtn = event.target.closest('[data-delete]');
+      if (deleteBtn) { deletePost(deleteBtn.getAttribute('data-delete')); }
+    });
+
+    $('passwordBtn').addEventListener('click', () => {
+      $('pwForm').reset();
+      setAlert('pwAlert', '');
+      $('pwOverlay').classList.remove('hidden');
+      $('pwCurrent').focus();
+    });
+    $('pwCancel').addEventListener('click', () => $('pwOverlay').classList.add('hidden'));
+    $('pwOverlay').addEventListener('click', (event) => {
+      if (event.target === $('pwOverlay')) $('pwOverlay').classList.add('hidden');
+    });
+
+    $('pwForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const newPassword = $('pwNew').value;
+      if (newPassword !== $('pwConfirm').value) {
+        setAlert('pwAlert', 'The two new passwords do not match.');
+        return;
+      }
+      setAlert('pwAlert', '');
+      const btn = $('pwSubmit');
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Updating…</span>';
+      try {
+        await api('/api/auth/change-password', {
+          method: 'POST',
+          body: { currentPassword: $('pwCurrent').value, newPassword }
+        });
+        $('pwOverlay').classList.add('hidden');
+        toast('Password updated.');
+      } catch (err) {
+        setAlert('pwAlert', err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') $('pwOverlay').classList.add('hidden');
+    });
+
+    boot();
+  </script>
+</body>
+</html>

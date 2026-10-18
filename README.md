@@ -1,9 +1,11 @@
 # Sibaihua University — Chiang Mai Campus
 
-> A single-page showcase website for **Sibaihua University, Chiang Mai Campus**.
+> Official website of **Sibaihua University, Chiang Mai Campus**.
 > Motto: *One World, One Dream.*
 
-This repository contains the official homepage of Sibaihua University's Chiang Mai Campus. The entire site is delivered as a **single static file** — `index.html` — with a pre-built Tailwind CSS bundle (compiled locally and committed as `css/tailwind.css`), no backend, and no framework dependencies required at runtime.
+This repository holds the whole site: three static pages, a zero-dependency PHP
+backend, and the MySQL schema. It is served by **Nginx + PHP 8.2 + MySQL 5.7** on
+an **Oracle Cloud** instance, with the apex domain `sibaihua.com`.
 
 ---
 
@@ -12,117 +14,162 @@ This repository contains the official homepage of Sibaihua University's Chiang M
 | | |
 |---|---|
 | **Site title** | Sibaihua University, Chiang Mai Campus |
-| **Live site** | https://sibaihua.com |
+| **Canonical host** | `https://sibaihua.com` (apex; `www` must 301 to it) |
+| **Server** | Oracle Cloud, Ubuntu 24.04, Baota panel |
+| **Stack** | Nginx 1.30 · PHP 8.2 (php-fpm) · MySQL 5.7 |
+| **Front-end** | HTML5 · Tailwind CSS (compiled, inlined in `index.html`) · Vue 3 (CDN) · FontAwesome (CDN) |
+| **Backend** | `api.php` front controller + `app/*.php` (PDO only, no Composer) |
 | **Repository** | https://github.com/sibaihua/Sibaihua-University-Chiang-Mai-Campus |
-| **Delivery** | One static `index.html` (no bundler / no server-side code) |
-| **Deployment** | Cloudflare Pages (auto-deploys on push to `main`) |
-| **Stack** | HTML5 · Tailwind CSS (local production build) · Vue 3 (CDN) · FontAwesome (CDN) |
 
 ---
 
-## Quick start
+## Repository layout
 
-The site is static — just open the file or serve the folder:
-
-```bash
-# Option A: open directly
-open index.html            # or double-click in a file manager
-
-# Option B: serve locally (any static server)
-python3 -m http.server 8080
-# then visit http://localhost:8080
+```
+.
+├── index.html          # Single-page homepage (Tailwind CSS inlined, Vue 3)
+├── news.html           # Public newsroom: article list + article detail
+├── admin.html          # Editorial console: sign in, write/publish/delete articles
+├── server/             # backend source (deployed outside the web root)
+│   ├── api.php         # front controller for /api/*
+│   ├── schema.sql      # MySQL schema (users, sessions, posts)
+│   ├── .gitignore      # keeps app/config.php out of git
+│   └── app/
+│       ├── bootstrap.php      # config, PDO, sessions, cookies, markdown, helpers
+│       ├── handlers.php       # setup / auth / posts handlers + router
+│       └── config.example.php # copy to config.php on the server
+└── README.md
 ```
 
-No framework dependencies are required at runtime. To **rebuild the Tailwind CSS** after editing classes, Node.js + the Tailwind CLI are needed (see *Building the CSS*).
+### Server layout
 
----
+```
+/www/wwwroot/sibaihua.com/     # public web root
+├── index.html
+├── news.html
+├── admin.html
+└── api.php                    # requires /www/server/sibaihua-app/*
 
-## Tech stack
-
-Vue and FontAwesome are loaded from public CDNs; Tailwind CSS is compiled ahead of time into a static bundle:
-
-- **Tailwind CSS** — compiled with the Tailwind CLI into `css/tailwind.css` (minified, committed). The `brand` color palette is defined in `tailwind.config.js` (`#1E3A5F` and variants). See *Building the CSS* below.
-- **Vue 3** (`unpkg.com/vue@3`) — used only for lightweight client interactions (mobile menu toggle, scroll-state styling). The app mounts on `#app`.
-- **FontAwesome 6.4** (`cdnjs.cloudflare.com`) — icons.
-- **Background images & favicon** — served from `cdn.sibh.cn`.
-
----
-
-## Building the CSS
-
-The site no longer uses the Tailwind Play CDN (`cdn.tailwindcss.com`) in production. Styles are compiled to a static file so the page works without a runtime CDN dependency for CSS.
-
-```bash
-# install dev dependency (Tailwind CLI) — one time
-npm install
-
-# rebuild the production stylesheet (output: css/tailwind.css)
-npm run build:css
-
-# during development, watch for changes:
-npm run watch:css
+/www/server/sibaihua-app/      # application code, NOT web-accessible
+├── bootstrap.php
+├── handlers.php
+├── config.php                 # credentials, chmod 640 www:www
+└── schema.sql
 ```
 
-- Source entry: `src/tailwind.css` (the three `@tailwind` directives).
-- Scan target: `tailwind.config.js` → `content: ["./index.html"]` (only the deployed page is scanned).
-- The compiled `css/tailwind.css` is **committed** and served directly by Cloudflare Pages — there is no build step on the hosting side.
-- ⚠️ After adding or changing any Tailwind class in `index.html`, **rebuild `css/tailwind.css` and commit it**, otherwise the new classes will not be styled.
+Application code lives outside the web root on purpose: if the Baota panel ever
+regenerates the vhost config, nothing sensitive can become publicly readable.
 
 ---
 
-## Page structure
+## API
 
-The page is composed of full-height, scroll-snapping sections. Each is marked with a `<!-- Section N -->` comment in `index.html`:
+Same-origin JSON. Envelope: `{ "code": 200, "message": "…", "data": … }`.
 
-| Section | Id | Content |
-|---|---|---|
-| 1 · Hero Banner | — | Full-screen banner with the motto *"One World, One Dream"* and positioning line. |
-| 2 · About University | `#about` | Mission, vision, and the Sibaihua E-Campus digital gateway. |
-| 3 · Faculty of Science | `#science` | Featured faculty with imagery and research areas. |
-| 4 · Academic Faculties | `#faculties` | Overview of all faculties and schools. |
-| 5 · Campuses & Locations | `#campuses` | Campus/office locations **plus** the institutional bodies (University Council, Finance Committee, Supervisory Committee, President's Office). |
-| 6 · University Charter | `#charter` | Constitutive instruments and standing principles (Faculties, Academic Freedom, Student Rights, Institutional Principles). |
-| 7 · University Identity | `#identity` | A coherent one-screen definition of the University (name, nature, campus, location, digital campus, motto). |
-| 8 · Footer | — | Official contacts & services: President's Office, E-Campus, Campus Mail. |
+| Method | Path | Auth | Purpose |
+|---|---|---|---|
+| `GET` | `/api/setup` | — | whether the site still needs its first administrator |
+| `POST` | `/api/setup` | — | create the first administrator (only while `users` is empty) |
+| `POST` | `/api/auth/login` | — | sign in, sets an HttpOnly session cookie |
+| `POST` | `/api/auth/logout` | session | revoke the current session |
+| `GET` | `/api/auth/me` | session | current user |
+| `POST` | `/api/auth/change-password` | session | change password, revokes other sessions |
+| `GET` | `/api/posts` | — | published articles (`limit`, `offset`) |
+| `GET` | `/api/posts?includeDrafts=1` | admin | drafts included |
+| `POST` | `/api/posts` | admin | create an article |
+| `GET` | `/api/posts/{idOrSlug}` | — / admin for drafts | article detail (`content` + rendered `content_html`) |
+| `PUT` | `/api/posts/{id}` | admin | update an article |
+| `DELETE` | `/api/posts/{id}` | admin | delete an article |
 
-> **Naming convention (current):** the locations module is titled *"Campuses & Locations"* (emphasis on place), and the governance module is titled *"University Institutions"* (emphasis on bodies/units).
-
----
-
-## Authentication (E-Campus SSO)
-
-The E-Campus link in the navigation points to the external portal `https://e.sibaihua.com`.
-
-The `index.html` `<script>` block still contains a **legacy, unused** OAuth 2.0 *Authorization Code + PKCE* implementation (`login()`, `handleCallback()`, and PKCE helpers). It is a public-client, browser-only flow — there is **no `client_secret`** in the frontend. This code is currently **not referenced by the UI** (the nav E-Campus entry is a plain external link) and is retained only as a reference snippet.
+Article bodies are Markdown. Rendering happens **server-side** and the text is escaped
+before any inline pattern is applied, so author-supplied content can never inject HTML
+or scripts.
 
 ---
 
-## Editing guidelines
+## First run
 
-- **Single source of truth:** everything lives in `index.html`. Edit text, sections, and styles there.
-- **Images:** swap CDN URLs in the `<style>` block (`.hero-bg`, `.campuses-bg`) or in `<img>` tags directly.
-- **Brand colors:** adjust the `brand` palette in `tailwind.config.js`, then run `npm run build:css` and commit the regenerated `css/tailwind.css`.
-- **Keep it lean:** the site is intentionally content-light; avoid stacking duplicate or redundant copy across sections.
+1. Visit `https://sibaihua.com/admin.html`.
+2. With an empty `users` table the console shows **Create administrator**.
+3. Choose a username and password (≥ 8 characters); that account gets the `admin` role.
+4. The form disappears permanently — `/api/setup` refuses once any account exists.
+
+Publish the first article from the console; it appears immediately in the homepage
+**News & Announcements** section and on `news.html`.
 
 ---
 
 ## Deployment
 
-The site is hosted on **Cloudflare Pages** and connected to this GitHub repository.
+### 1. Database
 
-- Pushing to the `main` branch triggers an automatic rebuild and redeploy (typically ~1 minute).
-- No build command or output directory is needed — Cloudflare serves `index.html` directly.
-
-```bash
-git add -A
-git commit -m "Describe your change"
-git push origin main      # → Cloudflare Pages auto-deploys
+```sql
+-- once, as a MySQL administrator
+CREATE DATABASE sibaihua CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'sibaihua'@'localhost' IDENTIFIED BY '<strong-password>';
+GRANT ALL PRIVILEGES ON sibaihua.* TO 'sibaihua'@'localhost';
+FLUSH PRIVILEGES;
 ```
 
-After pushing, allow ~60 seconds for the new version to appear on https://sibaihua.com.
+```bash
+mysql -u sibaihua -p sibaihua < /www/server/sibaihua-app/schema.sql
+```
+
+### 2. Files
+
+Copy `index.html`, `news.html`, `admin.html` and `api.php` into
+`/www/wwwroot/sibaihua.com/`; copy `server/app/*` and `server/schema.sql` into
+`/www/server/sibaihua-app/`. Then create `config.php` from `config.example.php`:
+
+```bash
+chown -R www:www /www/wwwroot/sibaihua.com /www/server/sibaihua-app
+chmod 640 /www/server/sibaihua-app/config.php
+```
+
+### 3. Nginx
+
+In the site vhost (`/www/server/panel/vhost/nginx/sibaihua.com.conf`):
+
+```nginx
+    # /api/* -> front controller
+    # The pattern must contain the slash, otherwise /api.php matches again and
+    # the rewrite loops.
+    location = /api {
+        rewrite ^ /api.php last;
+    }
+    location ~ ^/api/ {
+        rewrite ^/api/(.*)$ /api.php last;
+    }
+
+    # switch the site from static-only to PHP
+    include enable-php-82.conf;
+```
+
+Reload: `/www/server/nginx/sbin/nginx -t && /www/server/nginx/sbin/nginx -s reload`.
+
+### 4. DNS
+
+- `A  sibaihua.com  →  <server IPv4>` (optionally orange-clouded through Cloudflare for CDN/WAF)
+- `www.sibaihua.com` must **301** to `https://sibaihua.com` — never serve the app on both
+  hosts. Two hosts mean two cookie scopes, so a session started on `www` looks signed out
+  on the apex, and a future OIDC issuer would split in two.
 
 ---
 
-## License
+## Security notes
 
-This is a fictional virtual-university showcase. All rights reserved © 2026 Sibaihua University.
+- **Session cookie.** `HttpOnly`, `Secure`, `SameSite=Lax`, and — over HTTPS — named
+  `__Host-sib_session`. The `__Host-` prefix makes browsers reject any same-named cookie
+  carrying a `Domain` attribute, so a compromised subdomain cannot plant or overwrite it.
+  The session is deliberately **not** shared with subdomains.
+- **Passwords.** `password_hash()` / `password_verify()` (bcrypt). Login returns the same
+  message for unknown users and wrong passwords, so accounts cannot be enumerated.
+- **Firewall.** The host currently has **UFW disabled**. Re-enable it before this site
+  handles real credentials:
+  ```bash
+  sudo ufw allow 22/tcp && sudo ufw allow 80/tcp && sudo ufw allow 443/tcp
+  sudo ufw allow 2778/tcp   # Baota panel
+  sudo ufw enable && sudo systemctl enable ufw
+  ```
+- **Backups.** A single box is a single point of failure. Schedule `mysqldump` to
+  off-box storage (Baota → Cron).
