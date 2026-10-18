@@ -147,6 +147,25 @@ In the site vhost (`/www/server/panel/vhost/nginx/sibaihua.com.conf`):
 
 Reload: `/www/server/nginx/sbin/nginx -t && /www/server/nginx/sbin/nginx -s reload`.
 
+### 3b. Baota panel — set the PHP version to "自定义"
+
+PHP 8.3 comes from `apt` (`php8.3-fpm`), so Baota does not list it. To make the panel
+display the site as using PHP instead of "纯静态":
+
+> Panel → 网站 → 设置 → PHP版本 → **自定义** → `unix:/run/php/php8.3-fpm.sock` → 切换
+
+Saving that setting makes Baota **regenerate the vhost**, which drops the two `/api/`
+rewrite rules. Re-apply them with the bundled idempotent script:
+
+```bash
+sudo bash /www/server/sibaihua-app/patch-nginx.sh
+```
+
+The same script is the fix for any future panel change that regenerates the vhost. It
+backs up the config, inserts the rules only if missing, tests and reloads nginx, and
+prints a 200/404 check for `/` and `/api/*`.
+
+
 ### 4. DNS
 
 - `A  sibaihua.com  →  <server IPv4>` (optionally orange-clouded through Cloudflare for CDN/WAF)
