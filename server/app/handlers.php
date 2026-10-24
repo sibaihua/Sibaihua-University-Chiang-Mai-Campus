@@ -317,7 +317,7 @@ function route(string $path, string $method): void
         '/api/auth/logout' => ['POST' => 'handle_logout'],
         '/api/auth/me' => ['GET' => 'handle_me'],
 
-        // Sign-in through an external OAuth 2.0 / OIDC provider (pan.sibh.cn)
+        // Sign-in through an external OAuth 2.0 / OIDC provider (司白画云盘)
         '/api/auth/oauth/config' => ['GET' => 'handle_auth_oauth_config'],
         '/api/auth/oauth/start' => ['GET' => 'handle_auth_oauth_start'],
         '/api/auth/oauth/callback' => ['POST' => 'handle_auth_oauth_callback'],

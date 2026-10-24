@@ -36,9 +36,9 @@ return [
     // e-mail, then username); unknown identities are always rejected.
     'external_oauth' => [
         'enabled' => false,
-        'name' => 'pan.sibh.cn',
+        'name' => '司白画云盘',
         'icon' => '',
-        'button_label' => '',           // defaults to "使用 {name} 登录"
+        'button_label' => '使用司白画云盘登录',  // defaults to "使用 {name} 登录"
         'client_id' => '',
         'client_secret' => '',          // leave empty only if the provider allows public clients
         'redirect_uri' => 'https://sibaihua.com/admin.html',

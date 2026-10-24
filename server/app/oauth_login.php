@@ -6,7 +6,7 @@ declare(strict_types=1);
  *
  * The site is already an OIDC *provider* (see oidc.php). This file makes it an
  * OIDC *relying party* as well: the admin console signs people in through
- * pan.sibh.cn instead of (or in addition to) a local password.
+ * 司白画云盘 instead of (or in addition to) a local password.
  *
  * Flow
  *   1. GET  /api/auth/oauth/start      -> { authorize_url }   (state + PKCE packed into `state`)
