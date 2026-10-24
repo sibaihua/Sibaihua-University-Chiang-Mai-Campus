@@ -38,7 +38,9 @@
       min-height: 100vh;
       background: var(--bg);
       color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+        "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑",
+        "Source Han Sans SC", "Noto Sans CJK SC", Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -68,15 +70,15 @@
       width: 2rem; height: 2rem; border-radius: 9999px;
       border: 1px solid rgba(255, 255, 255, 0.45); padding: 2px; object-fit: contain;
     }
-    .brand-name { font-size: 0.9rem; font-weight: 650; letter-spacing: -0.01em; white-space: nowrap; }
-    .brand-sub { font-size: 0.68rem; color: rgba(255, 255, 255, 0.72); white-space: nowrap; }
+    .brand-name { font-size: 1rem; font-weight: 650; letter-spacing: -0.01em; white-space: nowrap; }
+    .brand-sub { font-size: 0.78rem; color: rgba(255, 255, 255, 0.72); white-space: nowrap; }
     .topbar-actions { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
-    .who { font-size: 0.75rem; color: rgba(255, 255, 255, 0.8); margin-right: 0.25rem; }
+    .who { font-size: 0.85rem; color: rgba(255, 255, 255, 0.8); margin-right: 0.25rem; }
 
     .ghost-btn {
       display: inline-flex; align-items: center; gap: 0.4rem;
       padding: 0.42rem 0.75rem; border-radius: 9999px;
-      font-size: 0.75rem; font-weight: 500;
+      font-size: 0.85rem; font-weight: 500;
       color: #fff; background: rgba(255, 255, 255, 0.16);
       border: 1px solid rgba(255, 255, 255, 0.28);
       transition: background 0.15s;
@@ -102,28 +104,28 @@
       width: 2.6rem; height: 2.6rem; border-radius: 9999px;
       border: 1px solid var(--border); padding: 3px; object-fit: contain; margin-bottom: 1rem;
     }
-    .card h1 { font-size: 1.1rem; font-weight: 650; color: var(--brand); letter-spacing: -0.015em; }
-    .card .lede { margin-top: 0.4rem; font-size: 0.78rem; line-height: 1.65; color: var(--text-mute); }
+    .card h1 { font-size: 1.3rem; font-weight: 650; color: var(--brand); letter-spacing: -0.015em; }
+    .card .lede { margin-top: 0.4rem; font-size: 0.88rem; line-height: 1.65; color: var(--text-mute); }
 
     .field { margin-top: 1rem; }
-    .field label { display: block; margin-bottom: 0.35rem; font-size: 0.75rem; font-weight: 550; color: var(--text-mid); }
+    .field label { display: block; margin-bottom: 0.35rem; font-size: 0.85rem; font-weight: 550; color: var(--text-mid); }
     .field input, .field textarea, .field select {
       width: 100%; padding: 0.62rem 0.75rem;
       background: var(--bg); border: 1px solid var(--border); border-radius: 0.6rem;
-      font-size: 0.85rem; outline: none;
+      font-size: 0.95rem; outline: none;
       transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
     }
     .field input:focus, .field textarea:focus, .field select:focus {
       background: #fff; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.12);
     }
     .field textarea { resize: vertical; }
-    .field .hint { margin-top: 0.3rem; font-size: 0.7rem; color: var(--text-faint); line-height: 1.5; }
+    .field .hint { margin-top: 0.3rem; font-size: 0.8rem; color: var(--text-faint); line-height: 1.5; }
 
     .primary-btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
       width: 100%; margin-top: 1.3rem; padding: 0.7rem 1rem;
       background: var(--brand); color: #fff;
-      border-radius: 9999px; font-size: 0.85rem; font-weight: 600;
+      border-radius: 9999px; font-size: 0.95rem; font-weight: 600;
       transition: background 0.15s, opacity 0.15s;
     }
     .primary-btn:hover { background: var(--brand-dark); }
@@ -133,7 +135,7 @@
       display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem;
       width: 100%; margin-top: 1.25rem; padding: 0.72rem 1rem;
       background: var(--brand); color: #fff; border: 1px solid var(--brand);
-      border-radius: 9999px; font-size: 0.85rem; font-weight: 600;
+      border-radius: 9999px; font-size: 0.95rem; font-weight: 600;
       transition: background 0.15s, opacity 0.15s;
     }
     .oauth-btn:hover { background: var(--brand-dark); }
@@ -145,19 +147,19 @@
       margin-top: 1.5rem; padding: 0.9rem 1rem;
       border: 1px solid var(--border-soft); border-radius: 0.75rem;
       background: var(--surface-soft, #f8fafc);
-      color: var(--text-mute); font-size: 0.85rem; font-weight: 550;
+      color: var(--text-mute); font-size: 0.95rem; font-weight: 550;
     }
     .link-btn {
       display: block; width: 100%; margin-top: 0.85rem; padding: 0;
       background: none; border: 0; color: var(--text-mute);
-      font-size: 0.75rem; font-weight: 550; text-decoration: underline;
+      font-size: 0.85rem; font-weight: 550; text-decoration: underline;
       text-underline-offset: 0.15em; cursor: pointer;
     }
     .link-btn:hover { color: var(--brand); }
 
     .alert {
       margin-top: 1rem; padding: 0.55rem 0.7rem;
-      font-size: 0.75rem; line-height: 1.55;
+      font-size: 0.85rem; line-height: 1.55;
       border-radius: 0.5rem;
       color: var(--danger); background: var(--danger-bg); border: 1px solid var(--danger-border);
     }
@@ -170,14 +172,14 @@
       display: flex; align-items: flex-end; justify-content: space-between;
       gap: 1rem; flex-wrap: wrap; margin-bottom: 1.15rem;
     }
-    .console-head h2 { font-size: 1.05rem; font-weight: 650; color: var(--brand); }
-    .console-head p { margin-top: 0.25rem; font-size: 0.75rem; color: var(--text-mute); }
+    .console-head h2 { font-size: 1.2rem; font-weight: 650; color: var(--brand); }
+    .console-head p { margin-top: 0.25rem; font-size: 0.85rem; color: var(--text-mute); }
 
     .solid-btn {
       display: inline-flex; align-items: center; gap: 0.45rem;
       padding: 0.55rem 0.95rem; border-radius: 9999px;
       background: var(--brand); color: #fff;
-      font-size: 0.78rem; font-weight: 600;
+      font-size: 0.88rem; font-weight: 600;
       transition: background 0.15s;
       white-space: nowrap;
     }
@@ -197,16 +199,16 @@
     .row:hover { background: #fbfdff; }
     .row-main { flex: 1; min-width: 0; }
     .row-title {
-      font-size: 0.88rem; font-weight: 600; color: var(--text);
+      font-size: 1rem; font-weight: 600; color: var(--text);
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .row-meta {
-      margin-top: 0.28rem; font-size: 0.7rem; color: var(--text-faint);
+      margin-top: 0.28rem; font-size: 0.8rem; color: var(--text-faint);
       display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
     }
     .row-meta code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.68rem; color: var(--text-mute);
+      font-size: 0.78rem; color: var(--text-mute);
     }
     .row-actions { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; }
 
@@ -222,13 +224,13 @@
     .badge {
       display: inline-flex; align-items: center; gap: 0.3rem;
       padding: 0.15rem 0.5rem; border-radius: 9999px;
-      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.02em;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em;
       text-transform: uppercase;
     }
     .badge.published { color: var(--ok); background: var(--ok-bg); border: 1px solid var(--ok-border); }
     .badge.draft { color: var(--text-mute); background: var(--border-soft); border: 1px solid var(--border); }
 
-    .empty { padding: 2.5rem 1.25rem; text-align: center; color: var(--text-faint); font-size: 0.82rem; }
+    .empty { padding: 2.5rem 1.25rem; text-align: center; color: var(--text-faint); font-size: 0.92rem; }
     .empty i { display: block; font-size: 1.4rem; margin-bottom: 0.6rem; opacity: 0.5; }
 
     /* ── editor ──────────────────────────────────────────────────────── */
@@ -243,7 +245,7 @@
     .editor-main textarea.content {
       min-height: 22rem;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.8rem; line-height: 1.7;
+      font-size: 0.9rem; line-height: 1.7;
     }
     .editor-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 1.25rem; flex-wrap: wrap; }
     .editor-actions .spacer { flex: 1; }
@@ -252,7 +254,7 @@
       display: inline-flex; align-items: center; gap: 0.45rem;
       padding: 0.55rem 0.95rem; border-radius: 9999px;
       border: 1px solid var(--border); background: #fff;
-      font-size: 0.78rem; font-weight: 550; color: var(--text-mid);
+      font-size: 0.88rem; font-weight: 550; color: var(--text-mid);
       transition: background 0.15s, color 0.15s, border-color 0.15s;
       white-space: nowrap;
     }
@@ -260,8 +262,8 @@
     .outline-btn.danger { color: var(--danger); }
     .outline-btn.danger:hover { background: var(--danger-bg); border-color: var(--danger-border); }
 
-    .side-note { font-size: 0.7rem; line-height: 1.65; color: var(--text-faint); }
-    .side-note h3 { font-size: 0.72rem; font-weight: 650; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+    .side-note { font-size: 0.8rem; line-height: 1.65; color: var(--text-faint); }
+    .side-note h3 { font-size: 0.82rem; font-weight: 650; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
     .side-note ul { margin: 0.4rem 0 0; padding-left: 1rem; }
     .side-note li { margin-bottom: 0.2rem; }
     .side-note code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text-mid); }
@@ -274,7 +276,7 @@
     .tab {
       display: inline-flex; align-items: center; gap: 0.45rem;
       padding: 0.5rem 0.9rem; border-radius: 9999px;
-      font-size: 0.8rem; font-weight: 550; color: var(--text-mute);
+      font-size: 0.9rem; font-weight: 550; color: var(--text-mute);
       transition: background 0.15s, color 0.15s;
     }
     .tab:hover { background: var(--border-soft); color: var(--brand); }
@@ -283,25 +285,47 @@
     .secret-box {
       margin-top: 0.9rem; padding: 0.7rem 0.8rem;
       background: var(--ok-bg); border: 1px solid var(--ok-border);
-      border-radius: 0.5rem; font-size: 0.72rem; color: var(--ok); line-height: 1.6;
+      border-radius: 0.5rem; font-size: 0.82rem; color: var(--ok); line-height: 1.6;
     }
     .secret-box code {
       display: block; margin-top: 0.3rem; word-break: break-all;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.72rem; color: #0f172a; background: #fff;
+      font-size: 0.82rem; color: #0f172a; background: #fff;
       border: 1px solid var(--ok-border); border-radius: 0.35rem; padding: 0.35rem 0.45rem;
     }
     .checkline {
       display: flex; align-items: center; gap: 0.5rem;
-      margin-top: 0.5rem; font-size: 0.78rem; color: var(--text-mid);
+      margin-top: 0.5rem; font-size: 0.88rem; color: var(--text-mid);
     }
     .checkline input { width: auto; }
 
     .account-sep { margin: 1.5rem 0 1.4rem; border-top: 1px solid var(--border-soft); }
+
+    /* Account dialog: two columns so it stops overflowing the viewport */
+    .card-wide { max-width: 48rem; }
+    .account-grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem 2.25rem; margin-top: 1.4rem; align-items: start;
+    }
+    .account-col { min-width: 0; }
+    .account-title {
+      display: flex; align-items: center; gap: 0.45rem;
+      margin-bottom: 0.6rem;
+      font-size: 1rem; font-weight: 650; color: var(--brand);
+    }
+    .account-title i { font-size: 0.9em; opacity: 0.75; }
+    .account-hint { margin-bottom: 0.2rem; font-size: 0.85rem; line-height: 1.6; color: var(--text-mute); }
+    .account-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .account-actions .primary-btn { width: auto; margin-top: 0; padding-left: 1.4rem; padding-right: 1.4rem; }
+    .account-actions .outline-btn { justify-content: center; }
+    .account-actions-end { justify-content: flex-end; margin-top: 0.2rem; }
     .bind-state {
-      font-size: 0.92rem; line-height: 1.6; color: var(--text-soft);
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 0.75rem 0.9rem; margin-bottom: 0.9rem;
+      font-size: 0.92rem; line-height: 1.65; color: var(--text-mid);
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 0.8rem 0.95rem; margin-bottom: 0.9rem;
+    }
+    @media (max-width: 820px) {
+      .account-grid { grid-template-columns: minmax(0, 1fr); }
     }
     .bind-state strong { color: var(--text); font-weight: 600; }
 
@@ -311,23 +335,23 @@
       border-radius: var(--radius); padding: 1.25rem 1.35rem;
     }
     .doc-section + .doc-section { margin-top: 1rem; }
-    .doc-section h3 { margin: 0 0 0.55rem; font-size: 0.85rem; font-weight: 650; color: var(--brand); }
-    .doc-section p { margin: 0; font-size: 0.78rem; line-height: 1.75; color: var(--text-mid); }
+    .doc-section h3 { margin: 0 0 0.55rem; font-size: 0.95rem; font-weight: 650; color: var(--brand); }
+    .doc-section p { margin: 0; font-size: 0.88rem; line-height: 1.75; color: var(--text-mid); }
     .doc-section p + p { margin-top: 0.5rem; }
     .doc-section b { color: var(--text); font-weight: 650; }
-    .doc-table { width: 100%; border-collapse: collapse; margin-top: 0.6rem; font-size: 0.74rem; }
+    .doc-table { width: 100%; border-collapse: collapse; margin-top: 0.6rem; font-size: 0.82rem; }
     .doc-table th, .doc-table td {
       text-align: left; padding: 0.45rem 0.5rem;
       border-bottom: 1px solid var(--border-soft); vertical-align: top;
     }
     .doc-table th {
-      color: var(--text-faint); font-weight: 600; font-size: 0.66rem;
+      color: var(--text-faint); font-weight: 600; font-size: 0.75rem;
       text-transform: uppercase; letter-spacing: 0.05em;
     }
     .doc-table td { color: var(--text-mid); }
     .doc-table td code, .doc-section p code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.72rem; color: var(--brand-dark);
+      font-size: 0.82rem; color: var(--brand-dark);
       background: var(--border-soft); padding: 0.08rem 0.3rem; border-radius: 0.25rem;
       word-break: break-all;
     }
@@ -335,20 +359,20 @@
       display: block; margin-top: 0.55rem; padding: 0.7rem 0.8rem;
       background: #0f172a; color: #e2e8f0; border-radius: 0.5rem;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.71rem; line-height: 1.65;
+      font-size: 0.82rem; line-height: 1.65;
       white-space: pre-wrap; word-break: break-all;
     }
     .copy-chip {
       display: inline-flex; align-items: center; gap: 0.35rem;
       margin: 0.5rem 0.35rem 0 0; padding: 0.22rem 0.6rem;
       border: 1px solid var(--border); border-radius: 9999px;
-      font-size: 0.68rem; color: var(--text-mute); background: #fff;
+      font-size: 0.78rem; color: var(--text-mute); background: #fff;
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
     .copy-chip:hover { background: var(--border-soft); color: var(--brand); border-color: #cbd5e1; }
     .doc-note {
       margin-top: 0.65rem; padding: 0.55rem 0.7rem;
-      font-size: 0.73rem; line-height: 1.65; border-radius: 0.5rem;
+      font-size: 0.82rem; line-height: 1.65; border-radius: 0.5rem;
       color: var(--brand); background: #eff6ff; border: 1px solid #bfdbfe;
     }
     .doc-note code { background: #dbeafe; color: var(--brand-dark); }
@@ -356,10 +380,13 @@
     /* ── dialog ──────────────────────────────────────────────────────── */
     .overlay {
       position: fixed; inset: 0; z-index: 40;
-      display: flex; align-items: center; justify-content: center; padding: 1.25rem;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding: 1.25rem; overflow-y: auto;
       background: rgba(15, 23, 42, 0.45);
       -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
     }
+    /* margin:auto keeps the card centred while still allowing it to scroll */
+    .overlay > .card { margin: auto; }
 
     /* ── toast ───────────────────────────────────────────────────────── */
     .toast {
@@ -367,7 +394,7 @@
       z-index: 60; max-width: min(90vw, 28rem);
       padding: 0.65rem 1rem; border-radius: 9999px;
       background: #0f172a; color: #fff;
-      font-size: 0.78rem; box-shadow: 0 18px 40px -18px rgba(15, 23, 42, 0.6);
+      font-size: 0.88rem; box-shadow: 0 18px 40px -18px rgba(15, 23, 42, 0.6);
       opacity: 0; pointer-events: none;
       transition: opacity 0.2s, transform 0.2s;
     }
@@ -571,57 +598,66 @@
 
   <!-- Change-password dialog -->
   <div id="pwOverlay" class="overlay hidden">
-    <div class="card">
+    <div class="card card-wide">
       <h1>账户</h1>
       <p class="lede">邮箱会提供给请求 email scope 的应用。</p>
-      <form id="emailForm" autocomplete="off">
-        <div class="field">
-          <label for="profileEmail">邮箱</label>
-          <input id="profileEmail" type="email" autocomplete="email" placeholder="you@example.com">
-        </div>
-        <div id="emailAlert" class="alert hidden"></div>
-        <button id="emailSubmit" class="primary-btn" type="submit">
-          <i class="fa-solid fa-envelope"></i><span>保存邮箱</span>
-        </button>
-      </form>
+
+      <div class="account-grid">
+        <section class="account-col">
+          <h2 class="account-title"><i class="fa-regular fa-envelope"></i>邮箱</h2>
+          <form id="emailForm" autocomplete="off">
+            <div class="field">
+              <label for="profileEmail">邮箱地址</label>
+              <input id="profileEmail" type="email" autocomplete="email" placeholder="you@example.com">
+            </div>
+            <div id="emailAlert" class="alert hidden"></div>
+            <button id="emailSubmit" class="primary-btn" type="submit">
+              <i class="fa-solid fa-envelope"></i><span>保存邮箱</span>
+            </button>
+          </form>
+        </section>
+
+        <section class="account-col">
+          <h2 class="account-title"><i class="fa-solid fa-key"></i>修改密码</h2>
+          <p class="account-hint">修改后，该账号在其他设备上的登录会被退出。</p>
+          <form id="pwForm" autocomplete="off">
+            <div class="field">
+              <label for="pwCurrent">当前密码</label>
+              <input id="pwCurrent" type="password" autocomplete="current-password" required>
+            </div>
+            <div class="field">
+              <label for="pwNew">新密码</label>
+              <input id="pwNew" type="password" autocomplete="new-password" placeholder="至少 8 位" required>
+            </div>
+            <div class="field">
+              <label for="pwConfirm">确认新密码</label>
+              <input id="pwConfirm" type="password" autocomplete="new-password" required>
+            </div>
+            <div id="pwAlert" class="alert hidden"></div>
+            <button id="pwSubmit" class="primary-btn" type="submit">
+              <i class="fa-solid fa-key"></i><span>更新密码</span>
+            </button>
+          </form>
+        </section>
+      </div>
 
       <div class="account-sep"></div>
 
-      <h1>单点登录</h1>
+      <h2 class="account-title"><i class="fa-solid fa-link"></i>单点登录</h2>
       <p class="lede">绑定后，即可用 司白画云盘 账号直接登录本站，无需再输入密码。</p>
       <div id="bindState" class="bind-state">正在读取绑定状态…</div>
-      <button id="bindBtn" class="primary-btn hidden" type="button">
-        <i class="fa-solid fa-link"></i><span>绑定 司白画云盘 账号</span>
-      </button>
-      <button id="unbindBtn" class="outline-btn hidden" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">
-        解除绑定
-      </button>
+      <div class="account-actions">
+        <button id="bindBtn" class="primary-btn hidden" type="button">
+          <i class="fa-solid fa-link"></i><span>绑定 司白画云盘 账号</span>
+        </button>
+        <button id="unbindBtn" class="outline-btn hidden" type="button">解除绑定</button>
+      </div>
 
       <div class="account-sep"></div>
 
-      <h1>修改密码</h1>
-      <p class="lede">修改后，该账号在其他设备上的登录会被退出。</p>
-      <form id="pwForm" autocomplete="off">
-        <div class="field">
-          <label for="pwCurrent">当前密码</label>
-          <input id="pwCurrent" type="password" autocomplete="current-password" required>
-        </div>
-        <div class="field">
-          <label for="pwNew">新密码</label>
-          <input id="pwNew" type="password" autocomplete="new-password" placeholder="至少 8 位" required>
-        </div>
-        <div class="field">
-          <label for="pwConfirm">确认新密码</label>
-          <input id="pwConfirm" type="password" autocomplete="new-password" required>
-        </div>
-        <div id="pwAlert" class="alert hidden"></div>
-        <button id="pwSubmit" class="primary-btn" type="submit">
-          <i class="fa-solid fa-key"></i><span>更新密码</span>
-        </button>
-        <button id="pwCancel" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">
-          取消
-        </button>
-      </form>
+      <div class="account-actions account-actions-end">
+        <button id="pwCancel" class="outline-btn" type="button">关闭</button>
+      </div>
     </div>
   </div>
 
