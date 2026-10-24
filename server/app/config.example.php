@@ -38,7 +38,7 @@ return [
         'enabled' => false,
         'name' => '司白画云盘',
         'icon' => '',
-        'button_label' => '使用司白画云盘登录',  // defaults to "使用 {name} 登录"
+        'button_label' => '使用 司白画云盘 登录',  // defaults to "使用 {name} 登录"
         'client_id' => '',
         'client_secret' => '',          // leave empty only if the provider allows public clients
         'redirect_uri' => 'https://sibaihua.com/admin.html',

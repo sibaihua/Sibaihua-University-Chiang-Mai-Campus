@@ -1044,15 +1044,48 @@
         /** The provider sends people back with ?code=…&state=… in the URL. */
         const finishSsoFromUrl = async () => {
           const params = new URLSearchParams(window.location.search);
-          const code = params.get('code');
-          const state = params.get('state');
+          let code = params.get('code');
+          let state = params.get('state');
           const error = params.get('error');
+          let fresh = !!(code || state || error);
+
+          if (fresh) {
+            // Never leave an authorization code sitting in the address bar. Keep a
+            // copy first: a reload mid-exchange would otherwise lose it for good.
+            window.history.replaceState({}, '', window.location.pathname);
+            try {
+              sessionStorage.setItem('sib_oauth_pending', JSON.stringify({ code, state, error, at: Date.now() }));
+            } catch (err) { /* storage unavailable */ }
+          } else {
+            try {
+              const raw = sessionStorage.getItem('sib_oauth_pending');
+              if (raw) {
+                const saved = JSON.parse(raw);
+                if (saved && Date.now() - saved.at < 600000) {
+                  code = saved.code || ''; state = saved.state || '';
+                } else {
+                  sessionStorage.removeItem('sib_oauth_pending');
+                }
+              }
+            } catch (err) { /* ignore */ }
+          }
+
           if (!code && !state && !error) return false;
 
-          // Never leave an authorization code sitting in the address bar.
-          window.history.replaceState({}, '', window.location.pathname);
+          const dropPending = () => {
+            try { sessionStorage.removeItem('sib_oauth_pending'); } catch (err) { /* ignore */ }
+          };
+
+          // A reload may have interrupted an exchange that had already succeeded.
+          if (!fresh) {
+            try {
+              const me = await apiRequest('/api/auth/me');
+              if (me && me.user) { dropPending(); user.value = me.user; cacheUser(me.user); return true; }
+            } catch (err) { /* not signed in yet */ }
+          }
 
           if (!code || !state) {
+            dropPending();
             loginError.value = error
               ? 'Single sign-on was declined.'
               : 'Single sign-on did not return a complete response.';
@@ -1063,6 +1096,7 @@
           loginBusy.value = true;
           try {
             const data = await apiRequest('/api/auth/oauth/callback', { method: 'POST', body: { code, state } });
+            dropPending();
             if (data && data.bound) { return true; }
             // Reload so the new session is proven by a real navigation.
             window.location.replace((data && data.return_to) || '/');

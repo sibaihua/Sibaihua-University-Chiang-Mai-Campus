@@ -46,6 +46,15 @@ api_block = """
     }
 """
 
+# The console changes often and is the OAuth landing page: never let a browser
+# (or Cloudflare) serve a stale copy after a deploy.
+admin_block = """
+    # ── 后台：禁用缓存，避免部署后仍拿到旧页面 ──
+    location = /admin.html {
+        add_header Cache-Control "no-store, no-cache, must-revalidate";
+    }
+"""
+
 # 清理早期写下的精确匹配版本，统一改成上面的正则形式
 for old in (
     r'\n[ \t]*location = /\.well-known/openid-configuration\s*\{[^}]*\}\n',
@@ -63,6 +72,8 @@ if 'location = /oauth/authorize' not in s:
     needed += authorize_block
 if 'rewrite ^/api/' not in s:
     needed += api_block
+if 'location = /admin.html' not in s:
+    needed += admin_block
 
 if not needed:
     print('规则已齐全，跳过')

@@ -206,6 +206,15 @@ function handle_auth_oauth_start(): void
 }
 
 /**
+ * Diagnostics for the external round trip. Only non-secret context is written,
+ * which is what makes a failed sign-on debuggable from the server log.
+ */
+function eo_log(string $message): void
+{
+    error_log('[sib-oauth] ' . $message);
+}
+
+/**
  * Resolve the external identity to a local account.
  * Order: oauth_sub -> email -> username. Unknown identities are rejected.
  *
@@ -235,7 +244,7 @@ function eo_resolve_user(array $info, bool $requireAdmin = true): array
         $row = $stmt->fetch() ?: null;
     }
     if ($row === null) {
-        fail(403, '该外部账号尚未绑定本站账号：请先登录，并在「账户」里绑定司白画云盘账号。');
+        fail(403, '该外部账号尚未绑定本站账号：请先登录，并在「账户」里绑定 司白画云盘 账号。');
     }
     if (($row['status'] ?? 'active') !== 'active') {
         fail(403, '该账号已被停用。');
@@ -251,7 +260,7 @@ function eo_bind_user(array $info): array
 {
     $user = current_user();
     if ($user === null) {
-        fail(401, '请先登录后再绑定司白画云盘账号。');
+        fail(401, '请先登录后再绑定 司白画云盘 账号。');
     }
     $sub = trim((string) ($info['sub'] ?? ''));
     if ($sub === '') {
@@ -261,7 +270,7 @@ function eo_bind_user(array $info): array
     $stmt = db()->prepare('SELECT id FROM users WHERE oauth_sub = ? AND id <> ? LIMIT 1');
     $stmt->execute([$sub, (int) $user['id']]);
     if ($stmt->fetch()) {
-        fail(409, '该司白画云盘账号已绑定到另一个本站账号。');
+        fail(409, '该 司白画云盘 账号已绑定到另一个本站账号。');
     }
 
     $email = trim((string) ($info['email'] ?? ''));
@@ -326,6 +335,7 @@ function handle_auth_oauth_callback(): void
     }
     $packed = eo_unpack_state($state);
     if ($packed === null) {
+        eo_log('state rejected (len=' . strlen($state) . ', code_len=' . strlen($code) . ')');
         fail(400, '登录请求已过期或被篡改，请重新登录。');
     }
 
@@ -346,13 +356,22 @@ function handle_auth_oauth_callback(): void
 
     [$status, $token] = eo_http('POST', (string) $c['token_endpoint'], $params);
     if ($status < 200 || $status >= 300 || empty($token['access_token'])) {
+        eo_log('token exchange failed: http=' . $status
+            . ' redirect_uri=' . $redirectUri
+            . ' response=' . substr(json_encode($token, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 0, 400));
         fail(400, eo_error_message($token, '换取令牌失败'));
     }
+    eo_log('token exchange ok');
 
     [$ustatus, $info] = eo_http('GET', (string) $c['userinfo_endpoint'], [], ['Authorization: Bearer ' . $token['access_token']]);
     if ($ustatus < 200 || $ustatus >= 300 || empty($info['sub'])) {
+        eo_log('userinfo failed: http=' . $ustatus
+            . ' body=' . substr(json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), 0, 400));
         fail(400, eo_error_message($info, '读取外部账号信息失败'));
     }
+    eo_log('userinfo ok: sub=' . (string) $info['sub']
+        . ' username=' . (string) ($info['preferred_username'] ?? $info['username'] ?? '')
+        . ' keys=' . implode(',', array_keys($info)));
 
     // Binding only links the identity to the account that is already signed in.
     if (!empty($packed['bind'])) {
@@ -368,7 +387,7 @@ function handle_auth_oauth_callback(): void
                 'picture' => (string) ($info['picture'] ?? ''),
             ],
             'return_to' => (string) ($packed['return_to'] ?? '/admin.html'),
-        ], '已绑定司白画云盘账号');
+        ], '已绑定 司白画云盘 账号');
     }
 
     $returnTo = (string) ($packed['return_to'] ?? '/admin.html');

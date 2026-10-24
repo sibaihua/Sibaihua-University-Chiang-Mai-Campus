@@ -140,6 +140,13 @@
     .oauth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .oauth-icon { width: 1.1rem; height: 1.1rem; object-fit: contain; border-radius: 0.2rem; }
 
+    .oauth-wait {
+      display: flex; align-items: center; justify-content: center; gap: 0.55rem;
+      margin-top: 1.5rem; padding: 0.9rem 1rem;
+      border: 1px solid var(--border-soft); border-radius: 0.75rem;
+      background: var(--surface-soft, #f8fafc);
+      color: var(--text-mute); font-size: 0.85rem; font-weight: 550;
+    }
     .link-btn {
       display: block; width: 100%; margin-top: 0.85rem; padding: 0;
       background: none; border: 0; color: var(--text-mute);
@@ -449,6 +456,15 @@
         </form>
       </div>
 
+      <div id="oauthReturnPane" class="hidden">
+        <h1>正在完成单点登录</h1>
+        <p class="lede">已收到授权结果，正在与身份提供方核对，请稍候…</p>
+        <div class="oauth-wait">
+          <i class="fa-solid fa-circle-notch fa-spin"></i><span id="oauthWaitLabel">正在完成登录…</span>
+        </div>
+        <button id="oauthReturnCancel" class="link-btn" type="button">改用账号密码登录</button>
+      </div>
+
       <div id="fatalPane" class="hidden">
         <h1>后端未就绪</h1>
         <p class="lede">控制台无法连接站点 API。</p>
@@ -572,10 +588,10 @@
       <div class="account-sep"></div>
 
       <h1>单点登录</h1>
-      <p class="lede">绑定后，即可用司白画云盘账号直接登录本站，无需再输入密码。</p>
+      <p class="lede">绑定后，即可用 司白画云盘 账号直接登录本站，无需再输入密码。</p>
       <div id="bindState" class="bind-state">正在读取绑定状态…</div>
       <button id="bindBtn" class="primary-btn hidden" type="button">
-        <i class="fa-solid fa-link"></i><span>绑定司白画云盘账号</span>
+        <i class="fa-solid fa-link"></i><span>绑定 司白画云盘 账号</span>
       </button>
       <button id="unbindBtn" class="outline-btn hidden" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">
         解除绑定
@@ -687,6 +703,7 @@
       $('console').classList.add('hidden');
       $('setupPane').classList.toggle('hidden', pane !== 'setup');
       $('loginPane').classList.toggle('hidden', pane !== 'login');
+      $('oauthReturnPane').classList.toggle('hidden', pane !== 'oauthReturn');
       $('fatalPane').classList.toggle('hidden', pane !== 'fatal');
       if (pane === 'setup') $('setupUser').focus();
       if (pane === 'login') $('loginUser').focus();
@@ -866,47 +883,16 @@
      */
     const startOAuth = async (params) => {
       const query = new URLSearchParams({ redirect: '/admin.html' });
-      if (params && params.bind) { query.set('bind', '1'); }
+      try {
+        if (params && params.bind) {
+          query.set('bind', '1');
+          sessionStorage.setItem(OAUTH_BIND_KEY, '1');
+        } else {
+          sessionStorage.removeItem(OAUTH_BIND_KEY);
+        }
+      } catch (err) { /* storage unavailable */ }
       const data = await api('/api/auth/oauth/start?' + query.toString());
       window.location.assign(data.authorize_url);
-    };
-
-    /** Finish an OAuth round trip: either a sign-in or an account binding. */
-    const completeOAuth = async (oauth) => {
-      const data = await api('/api/auth/oauth/callback', {
-        method: 'POST', body: { code: oauth.code, state: oauth.state }
-      });
-
-      // Binding round trip — the account is already signed in.
-      if (data && data.bound) {
-        const who = data.external || {};
-        toast('已绑定' + (who.name || who.username || '司白画云盘账号') + '。');
-        refreshBinding();
-        return;
-      }
-
-      // Sign-in round trip — reload so the new session is proven by a real
-      // navigation instead of only by in-page state.
-      const target = (data && data.return_to) || '/admin.html';
-      window.location.replace(target);
-    };
-
-    const finishOAuthLogin = async (oauth) => {
-      setAlert('loginAlert', '');
-      const btn = $('oauthBtn');
-      const original = btn.innerHTML;
-      btn.classList.remove('hidden');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>正在完成登录…</span>';
-      try {
-        await completeOAuth(oauth);
-      } catch (err) {
-        setAlert('loginAlert', err.message);
-        showPasswordForm();
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = original;
-      }
     };
 
     /* ── binding the site account to the external provider ───────────── */
@@ -958,6 +944,34 @@
       }
     });
 
+    const OAUTH_PENDING_KEY = 'sib_oauth_pending';
+    const OAUTH_BIND_KEY = 'sib_oauth_bind';
+    const OAUTH_PENDING_TTL = 10 * 60 * 1000;
+
+    const clearPendingOAuth = () => {
+      try {
+        sessionStorage.removeItem(OAUTH_PENDING_KEY);
+        sessionStorage.removeItem(OAUTH_BIND_KEY);
+      } catch (err) { /* storage unavailable */ }
+    };
+
+    const loadPendingOAuth = () => {
+      try {
+        const raw = sessionStorage.getItem(OAUTH_PENDING_KEY);
+        if (!raw) { return null; }
+        const payload = JSON.parse(raw);
+        if (!payload || typeof payload !== 'object') { clearPendingOAuth(); return null; }
+        if (!payload.at || Date.now() - payload.at > OAUTH_PENDING_TTL) { clearPendingOAuth(); return null; }
+        return payload;
+      } catch (err) { return null; }
+    };
+
+    /**
+     * The provider redirects straight back to this page (/admin.html?code=…&state=…).
+     * The code is stashed in sessionStorage before the address bar is scrubbed, so a
+     * reload in the middle of the exchange can still finish it — otherwise the code is
+     * lost and people get dumped back on the password form.
+     */
     const takeOAuthParamsFromUrl = () => {
       const params = new URLSearchParams(location.search);
       const payload = {
@@ -969,14 +983,87 @@
       if (payload.code || payload.state || payload.error) {
         // Never leave the authorization code sitting in the address bar.
         history.replaceState({}, '', location.pathname);
+        try {
+          sessionStorage.setItem(OAUTH_PENDING_KEY, JSON.stringify({ ...payload, at: Date.now() }));
+        } catch (err) { /* storage unavailable */ }
         return payload;
       }
-      return null;
+      return loadPendingOAuth();
+    };
+
+    /**
+     * Handles ?code=…&state=… (or an error) coming back from the provider.
+     *
+     * Order matters: the waiting pane is shown first so the password form is never
+     * flashed, and a reload that interrupted a successful exchange is detected by
+     * checking /api/auth/me before spending the (single-use) code again.
+     */
+    const handleOAuthReturn = async (oauth) => {
+      showGate('oauthReturn');
+      try {
+        const setup = await api('/api/setup');
+        if (setup.needsSetup) { clearPendingOAuth(); showGate('setup'); return; }
+      } catch (err) {
+        $('fatalAlert').textContent = err.message;
+        showGate('fatal');
+        return;
+      }
+
+      const bail = (message) => {
+        clearPendingOAuth();
+        showGate('login');
+        loadOAuthConfig();
+        if (message) { setAlert('loginAlert', message); }
+        showPasswordForm();
+      };
+
+      if (oauth.error) { bail('外部登录被拒绝：' + (oauth.errorDescription || oauth.error)); return; }
+      if (!oauth.code || !oauth.state) { bail('外部登录返回的数据不完整，请重新登录。'); return; }
+
+      let bindMode = false;
+      let already = null;
+      try { bindMode = sessionStorage.getItem(OAUTH_BIND_KEY) === '1'; } catch (err) { /* ignore */ }
+      try { already = await api('/api/auth/me'); } catch (err) { already = null; }
+
+      // A reload may have interrupted an exchange that had already succeeded.
+      if (already && already.user && !bindMode) {
+        clearPendingOAuth();
+        state.user = already.user;
+        await enterConsole();
+        return;
+      }
+
+      $('oauthWaitLabel').textContent = bindMode ? '正在绑定账号…' : '正在与身份提供方核对…';
+      try {
+        const data = await api('/api/auth/oauth/callback', {
+          method: 'POST', body: { code: oauth.code, state: oauth.state }
+        });
+        clearPendingOAuth();
+        if (data && data.bound) {
+          const who = data.external || {};
+          const me = await api('/api/auth/me');
+          state.user = me.user;
+          await enterConsole();
+          toast('已绑定 ' + (who.name || who.username || '司白画云盘 账号') + '。');
+          refreshBinding();
+          return;
+        }
+        $('oauthWaitLabel').textContent = '登录成功，正在进入…';
+        const target = (data && data.return_to) || '/admin.html';
+        window.location.replace(target);
+      } catch (err) {
+        bail(err.message);
+      }
     };
 
     /* ── boot ────────────────────────────────────────────────────────── */
     const boot = async () => {
       const oauth = takeOAuthParamsFromUrl();
+      // A provider result waiting to be exchanged always wins — go straight to it.
+      if (oauth && (oauth.code || oauth.state || oauth.error)) {
+        await handleOAuthReturn(oauth);
+        return;
+      }
       let setup;
       try {
         setup = await api('/api/setup');
@@ -991,24 +1078,10 @@
         const data = await api('/api/auth/me');
         state.user = data.user;
         await enterConsole();
-        // Already signed in: a code in the URL can only be a binding round trip.
-        if (oauth && oauth.code && oauth.state) {
-          try { await completeOAuth(oauth); } catch (err) { toast('绑定失败：' + err.message); }
-        }
         return;
       } catch (err) {
         showGate('login');
         loadOAuthConfig();
-      }
-      if (!oauth) { return; }
-      if (oauth.error) {
-        setAlert('loginAlert', '外部登录被拒绝：' + (oauth.errorDescription || oauth.error));
-        showPasswordForm();
-      } else if (oauth.code && oauth.state) {
-        await finishOAuthLogin(oauth);
-      } else {
-        setAlert('loginAlert', '外部登录返回的数据不完整，请重新登录。');
-        showPasswordForm();
       }
     };
 
@@ -1186,6 +1259,13 @@
         showPasswordForm();
       }
     };
+
+    $('oauthReturnCancel').addEventListener('click', () => {
+      clearPendingOAuth();
+      showGate('login');
+      loadOAuthConfig();
+      showPasswordForm();
+    });
 
     $('oauthBtn').addEventListener('click', async () => {
       setAlert('loginAlert', '');
