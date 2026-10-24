@@ -29,6 +29,13 @@
       --radius: 0.75rem;
       --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
       --shadow-md: 0 10px 30px -16px rgba(15, 23, 42, 0.28);
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+        "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑",
+        "Source Han Sans SC", "Noto Sans CJK SC", Arial, sans-serif;
+      /* 等宽栈后接中文黑体：西文数字保持等宽，中文不再回落到宋体（衬线） */
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Cascadia Mono",
+        "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑",
+        "Noto Sans CJK SC", monospace;
     }
 
     *, *::before, *::after { box-sizing: border-box; }
@@ -38,9 +45,7 @@
       min-height: 100vh;
       background: var(--bg);
       color: var(--text);
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-        "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑",
-        "Source Han Sans SC", "Noto Sans CJK SC", Arial, sans-serif;
+      font-family: var(--font-sans);
       -webkit-font-smoothing: antialiased;
     }
 
@@ -207,8 +212,8 @@
       display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
     }
     .row-meta code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.78rem; color: var(--text-mute);
+      font-family: var(--font-mono);
+      font-size: 0.82rem; color: var(--text-mute);
     }
     .row-actions { display: flex; align-items: center; gap: 0.35rem; flex-shrink: 0; }
 
@@ -244,7 +249,7 @@
     .editor-main .field:first-child { margin-top: 0; }
     .editor-main textarea.content {
       min-height: 22rem;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-family: var(--font-mono);
       font-size: 0.9rem; line-height: 1.7;
     }
     .editor-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 1.25rem; flex-wrap: wrap; }
@@ -266,7 +271,7 @@
     .side-note h3 { font-size: 0.82rem; font-weight: 650; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
     .side-note ul { margin: 0.4rem 0 0; padding-left: 1rem; }
     .side-note li { margin-bottom: 0.2rem; }
-    .side-note code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--text-mid); }
+    .side-note code { font-family: var(--font-mono); color: var(--text-mid); }
 
     /* ── tabs (Articles / Applications) ───────────────────────────────── */
     .tabs {
@@ -289,7 +294,7 @@
     }
     .secret-box code {
       display: block; margin-top: 0.3rem; word-break: break-all;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-family: var(--font-mono);
       font-size: 0.82rem; color: #0f172a; background: #fff;
       border: 1px solid var(--ok-border); border-radius: 0.35rem; padding: 0.35rem 0.45rem;
     }
@@ -350,7 +355,7 @@
     }
     .doc-table td { color: var(--text-mid); }
     .doc-table td code, .doc-section p code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-family: var(--font-mono);
       font-size: 0.82rem; color: var(--brand-dark);
       background: var(--border-soft); padding: 0.08rem 0.3rem; border-radius: 0.25rem;
       word-break: break-all;
@@ -358,7 +363,7 @@
     .doc-code {
       display: block; margin-top: 0.55rem; padding: 0.7rem 0.8rem;
       background: #0f172a; color: #e2e8f0; border-radius: 0.5rem;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-family: var(--font-mono);
       font-size: 0.82rem; line-height: 1.65;
       white-space: pre-wrap; word-break: break-all;
     }
