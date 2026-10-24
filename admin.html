@@ -291,6 +291,12 @@
     .checkline input { width: auto; }
 
     .account-sep { margin: 1.5rem 0 1.4rem; border-top: 1px solid var(--border-soft); }
+    .bind-state {
+      font-size: 0.92rem; line-height: 1.6; color: var(--text-soft);
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 0.75rem 0.9rem; margin-bottom: 0.9rem;
+    }
+    .bind-state strong { color: var(--text); font-weight: 600; }
 
     /* ── documentation ───────────────────────────────────────────────── */
     .doc-section {
@@ -562,6 +568,18 @@
           <i class="fa-solid fa-envelope"></i><span>保存邮箱</span>
         </button>
       </form>
+
+      <div class="account-sep"></div>
+
+      <h1>单点登录</h1>
+      <p class="lede">绑定后，即可用司白画云盘账号直接登录本站，无需再输入密码。</p>
+      <div id="bindState" class="bind-state">正在读取绑定状态…</div>
+      <button id="bindBtn" class="primary-btn hidden" type="button">
+        <i class="fa-solid fa-link"></i><span>绑定司白画云盘账号</span>
+      </button>
+      <button id="unbindBtn" class="outline-btn hidden" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">
+        解除绑定
+      </button>
 
       <div class="account-sep"></div>
 
@@ -846,7 +864,34 @@
      * so no separate /callback landing page is needed — the console finishes the
      * exchange itself and then scrubs the query string.
      */
-    const finishOAuthLogin = async (code, stateParam) => {
+    const startOAuth = async (params) => {
+      const query = new URLSearchParams({ redirect: '/admin.html' });
+      if (params && params.bind) { query.set('bind', '1'); }
+      const data = await api('/api/auth/oauth/start?' + query.toString());
+      window.location.assign(data.authorize_url);
+    };
+
+    /** Finish an OAuth round trip: either a sign-in or an account binding. */
+    const completeOAuth = async (oauth) => {
+      const data = await api('/api/auth/oauth/callback', {
+        method: 'POST', body: { code: oauth.code, state: oauth.state }
+      });
+
+      // Binding round trip — the account is already signed in.
+      if (data && data.bound) {
+        const who = data.external || {};
+        toast('已绑定' + (who.name || who.username || '司白画云盘账号') + '。');
+        refreshBinding();
+        return;
+      }
+
+      // Sign-in round trip — reload so the new session is proven by a real
+      // navigation instead of only by in-page state.
+      const target = (data && data.return_to) || '/admin.html';
+      window.location.replace(target);
+    };
+
+    const finishOAuthLogin = async (oauth) => {
       setAlert('loginAlert', '');
       const btn = $('oauthBtn');
       const original = btn.innerHTML;
@@ -854,10 +899,7 @@
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>正在完成登录…</span>';
       try {
-        const data = await api('/api/auth/oauth/callback', { method: 'POST', body: { code, state: stateParam } });
-        state.user = data.user;
-        await enterConsole();
-        toast('已通过 ' + (data.user?.external?.provider || '外部账号') + ' 登录。');
+        await completeOAuth(oauth);
       } catch (err) {
         setAlert('loginAlert', err.message);
         showPasswordForm();
@@ -866,6 +908,55 @@
         btn.innerHTML = original;
       }
     };
+
+    /* ── binding the site account to the external provider ───────────── */
+    const refreshBinding = async () => {
+      const box = $('bindState');
+      try {
+        const data = await api('/api/auth/oauth/binding');
+        if (!data.enabled) {
+          box.textContent = '外部登录尚未启用。';
+          $('bindBtn').classList.add('hidden');
+          $('unbindBtn').classList.add('hidden');
+          return;
+        }
+        if (data.bound) {
+          box.innerHTML = '已绑定 <strong>' + data.name + '</strong>，可用该账号直接登录本站。';
+          $('bindBtn').classList.add('hidden');
+          $('unbindBtn').classList.remove('hidden');
+        } else {
+          box.innerHTML = '尚未绑定 <strong>' + data.name + '</strong>。绑定后可用它一键登录，不必再输密码。';
+          $('bindBtn').classList.remove('hidden');
+          $('unbindBtn').classList.add('hidden');
+        }
+      } catch (err) {
+        box.textContent = '读取绑定状态失败：' + err.message;
+      }
+    };
+
+    $('bindBtn').addEventListener('click', async () => {
+      const btn = $('bindBtn');
+      const original = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>正在跳转…</span>';
+      try {
+        await startOAuth({ bind: true });
+      } catch (err) {
+        toast('跳转失败：' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    });
+
+    $('unbindBtn').addEventListener('click', async () => {
+      try {
+        await api('/api/auth/oauth/unbind', { method: 'POST' });
+        toast('已解除绑定。');
+        refreshBinding();
+      } catch (err) {
+        toast('解除绑定失败：' + err.message);
+      }
+    });
 
     const takeOAuthParamsFromUrl = () => {
       const params = new URLSearchParams(location.search);
@@ -900,6 +991,10 @@
         const data = await api('/api/auth/me');
         state.user = data.user;
         await enterConsole();
+        // Already signed in: a code in the URL can only be a binding round trip.
+        if (oauth && oauth.code && oauth.state) {
+          try { await completeOAuth(oauth); } catch (err) { toast('绑定失败：' + err.message); }
+        }
         return;
       } catch (err) {
         showGate('login');
@@ -910,7 +1005,7 @@
         setAlert('loginAlert', '外部登录被拒绝：' + (oauth.errorDescription || oauth.error));
         showPasswordForm();
       } else if (oauth.code && oauth.state) {
-        await finishOAuthLogin(oauth.code, oauth.state);
+        await finishOAuthLogin(oauth);
       } else {
         setAlert('loginAlert', '外部登录返回的数据不完整，请重新登录。');
         showPasswordForm();
@@ -986,6 +1081,7 @@
       $('profileEmail').value = (state.user && state.user.email) || '';
       $('pwOverlay').classList.remove('hidden');
       $('pwCurrent').focus();
+      refreshBinding();
       // Refresh from the server so the field is never stale.
       api('/api/auth/me').then((data) => {
         if (data && data.user) {

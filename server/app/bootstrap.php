@@ -103,10 +103,41 @@ function session_cookie_names(): array
     return ['__Host-sib_session', 'sib_session'];
 }
 
+/** Drop one cookie name. Always emitted with the attributes the name requires
+ *  (a __Host- cookie can only be overwritten over HTTPS with Secure + Path=/),
+ *  otherwise the browser silently ignores the deletion. */
+function forget_session_cookie(string $name): void
+{
+    setcookie($name, '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'secure' => $name === '__Host-sib_session' ? true : is_https(),
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+/** Delete every name we ever used, so no stale cookie can linger. */
+function clear_session_cookie(): void
+{
+    foreach (session_cookie_names() as $name) {
+        forget_session_cookie($name);
+    }
+}
+
 function set_session_cookie(string $token, int $maxAge = SESSION_TTL): void
 {
     $secure = is_https();
     $name = $secure ? '__Host-sib_session' : 'sib_session';
+
+    // A leftover cookie under the other name would shadow this one on the next
+    // request, so get rid of it while we are at it.
+    foreach (session_cookie_names() as $other) {
+        if ($other !== $name) {
+            forget_session_cookie($other);
+        }
+    }
+
     setcookie($name, $token, [
         'expires' => time() + $maxAge,
         'path' => '/',
@@ -116,28 +147,16 @@ function set_session_cookie(string $token, int $maxAge = SESSION_TTL): void
     ]);
 }
 
-function clear_session_cookie(): void
+/** Every session token the browser offered, most specific name first. */
+function session_token_candidates(): array
 {
-    $secure = is_https();
-    foreach (session_cookie_names() as $name) {
-        setcookie($name, '', [
-            'expires' => time() - 3600,
-            'path' => '/',
-            'secure' => $secure,
-            'httponly' => true,
-            'samesite' => 'Lax',
-        ]);
-    }
-}
-
-function read_session_token(): ?string
-{
+    $out = [];
     foreach (session_cookie_names() as $name) {
         if (!empty($_COOKIE[$name])) {
-            return (string) $_COOKIE[$name];
+            $out[$name] = (string) $_COOKIE[$name];
         }
     }
-    return null;
+    return $out;
 }
 
 const SESSION_TTL = 604800; // 7 days
@@ -150,17 +169,10 @@ function create_session(int $userId): string
     return $token;
 }
 
-function current_user(): ?array
+/** Look one token up; returns null when unknown, expired or disabled. */
+function session_lookup(string $token): ?array
 {
-    static $resolved = false;
-    static $user = null;
-    if ($resolved) {
-        return $user;
-    }
-    $resolved = true;
-
-    $token = read_session_token();
-    if ($token === null) {
+    if ($token === '' || strlen($token) > 128) {
         return null;
     }
     $stmt = db()->prepare(
@@ -180,13 +192,43 @@ function current_user(): ?array
     if ($row['status'] !== 'active') {
         return null;
     }
-    $user = [
+    return [
         'id' => (int) $row['id'],
         'username' => $row['username'],
         'role' => $row['role'],
         'email' => (string) $row['email'],
     ];
-    return $user;
+}
+
+function current_user(): ?array
+{
+    static $resolved = false;
+    static $user = null;
+    if ($resolved) {
+        return $user;
+    }
+    $resolved = true;
+
+    // Try every cookie the browser sent. A stale one (deleted session, expired,
+    // disabled account) used to win over a perfectly good one and lock people
+    // out — now it is discarded on the spot and the next one is tried.
+    foreach (session_token_candidates() as $name => $token) {
+        $found = session_lookup($token);
+        if ($found !== null) {
+            $GLOBALS['sib_active_session_token'] = $token;
+            $user = $found;
+            return $user;
+        }
+        forget_session_cookie($name);
+    }
+    return null;
+}
+
+/** The token that actually authenticated this request (null when signed out). */
+function current_session_token(): ?string
+{
+    current_user();
+    return $GLOBALS['sib_active_session_token'] ?? null;
 }
 
 function require_login(): array

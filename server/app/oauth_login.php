@@ -175,12 +175,15 @@ function handle_auth_oauth_start(): void
     if ($returnTo === '' || !str_starts_with($returnTo, '/') || str_starts_with($returnTo, '//')) {
         $returnTo = '/admin.html';
     }
+    // Binding keeps whatever page the account section lives on.
+    $bind = (string) ($_GET['bind'] ?? '') === '1';
 
     $verifier = rtrim(strtr(base64_encode(random_bytes(48)), '+/', '-_'), '=');
     $state = eo_pack_state([
         'nonce' => bin2hex(random_bytes(16)),
         'verifier' => $verifier,
         'return_to' => $returnTo,
+        'bind' => $bind,
     ]);
 
     $query = [
@@ -205,8 +208,11 @@ function handle_auth_oauth_start(): void
 /**
  * Resolve the external identity to a local account.
  * Order: oauth_sub -> email -> username. Unknown identities are rejected.
+ *
+ * $requireAdmin is true for the admin console and false for the public site,
+ * where any active local account may sign in.
  */
-function eo_resolve_user(array $info): array
+function eo_resolve_user(array $info, bool $requireAdmin = true): array
 {
     $sub = trim((string) ($info['sub'] ?? ''));
     $email = trim((string) ($info['email'] ?? ''));
@@ -229,15 +235,72 @@ function eo_resolve_user(array $info): array
         $row = $stmt->fetch() ?: null;
     }
     if ($row === null) {
-        fail(403, '该外部账号尚未绑定本站账号：请先用账号密码登录，并在「账户」里填写与该账号一致的邮箱。');
+        fail(403, '该外部账号尚未绑定本站账号：请先登录，并在「账户」里绑定司白画云盘账号。');
     }
     if (($row['status'] ?? 'active') !== 'active') {
         fail(403, '该账号已被停用。');
     }
-    if (($row['role'] ?? '') !== 'admin') {
+    if ($requireAdmin && ($row['role'] ?? '') !== 'admin') {
         fail(403, '该账号没有后台权限。');
     }
     return ['row' => $row, 'sub' => $sub, 'email' => $email, 'username' => $username];
+}
+
+/** Attach the external identity to the account that is signed in right now. */
+function eo_bind_user(array $info): array
+{
+    $user = current_user();
+    if ($user === null) {
+        fail(401, '请先登录后再绑定司白画云盘账号。');
+    }
+    $sub = trim((string) ($info['sub'] ?? ''));
+    if ($sub === '') {
+        fail(400, '外部账号缺少唯一标识（sub），无法绑定。');
+    }
+
+    $stmt = db()->prepare('SELECT id FROM users WHERE oauth_sub = ? AND id <> ? LIMIT 1');
+    $stmt->execute([$sub, (int) $user['id']]);
+    if ($stmt->fetch()) {
+        fail(409, '该司白画云盘账号已绑定到另一个本站账号。');
+    }
+
+    $email = trim((string) ($info['email'] ?? ''));
+    if ($email !== '' && (string) ($user['email'] ?? '') === '') {
+        db()->prepare('UPDATE users SET oauth_sub = ?, email = ? WHERE id = ?')
+            ->execute([$sub, $email, (int) $user['id']]);
+    } else {
+        db()->prepare('UPDATE users SET oauth_sub = ? WHERE id = ?')
+            ->execute([$sub, (int) $user['id']]);
+    }
+
+    return [
+        'user' => $user,
+        'sub' => $sub,
+        'email' => $email,
+        'username' => trim((string) ($info['preferred_username'] ?? ($info['name'] ?? ''))),
+    ];
+}
+
+/** GET /api/auth/oauth/binding — is this account linked to the provider yet? */
+function handle_auth_oauth_binding(): void
+{
+    $user = require_login();
+    $stmt = db()->prepare('SELECT oauth_sub FROM users WHERE id = ? LIMIT 1');
+    $stmt->execute([(int) $user['id']]);
+    $row = $stmt->fetch() ?: [];
+    ok([
+        'enabled' => eo_enabled(),
+        'name' => (string) (eo_config()['name'] ?? '司白画云盘'),
+        'bound' => trim((string) ($row['oauth_sub'] ?? '')) !== '',
+    ]);
+}
+
+/** POST /api/auth/oauth/unbind — drop the link to the provider. */
+function handle_auth_oauth_unbind(): void
+{
+    $user = require_login();
+    db()->prepare('UPDATE users SET oauth_sub = "" WHERE id = ?')->execute([(int) $user['id']]);
+    ok(null, '已解除绑定');
 }
 
 /** POST /api/auth/oauth/callback — finish the login, set the session cookie. */
@@ -291,7 +354,28 @@ function handle_auth_oauth_callback(): void
         fail(400, eo_error_message($info, '读取外部账号信息失败'));
     }
 
-    $resolved = eo_resolve_user($info);
+    // Binding only links the identity to the account that is already signed in.
+    if (!empty($packed['bind'])) {
+        $bound = eo_bind_user($info);
+        ok([
+            'bound' => true,
+            'external' => [
+                'provider' => (string) ($c['name'] ?? ''),
+                'sub' => $bound['sub'],
+                'name' => (string) ($info['name'] ?? ''),
+                'email' => $bound['email'],
+                'username' => $bound['username'],
+                'picture' => (string) ($info['picture'] ?? ''),
+            ],
+            'return_to' => (string) ($packed['return_to'] ?? '/admin.html'),
+        ], '已绑定司白画云盘账号');
+    }
+
+    $returnTo = (string) ($packed['return_to'] ?? '/admin.html');
+    // The console is admin-only; the public site accepts any active account.
+    $requireAdmin = str_starts_with($returnTo, '/admin');
+
+    $resolved = eo_resolve_user($info, $requireAdmin);
     $row = $resolved['row'];
     $userId = (int) $row['id'];
 

@@ -84,7 +84,7 @@ function handle_login(): void
 
 function handle_logout(): void
 {
-    $token = read_session_token();
+    $token = current_session_token();
     if ($token !== null) {
         db()->prepare('DELETE FROM sessions WHERE token = ?')->execute([$token]);
     }
@@ -122,7 +122,7 @@ function handle_change_password(): void
         ->execute([password_hash($new, PASSWORD_DEFAULT), $user['id']]);
 
     // Revoke every other session; this device stays signed in.
-    $token = read_session_token() ?? '';
+    $token = current_session_token() ?? '';
     db()->prepare('DELETE FROM sessions WHERE user_id = ? AND token <> ?')->execute([$user['id'], $token]);
 
     ok(null, '密码已更新');
@@ -321,6 +321,8 @@ function route(string $path, string $method): void
         '/api/auth/oauth/config' => ['GET' => 'handle_auth_oauth_config'],
         '/api/auth/oauth/start' => ['GET' => 'handle_auth_oauth_start'],
         '/api/auth/oauth/callback' => ['POST' => 'handle_auth_oauth_callback'],
+        '/api/auth/oauth/binding' => ['GET' => 'handle_auth_oauth_binding'],
+        '/api/auth/oauth/unbind' => ['POST' => 'handle_auth_oauth_unbind'],
         '/api/auth/change-password' => ['POST' => 'handle_change_password'],
         '/api/auth/profile' => ['POST' => 'handle_update_profile'],
         '/api/posts' => ['GET' => 'handle_posts_index', 'POST' => 'handle_posts_create'],

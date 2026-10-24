@@ -206,6 +206,25 @@
     }
     .auth-submit:hover { background: #142740; }
     .auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .auth-sso { margin-top: 1.1rem; }
+    .auth-sso-sep {
+      position: relative; text-align: center; margin-bottom: 0.9rem;
+      font-size: 0.6875rem; letter-spacing: 0.08em; text-transform: uppercase; color: #94a3b8;
+    }
+    .auth-sso-sep::before {
+      content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e2e8f0;
+    }
+    .auth-sso-sep span { position: relative; background: #ffffff; padding: 0 0.6rem; }
+    .auth-sso-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
+      width: 100%; padding: 0.7rem 1rem; font-size: 0.875rem; font-weight: 600;
+      color: #1e3a5f; background: #f1f5f9; border: 1px solid #dbe3ec;
+      border-radius: 9999px; transition: background 0.15s, opacity 0.15s;
+    }
+    .auth-sso-btn:hover { background: #e2e8f0; }
+    .auth-sso-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .auth-sso-icon { width: 1.15rem; height: 1.15rem; object-fit: contain; border-radius: 0.25rem; }
+
     .auth-foot { margin-top: 0.875rem; font-size: 0.6875rem; line-height: 1.6; color: #94a3b8; text-align: center; }
 
     .auth-fade-enter-active, .auth-fade-leave-active { transition: opacity 0.18s ease; }
@@ -840,11 +859,20 @@
 
             <div v-if="loginError" class="auth-error">{{ loginError }}</div>
 
-            <button type="submit" class="auth-submit" :disabled="loginBusy">
+            <button type="submit" class="auth-submit" :disabled="loginBusy || ssoBusy">
               <i :class="loginBusy ? 'fa-solid fa-circle-notch fa-spin' : 'fa-solid fa-right-to-bracket'"></i>
               <span>{{ loginBusy ? 'Signing in…' : 'Sign In' }}</span>
             </button>
           </form>
+
+          <div v-if="ssoEnabled" class="auth-sso">
+            <div class="auth-sso-sep"><span>or</span></div>
+            <button type="button" class="auth-sso-btn" @click="startSso" :disabled="ssoBusy">
+              <img v-if="ssoIcon" :src="ssoIcon" alt="" class="auth-sso-icon">
+              <i v-else class="fa-solid fa-right-to-bracket"></i>
+              <span>{{ ssoBusy ? 'Redirecting…' : 'Continue with ' + ssoName }}</span>
+            </button>
+          </div>
 
           <p class="auth-foot">Your password is verified on this site and is never stored on this device.</p>
         </div>
@@ -912,6 +940,12 @@
         const usernameInput = ref(null);
         const userMenuOpen = ref(false);
 
+        // Single sign-on through the external provider (司白画云盘)
+        const ssoEnabled = ref(false);
+        const ssoName = ref('外部账号');
+        const ssoIcon = ref('');
+        const ssoBusy = ref(false);
+
         // Newsroom
         const posts = ref([]);
         const postsLoading = ref(true);
@@ -976,10 +1010,69 @@
         };
 
         const closeLogin = () => {
-          if (loginBusy.value) return;
+          if (loginBusy.value || ssoBusy.value) return;
           loginOpen.value = false;
           loginError.value = '';
           loginPassword.value = '';
+        };
+
+        /* ── single sign-on ────────────────────────────────────────────── */
+        const loadSsoConfig = async () => {
+          try {
+            const cfg = await apiRequest('/api/auth/oauth/config');
+            if (cfg && cfg.enabled) {
+              ssoEnabled.value = true;
+              ssoName.value = cfg.name || '外部账号';
+              ssoIcon.value = cfg.icon || '';
+            }
+          } catch (err) { /* SSO simply stays hidden */ }
+        };
+
+        const startSso = async () => {
+          if (ssoBusy.value) return;
+          ssoBusy.value = true;
+          loginError.value = '';
+          try {
+            const data = await apiRequest('/api/auth/oauth/start?redirect=' + encodeURIComponent('/'));
+            window.location.assign(data.authorize_url);
+          } catch (err) {
+            loginError.value = '无法跳转至单点登录，请稍后再试。';
+            ssoBusy.value = false;
+          }
+        };
+
+        /** The provider sends people back with ?code=…&state=… in the URL. */
+        const finishSsoFromUrl = async () => {
+          const params = new URLSearchParams(window.location.search);
+          const code = params.get('code');
+          const state = params.get('state');
+          const error = params.get('error');
+          if (!code && !state && !error) return false;
+
+          // Never leave an authorization code sitting in the address bar.
+          window.history.replaceState({}, '', window.location.pathname);
+
+          if (!code || !state) {
+            loginError.value = error
+              ? 'Single sign-on was declined.'
+              : 'Single sign-on did not return a complete response.';
+            loginOpen.value = true;
+            return true;
+          }
+
+          loginBusy.value = true;
+          try {
+            const data = await apiRequest('/api/auth/oauth/callback', { method: 'POST', body: { code, state } });
+            if (data && data.bound) { return true; }
+            // Reload so the new session is proven by a real navigation.
+            window.location.replace((data && data.return_to) || '/');
+          } catch (err) {
+            loginError.value = err.message || 'Single sign-on failed.';
+            loginOpen.value = true;
+          } finally {
+            loginBusy.value = false;
+          }
+          return true;
         };
 
         const submitLogin = async () => {
@@ -1052,7 +1145,9 @@
           }
 
           authLoading.value = true;
+          await finishSsoFromUrl();
           await refreshProfile();
+          loadSsoConfig();
           authLoading.value = false;
 
           await loadPosts();
@@ -1085,7 +1180,12 @@
           openLogin,
           closeLogin,
           submitLogin,
-          logout
+          logout,
+          ssoEnabled,
+          ssoName,
+          ssoIcon,
+          ssoBusy,
+          startSso
         };
       }
     }).mount('#app');
