@@ -29,4 +29,23 @@ return [
         //   openssl rand -base64 32
         'secret_key' => 'CHANGE_ME_32_BYTES_BASE64',
     ],
+
+    // Sign in to the admin console through an external OAuth 2.0 / OIDC provider.
+    // Leave `enabled => false` to fall back to the local password only.
+    // The external identity must match a local admin account (oauth_sub, then
+    // e-mail, then username); unknown identities are always rejected.
+    'external_oauth' => [
+        'enabled' => false,
+        'name' => 'pan.sibh.cn',
+        'icon' => '',
+        'button_label' => '',           // defaults to "使用 {name} 登录"
+        'client_id' => '',
+        'client_secret' => '',          // leave empty only if the provider allows public clients
+        'redirect_uri' => 'https://sibaihua.com/callback',
+        'scopes' => 'openid profile email',
+        'pkce' => true,
+        'authorization_endpoint' => '',
+        'token_endpoint' => '',
+        'userinfo_endpoint' => '',
+    ],
 ];

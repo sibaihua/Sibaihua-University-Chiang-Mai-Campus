@@ -129,6 +129,25 @@
     .primary-btn:hover { background: var(--brand-dark); }
     .primary-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+    .oauth-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem;
+      width: 100%; margin-top: 1.25rem; padding: 0.72rem 1rem;
+      background: var(--brand); color: #fff; border: 1px solid var(--brand);
+      border-radius: 9999px; font-size: 0.85rem; font-weight: 600;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .oauth-btn:hover { background: var(--brand-dark); }
+    .oauth-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .oauth-icon { width: 1.1rem; height: 1.1rem; object-fit: contain; border-radius: 0.2rem; }
+
+    .link-btn {
+      display: block; width: 100%; margin-top: 0.85rem; padding: 0;
+      background: none; border: 0; color: var(--text-mute);
+      font-size: 0.75rem; font-weight: 550; text-decoration: underline;
+      text-underline-offset: 0.15em; cursor: pointer;
+    }
+    .link-btn:hover { color: var(--brand); }
+
     .alert {
       margin-top: 1rem; padding: 0.55rem 0.7rem;
       font-size: 0.75rem; line-height: 1.55;
@@ -399,7 +418,17 @@
       <div id="loginPane" class="hidden">
         <h1>登录</h1>
         <p class="lede">Sibaihua University 教职员编辑入口。</p>
-        <form id="loginForm" autocomplete="off">
+
+        <button id="oauthBtn" class="oauth-btn hidden" type="button">
+          <img id="oauthIcon" class="oauth-icon hidden" alt="">
+          <i class="fa-solid fa-right-to-bracket"></i><span id="oauthBtnLabel">使用外部账号登录</span>
+        </button>
+
+        <button id="pwToggle" class="link-btn" type="button">用账号密码登录</button>
+
+        <div id="loginAlert" class="alert hidden"></div>
+
+        <form id="loginForm" class="hidden" autocomplete="off">
           <div class="field">
             <label for="loginUser">用户名</label>
             <input id="loginUser" type="text" autocomplete="username" required>
@@ -408,7 +437,6 @@
             <label for="loginPass">密码</label>
             <input id="loginPass" type="password" autocomplete="current-password" required>
           </div>
-          <div id="loginAlert" class="alert hidden"></div>
           <button id="loginSubmit" class="primary-btn" type="submit">
             <i class="fa-solid fa-right-to-bracket"></i><span>登录</span>
           </button>
@@ -429,12 +457,6 @@
     <nav class="tabs">
       <button id="tabArticles" class="tab active" type="button">
         <i class="fa-regular fa-file-lines"></i><span>文章</span>
-      </button>
-      <button id="tabApps" class="tab" type="button">
-        <i class="fa-solid fa-plug"></i><span>应用</span>
-      </button>
-      <button id="tabDocs" class="tab" type="button">
-        <i class="fa-solid fa-book"></i><span>调用文档</span>
       </button>
     </nav>
 
@@ -525,140 +547,6 @@
     </div>
   </main>
 
-  <!-- OAuth applications view -->
-  <div id="appsView" class="console hidden">
-    <div class="console-head">
-      <div>
-        <h2>OAuth 应用</h2>
-        <p>可以通过本站账号登录的第三方应用（OpenID Connect）。</p>
-      </div>
-      <button id="newAppBtn" class="solid-btn" type="button">
-        <i class="fa-solid fa-plus"></i><span>新建应用</span>
-      </button>
-    </div>
-    <div id="appsPanel" class="panel">
-      <div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>正在加载应用…</div>
-    </div>
-  </div>
-
-  <!-- Documentation view -->
-  <div id="docsView" class="console hidden">
-    <div class="console-head">
-      <div>
-        <h2>调用文档 · OpenID Connect / OAuth 2.0</h2>
-        <p>把「用 Sibaihua University 账号登录」接入你自己应用所需的全部信息。</p>
-      </div>
-    </div>
-
-    <div class="doc-section">
-      <h3>1 · 发现地址</h3>
-      <p>客户端只需要 Issuer 地址，其余端点会自动从发现文档中读取。</p>
-      <button class="copy-chip" type="button" data-copy="https://sibaihua.com">
-        <i class="fa-regular fa-copy"></i><span>https://sibaihua.com</span>
-      </button>
-      <button class="copy-chip" type="button" data-copy="https://sibaihua.com/.well-known/openid-configuration">
-        <i class="fa-regular fa-copy"></i><span>/.well-known/openid-configuration</span>
-      </button>
-      <div class="doc-note">
-        Issuer 必须与发现文档中的 <code>issuer</code> 完全一致，即 <code>https://sibaihua.com</code>，
-        <b>结尾不要加斜杠</b>。<code>www</code> 会 301 跳转到裸域，因此只会存在一个 issuer。
-      </div>
-    </div>
-
-    <div class="doc-section">
-      <h3>2 · 端点一览</h3>
-      <table class="doc-table">
-        <thead><tr><th>端点</th><th>方法</th><th>用途</th></tr></thead>
-        <tbody>
-          <tr><td><code>/.well-known/openid-configuration</code></td><td>GET</td><td>OIDC 发现文档</td></tr>
-          <tr><td><code>/.well-known/oauth-authorization-server</code></td><td>GET</td><td>纯 OAuth 客户端用的元数据（RFC 8414）</td></tr>
-          <tr><td><code>/.well-known/jwks.json</code></td><td>GET</td><td>ID Token 验签公钥（RS256）</td></tr>
-          <tr><td><code>/oauth/authorize</code></td><td>GET · POST</td><td>登录与授权同意页</td></tr>
-          <tr><td><code>/api/oauth/token</code></td><td>POST</td><td>用授权码或刷新令牌换取令牌</td></tr>
-          <tr><td><code>/api/oauth/userinfo</code></td><td>GET · POST</td><td>用 Bearer 令牌读取成员信息</td></tr>
-          <tr><td><code>/api/oauth/introspect</code></td><td>POST</td><td>令牌自省（RFC 7662）</td></tr>
-          <tr><td><code>/api/oauth/revoke</code></td><td>POST</td><td>撤销令牌（RFC 7009）</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="doc-section">
-      <h3>3 · 接入步骤</h3>
-      <p><b>①</b> 先在「应用」标签里新建应用，填写回调地址，然后复制 <code>client_id</code>；
-        机密客户端还会拿到 <code>client_secret</code>（之后可随时在编辑窗口查看）。</p>
-      <p style="margin-top:.7rem"><b>②</b> 让浏览器跳转到授权端点：</p>
-      <span class="doc-code">GET /oauth/authorize
-  ?response_type=code
-  &amp;client_id=你的_CLIENT_ID
-  &amp;redirect_uri=https://你的应用/callback
-  &amp;scope=openid%20profile%20email
-  &amp;state=随机字符串
-  &amp;nonce=随机字符串
-  &amp;code_challenge=BASE64URL(SHA256(VERIFIER))
-  &amp;code_challenge_method=S256</span>
-      <p style="margin-top:.7rem"><b>③</b> 成员同意后浏览器会回到
-        <code>redirect_uri?code=…&amp;state=…</code>，用授权码换取令牌：</p>
-      <span class="doc-code">POST /api/oauth/token
-Content-Type: application/x-www-form-urlencoded
-Authorization: Basic base64(client_id:client_secret)   # 仅机密客户端
-
-grant_type=authorization_code
-&amp;code=返回的授权码
-&amp;redirect_uri=https://你的应用/callback
-&amp;code_verifier=前面生成的_VERIFIER</span>
-      <p style="margin-top:.7rem"><b>④</b> 用 access_token 读取成员信息；需要长期访问就申请
-        <code>offline_access</code> 并用 refresh_token 续期：</p>
-      <span class="doc-code">GET /api/oauth/userinfo
-Authorization: Bearer ACCESS_TOKEN
-
-POST /api/oauth/token
-grant_type=refresh_token&amp;refresh_token=…&amp;client_id=…&amp;client_secret=…</span>
-    </div>
-
-    <div class="doc-section">
-      <h3>4 · Scope 与返回的字段</h3>
-      <table class="doc-table">
-        <thead><tr><th>Scope</th><th>下发的 claim</th></tr></thead>
-        <tbody>
-          <tr><td><code>openid</code>（必需）</td><td><code>sub</code> —— 稳定的成员标识</td></tr>
-          <tr><td><code>profile</code></td><td><code>name</code>、<code>preferred_username</code></td></tr>
-          <tr><td><code>email</code></td><td><code>email</code>、<code>email_verified</code>（账号需先在「账户」里填邮箱）</td></tr>
-          <tr><td><code>offline_access</code></td><td>签发 <code>refresh_token</code></td></tr>
-        </tbody>
-      </table>
-      <div class="doc-note">
-        ID Token 始终包含 <code>iss</code>、<code>sub</code>、<code>aud</code>、<code>exp</code>、
-        <code>iat</code>、<code>auth_time</code>、<code>at_hash</code>；请求了 <code>nonce</code> 会原样回传。
-        请用 <code>/.well-known/jwks.json</code> 中的公钥验签。
-      </div>
-    </div>
-
-    <div class="doc-section">
-      <h3>5 · 错误码</h3>
-      <table class="doc-table">
-        <thead><tr><th>error</th><th>含义</th></tr></thead>
-        <tbody>
-          <tr><td><code>invalid_client</code></td><td>client_id 不存在，或客户端密钥错误</td></tr>
-          <tr><td><code>invalid_grant</code></td><td>授权码无效 / 已使用 / 已过期，或 PKCE 校验失败</td></tr>
-          <tr><td><code>invalid_scope</code></td><td>请求的 scope 超出该应用允许范围</td></tr>
-          <tr><td><code>invalid_request</code></td><td>缺少必要参数，或公共客户端未使用 PKCE</td></tr>
-          <tr><td><code>unsupported_grant_type</code></td><td>不支持的 grant_type</td></tr>
-          <tr><td><code>access_denied</code></td><td>成员在同意页点了拒绝</td></tr>
-          <tr><td><code>login_required</code></td><td>请求了 <code>prompt=none</code> 但当前没有登录会话</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="doc-section">
-      <h3>6 · 运维要点</h3>
-      <p>· 客户端密钥以加密形式保存在数据库中，<b>可随时在编辑窗口查看</b>；若怀疑泄露，用「更换密钥」立即作废旧密钥，该应用已获得的全部令牌同时失效。</p>
-      <p>· 把应用改成<b>停用</b>可随时切断它的登录，并吊销其所有令牌。</p>
-      <p>· 回调地址必须逐字符一致 —— 协议、端口、结尾斜杠都算。</p>
-      <p>· 有效期：access token 1 小时，refresh token 30 天，授权码 5 分钟且只能使用一次。</p>
-      <p>· 加密依赖 <code>config.php</code> 里的 <code>oidc.secret_key</code>，更换该值会导致已保存的密钥无法解密（需要重新轮换）。</p>
-    </div>
-  </div>
-
   <!-- Change-password dialog -->
   <div id="pwOverlay" class="overlay hidden">
     <div class="card">
@@ -699,101 +587,6 @@ grant_type=refresh_token&amp;refresh_token=…&amp;client_id=…&amp;client_secr
         <button id="pwCancel" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">
           取消
         </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- New OAuth application dialog -->
-  <div id="appOverlay" class="overlay hidden">
-    <div class="card">
-      <h1>新建应用</h1>
-      <p class="lede">登记一个可以使用 Sibaihua University 账号登录的站点。</p>
-      <form id="appForm" autocomplete="off">
-        <div class="field">
-          <label for="appName">应用名称</label>
-          <input id="appName" type="text" placeholder="例如：校园图书馆" required>
-        </div>
-        <div class="field">
-          <label for="appUris">回调地址</label>
-          <textarea id="appUris" rows="3" placeholder="https://library.example.edu/callback"></textarea>
-          <div class="hint">一行一个，必须与应用实际发送的地址完全一致。</div>
-        </div>
-        <div class="field">
-          <label>允许的 scope</label>
-          <label class="checkline"><input type="checkbox" class="appScope" value="openid" checked disabled> openid（必需）</label>
-          <label class="checkline"><input type="checkbox" class="appScope" value="profile" checked> profile</label>
-          <label class="checkline"><input type="checkbox" class="appScope" value="email" checked> email</label>
-          <label class="checkline"><input type="checkbox" class="appScope" value="offline_access"> offline_access</label>
-        </div>
-        <div class="field">
-          <label class="checkline"><input type="checkbox" id="appConfidential" checked> 机密客户端（会签发客户端密钥）</label>
-          <div class="hint">浏览器或移动端等无法保管密钥的应用请取消勾选，此时强制使用 PKCE。</div>
-        </div>
-        <div id="appAlert" class="alert hidden"></div>
-        <div id="appSecretBox" class="secret-box hidden"></div>
-        <button id="appSubmit" class="primary-btn" type="submit">
-          <i class="fa-solid fa-plug"></i><span>创建应用</span>
-        </button>
-        <button id="appCancel" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">关闭</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Edit OAuth application dialog -->
-  <div id="appEditOverlay" class="overlay hidden">
-    <div class="card">
-      <h1>编辑应用</h1>
-      <p class="lede" id="appEditClientId" style="word-break:break-all"></p>
-      <div class="row-meta" style="gap:0.4rem;flex-wrap:wrap;margin-top:0.55rem">
-        <button class="copy-chip" type="button" id="copyClientIdBtn">
-          <i class="fa-regular fa-copy"></i><span>复制 client_id</span>
-        </button>
-        <button class="copy-chip" type="button" id="revealSecretBtn">
-          <i class="fa-solid fa-eye"></i><span>显示客户端密钥</span>
-        </button>
-        <button class="copy-chip" type="button" id="copySecretBtn" style="display:none">
-          <i class="fa-regular fa-copy"></i><span>复制密钥</span>
-        </button>
-      </div>
-      <div id="secretViewBox" class="secret-box hidden"></div>
-      <form id="appEditForm" autocomplete="off">
-        <input type="hidden" id="appEditId">
-        <div class="field">
-          <label for="appEditName">应用名称</label>
-          <input id="appEditName" type="text" required>
-        </div>
-        <div class="field">
-          <label for="appEditUris">回调地址</label>
-          <textarea id="appEditUris" rows="3"></textarea>
-          <div class="hint">一行一个，必须完全一致。</div>
-        </div>
-        <div class="field">
-          <label>允许的 scope</label>
-          <label class="checkline"><input type="checkbox" class="editScope" value="openid" checked disabled> openid（必需）</label>
-          <label class="checkline"><input type="checkbox" class="editScope" value="profile"> profile</label>
-          <label class="checkline"><input type="checkbox" class="editScope" value="email"> email</label>
-          <label class="checkline"><input type="checkbox" class="editScope" value="offline_access"> offline_access</label>
-        </div>
-        <div class="field">
-          <label for="appEditStatus">状态</label>
-          <select id="appEditStatus">
-            <option value="active">启用</option>
-            <option value="disabled">停用 —— 会吊销其全部令牌</option>
-          </select>
-        </div>
-        <div id="appEditAlert" class="alert hidden"></div>
-        <div class="field">
-          <label class="checkline"><input type="checkbox" id="appEditConfidential"> 机密客户端（会签发客户端密钥）</label>
-          <div class="hint">勾选后会立即签发密钥；取消勾选会删除密钥并吊销已发放的令牌。</div>
-        </div>
-        <div id="appRotateBox" class="secret-box hidden"></div>
-        <button id="appEditSave" class="primary-btn" type="submit">
-          <i class="fa-solid fa-floppy-disk"></i><span>保存修改</span>
-        </button>
-        <button id="appRotateBtn" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">
-          <i class="fa-solid fa-rotate"></i><span>更换密钥</span>
-        </button>
-        <button id="appEditCancel" class="outline-btn" type="button" style="width:100%;margin-top:0.6rem;justify-content:center">关闭</button>
       </form>
     </div>
   </div>
@@ -868,7 +661,7 @@ grant_type=refresh_token&amp;refresh_token=…&amp;client_id=…&amp;client_secr
     };
 
     /* ── state ───────────────────────────────────────────────────────── */
-    const state = { user: null, posts: [], apps: [], editingId: null, editingStatus: 'draft' };
+    const state = { user: null, posts: [], editingId: null, editingStatus: 'draft' };
 
     /* ── gate ────────────────────────────────────────────────────────── */
     const showGate = (pane) => {
@@ -1030,22 +823,20 @@ grant_type=refresh_token&amp;refresh_token=…&amp;client_id=…&amp;client_secr
     const signOutLocal = () => {
       state.user = null;
       state.posts = [];
-      state.apps = [];
       $('who').classList.add('hidden');
       $('signOutBtn').classList.add('hidden');
       $('passwordBtn').classList.add('hidden');
-      $('appsView').classList.add('hidden');
-      $('docsView').classList.add('hidden');
-      $('appOverlay').classList.add('hidden');
-      $('appEditOverlay').classList.add('hidden');
-      $('tabApps').classList.remove('active');
-      $('tabDocs').classList.remove('active');
       $('tabArticles').classList.add('active');
     };
 
     const signOut = async () => {
       try { await api('/api/auth/logout', { method: 'POST' }); } catch (err) { /* ignore */ }
       signOutLocal();
+      $('loginPass').value = '';
+      if (!$('oauthBtn').classList.contains('hidden')) {
+        $('loginForm').classList.add('hidden');
+        $('pwToggle').classList.remove('hidden');
+      }
       showGate('login');
       toast('已退出登录。');
     };
@@ -1068,6 +859,7 @@ grant_type=refresh_token&amp;refresh_token=…&amp;client_id=…&amp;client_secr
         await enterConsole();
       } catch (err) {
         showGate('login');
+        loadOAuthConfig();
       }
     };
 
@@ -1207,287 +999,61 @@ grant_type=refresh_token&amp;refresh_token=…&amp;client_id=…&amp;client_secr
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
         $('pwOverlay').classList.add('hidden');
-        $('appOverlay').classList.add('hidden');
-        $('appEditOverlay').classList.add('hidden');
-      }
+          }
     });
 
-    /* ── OAuth applications ─────────────────────────────────────────── */
+    /* ── tabs ────────────────────────────────────────────────────────── */
     const showTab = (tab) => {
-      const isArticles = tab === 'articles';
-      const isApps = tab === 'apps';
-      const isDocs = !isArticles && !isApps;
-      $('tabArticles').classList.toggle('active', isArticles);
-      $('tabApps').classList.toggle('active', isApps);
-      $('tabDocs').classList.toggle('active', isDocs);
-      $('listView').classList.toggle('hidden', !isArticles);
+      $('tabArticles').classList.toggle('active', tab === 'articles');
+      $('listView').classList.toggle('hidden', tab !== 'articles');
       $('editorView').classList.add('hidden');
-      $('appsView').classList.toggle('hidden', !isApps);
-      $('docsView').classList.toggle('hidden', !isDocs);
-      if (isArticles) { showList(); loadPosts(); }
-      else if (isApps) { loadApps(); }
+      showList();
+      loadPosts();
     };
-
-    const loadApps = async () => {
-      const panel = $('appsPanel');
-      panel.innerHTML = '<div class="empty"><i class="fa-solid fa-circle-notch fa-spin"></i>正在加载应用…</div>';
-      try {
-        const data = await api('/api/admin/oauth-clients');
-        state.apps = data.clients || [];
-        renderApps();
-      } catch (err) {
-        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
-        panel.innerHTML = '<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i>' + esc(err.message) + '</div>';
-      }
-    };
-
-    const renderApps = () => {
-      const panel = $('appsPanel');
-      if (!state.apps.length) {
-        panel.innerHTML = '<div class="empty"><i class="fa-solid fa-plug"></i>还没有应用。点「新建应用」登记一个。</div>';
-        return;
-      }
-      panel.innerHTML = state.apps.map((app) => {
-        const uris = (app.redirect_uris || []).map((u) => '<code>' + esc(u) + '</code>').join(' ');
-        const kind = app.is_confidential
-          ? '<span class="badge published"><i class="fa-solid fa-lock"></i>机密</span>'
-          : '<span class="badge draft"><i class="fa-solid fa-unlock"></i>公共 + PKCE</span>';
-        const status = app.status === 'active'
-          ? ''
-          : '<span class="badge draft"><i class="fa-solid fa-ban"></i>已停用</span>';
-        return '' +
-          '<div class="row">' +
-            '<div class="row-main">' +
-              '<div class="row-title">' + esc(app.name) + '</div>' +
-              '<div class="row-meta">' + kind + status +
-                '<code>' + esc(app.client_id) + '</code>' +
-                '<span>' + esc(app.scopes) + '</span>' +
-              '</div>' +
-              '<div class="row-meta">' + uris + '</div>' +
-            '</div>' +
-            '<div class="row-actions">' +
-              '<button class="icon-btn" type="button" data-editapp="' + esc(app.id) + '" title="编辑"><i class="fa-solid fa-pen"></i></button>' +
-              '<button class="icon-btn danger" type="button" data-delapp="' + esc(app.id) + '" title="删除"><i class="fa-solid fa-trash-can"></i></button>' +
-            '</div>' +
-          '</div>';
-      }).join('');
-    };
-
-    const openEditApp = (id) => {
-      const app = state.apps.find((a) => String(a.id) === String(id));
-      if (!app) return;
-      $('appEditId').value = app.id;
-      $('appEditClientId').textContent = 'client_id: ' + app.client_id;
-      $('appEditName').value = app.name;
-      $('appEditUris').value = (app.redirect_uris || []).join('\n');
-      $('appEditStatus').value = app.status || 'active';
-      $('appEditConfidential').checked = !!app.is_confidential;
-      const granted = String(app.scopes || '').split(/\s+/);
-      document.querySelectorAll('.editScope').forEach((c) => {
-        c.checked = c.value === 'openid' ? true : granted.includes(c.value);
-      });
-      $('appRotateBtn').classList.toggle('hidden', !app.is_confidential);
-      $('revealSecretBtn').classList.toggle('hidden', !app.is_confidential);
-      $('copySecretBtn').style.display = 'none';
-      $('secretViewBox').classList.add('hidden');
-      $('secretViewBox').innerHTML = '';
-      setAlert('appEditAlert', '');
-      $('appRotateBox').classList.add('hidden');
-      $('appEditOverlay').classList.remove('hidden');
-      $('appEditName').focus();
-    };
-
-    $('tabDocs').addEventListener('click', () => showTab('docs'));
     $('tabArticles').addEventListener('click', () => showTab('articles'));
-    $('tabApps').addEventListener('click', () => showTab('apps'));
 
-    document.addEventListener('click', (event) => {
-      const chip = event.target.closest('[data-copy]');
-      if (!chip) return;
-      const text = chip.getAttribute('data-copy');
-      const done = () => toast('已复制：' + text.slice(0, 60));
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(done).catch(() => {
-          window.prompt('请手动复制：', text);
-        });
-      } else {
-        window.prompt('请手动复制：', text);
-      }
-    });
+    /* ── sign in with an external OAuth provider ─────────────────────── */
+    const showPasswordForm = () => {
+      $('loginForm').classList.remove('hidden');
+      $('pwToggle').classList.add('hidden');
+      $('loginUser').focus();
+    };
 
-    $('appEditCancel').addEventListener('click', () => $('appEditOverlay').classList.add('hidden'));
-    $('appEditOverlay').addEventListener('click', (event) => {
-      if (event.target === $('appEditOverlay')) $('appEditOverlay').classList.add('hidden');
-    });
-
-    $('appEditForm').addEventListener('submit', async (event) => {
-      event.preventDefault();
-      setAlert('appEditAlert', '');
-      const body = {
-        name: $('appEditName').value.trim(),
-        redirect_uris: $('appEditUris').value,
-        status: $('appEditStatus').value,
-        is_confidential: $('appEditConfidential').checked,
-        scopes: Array.from(document.querySelectorAll('.editScope')).filter((c) => c.checked).map((c) => c.value)
-      };
-      const btn = $('appEditSave');
-      const original = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>保存中…</span>';
+    const loadOAuthConfig = async () => {
       try {
-        const data = await api('/api/admin/oauth-clients/' + encodeURIComponent($('appEditId').value), { method: 'PUT', body });
-        toast('应用已更新。');
-        if (data && data.client && data.client.client_secret) {
-          const box = $('secretViewBox');
-          box.innerHTML = '客户端密钥：<code>' + esc(data.client.client_secret) + '</code>';
-          box.classList.remove('hidden');
-          $('revealSecretBtn').classList.remove('hidden');
-          $('copySecretBtn').style.display = '';
-          $('copySecretBtn').onclick = () => copyText(data.client.client_secret);
+        const cfg = await api('/api/auth/oauth/config');
+        if (!cfg || !cfg.enabled) {
+          $('oauthBtn').classList.add('hidden');
+          showPasswordForm();
+          return;
         }
-        await loadApps();
-        $('appEditOverlay').classList.add('hidden');
+        $('oauthBtnLabel').textContent = cfg.button_label || ('使用 ' + (cfg.name || '外部账号') + ' 登录');
+        const icon = $('oauthIcon');
+        if (cfg.icon) { icon.src = cfg.icon; icon.classList.remove('hidden'); }
+        $('oauthBtn').classList.remove('hidden');
       } catch (err) {
-        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
-        setAlert('appEditAlert', err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = original;
-      }
-    });
-
-    const copyText = (text) => {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text)
-          .then(() => toast('已复制'))
-          .catch(() => window.prompt('请手动复制：', text));
-      } else {
-        window.prompt('请手动复制：', text);
+        $('oauthBtn').classList.add('hidden');
+        showPasswordForm();
       }
     };
 
-    const currentApp = () => state.apps.find((a) => String(a.id) === String($('appEditId').value));
-
-    $('copyClientIdBtn').addEventListener('click', () => {
-      const app = currentApp();
-      if (app) copyText(app.client_id);
-    });
-
-    $('revealSecretBtn').addEventListener('click', async () => {
-      const id = $('appEditId').value;
-      if (!id) return;
-      setAlert('appEditAlert', '');
-      const box = $('secretViewBox');
-      try {
-        const data = await api('/api/admin/oauth-clients/' + encodeURIComponent(id) + '/reveal-secret', { method: 'POST' });
-        box.innerHTML = '客户端密钥：<code>' + esc(data.client_secret) + '</code>';
-        box.classList.remove('hidden');
-        $('copySecretBtn').style.display = '';
-        $('copySecretBtn').onclick = () => copyText(data.client_secret);
-      } catch (err) {
-        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
-        setAlert('appEditAlert', err.message);
-      }
-    });
-
-    $('appRotateBtn').addEventListener('click', async () => {
-      const id = $('appEditId').value;
-      if (!id) return;
-      if (!window.confirm('确定更换密钥？该应用已获得的所有令牌都会立即失效。')) return;
-      setAlert('appEditAlert', '');
-      const btn = $('appRotateBtn');
+    $('oauthBtn').addEventListener('click', async () => {
+      setAlert('loginAlert', '');
+      const btn = $('oauthBtn');
       const original = btn.innerHTML;
       btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>更换中…</span>';
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>正在跳转…</span>';
       try {
-        const data = await api('/api/admin/oauth-clients/' + encodeURIComponent(id) + '/rotate-secret', { method: 'POST' });
-        const box = $('appRotateBox');
-        box.innerHTML = '新的客户端密钥（已保存，可随时查看）：<code>' + esc(data.client_secret) + '</code>';
-        box.classList.remove('hidden');
-        toast('密钥已更换。');
-        await loadApps();
+        const data = await api('/api/auth/oauth/start?redirect=' + encodeURIComponent('/admin.html'));
+        window.location.assign(data.authorize_url);
       } catch (err) {
-        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
-        setAlert('appEditAlert', err.message);
-      } finally {
+        setAlert('loginAlert', err.message);
         btn.disabled = false;
         btn.innerHTML = original;
       }
     });
 
-    const deleteApp = async (id) => {
-      if (!window.confirm('确定删除该应用？它已获得的令牌会立即失效。')) return;
-      try {
-        await api('/api/admin/oauth-clients/' + encodeURIComponent(id), { method: 'DELETE' });
-        toast('应用已删除。');
-        await loadApps();
-      } catch (err) {
-        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
-        toast(err.message, true);
-      }
-    };
-
-    $('newAppBtn').addEventListener('click', () => {
-      $('appForm').reset();
-      $('appConfidential').checked = true;
-      setAlert('appAlert', '');
-      $('appSecretBox').classList.add('hidden');
-      $('appOverlay').classList.remove('hidden');
-      $('appName').focus();
-    });
-    $('appCancel').addEventListener('click', () => $('appOverlay').classList.add('hidden'));
-    $('appOverlay').addEventListener('click', (event) => {
-      if (event.target === $('appOverlay')) $('appOverlay').classList.add('hidden');
-    });
-
-    $('appsPanel').addEventListener('click', (event) => {
-      const edit = event.target.closest('[data-editapp]');
-      if (edit) { openEditApp(edit.getAttribute('data-editapp')); return; }
-      const del = event.target.closest('[data-delapp]');
-      if (del) deleteApp(del.getAttribute('data-delapp'));
-    });
-
-    $('appForm').addEventListener('submit', async (event) => {
-      event.preventDefault();
-      setAlert('appAlert', '');
-      $('appSecretBox').classList.add('hidden');
-
-      const body = {
-        name: $('appName').value.trim(),
-        redirect_uris: $('appUris').value,
-        is_confidential: $('appConfidential').checked,
-        scopes: Array.from(document.querySelectorAll('.appScope'))
-          .filter((c) => c.checked)
-          .map((c) => c.value)
-      };
-
-      const btn = $('appSubmit');
-      const original = btn.innerHTML;
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>创建中…</span>';
-      try {
-        const data = await api('/api/admin/oauth-clients', { method: 'POST', body });
-        const c = data.client;
-        let html = '创建成功。以下凭据可随时在「编辑」中再次查看：'
-          + '<code>client_id: ' + esc(c.client_id) + '</code>';
-        if (c.client_secret) {
-          html += '<code>client_secret: ' + esc(c.client_secret) + '</code>';
-        }
-        const box = $('appSecretBox');
-        box.innerHTML = html;
-        box.classList.remove('hidden');
-        $('appName').value = '';
-        $('appUris').value = '';
-        await loadApps();
-        toast('应用已创建。');
-      } catch (err) {
-        if (err.status === 401) { signOutLocal(); showGate('login'); return; }
-        setAlert('appAlert', err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = original;
-      }
-    });
+    $('pwToggle').addEventListener('click', showPasswordForm);
 
     boot();
   </script>

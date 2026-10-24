@@ -316,6 +316,11 @@ function route(string $path, string $method): void
         '/api/auth/login' => ['POST' => 'handle_login'],
         '/api/auth/logout' => ['POST' => 'handle_logout'],
         '/api/auth/me' => ['GET' => 'handle_me'],
+
+        // Sign-in through an external OAuth 2.0 / OIDC provider (pan.sibh.cn)
+        '/api/auth/oauth/config' => ['GET' => 'handle_auth_oauth_config'],
+        '/api/auth/oauth/start' => ['GET' => 'handle_auth_oauth_start'],
+        '/api/auth/oauth/callback' => ['POST' => 'handle_auth_oauth_callback'],
         '/api/auth/change-password' => ['POST' => 'handle_change_password'],
         '/api/auth/profile' => ['POST' => 'handle_update_profile'],
         '/api/posts' => ['GET' => 'handle_posts_index', 'POST' => 'handle_posts_create'],

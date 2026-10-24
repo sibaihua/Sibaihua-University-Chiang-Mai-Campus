@@ -10,10 +10,15 @@ CREATE TABLE IF NOT EXISTS users (
   role          VARCHAR(16)  NOT NULL DEFAULT 'admin',
   status        VARCHAR(16)  NOT NULL DEFAULT 'active',
   email         VARCHAR(190) NOT NULL DEFAULT '',
+  -- Stable subject (`sub`) from the external OAuth provider, recorded on the
+  -- first OAuth sign-in so later logins survive e-mail / nickname changes.
+  oauth_sub     VARCHAR(190) NOT NULL DEFAULT '',
   created_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at    DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uniq_username (username)
+  UNIQUE KEY uniq_username (username),
+  KEY idx_users_oauth_sub (oauth_sub),
+  KEY idx_users_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS sessions (

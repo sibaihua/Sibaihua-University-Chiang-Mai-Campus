@@ -46,6 +46,14 @@ api_block = """
     }
 """
 
+# 外部 OAuth 登录的回调地址登记为 /callback（无扩展名），这里指向静态页
+callback_block = """
+    # ── 外部 OAuth 登录回调（/callback -> /callback.html）──
+    location = /callback {
+        try_files /callback.html =404;
+    }
+"""
+
 # 清理早期写下的精确匹配版本，统一改成上面的正则形式
 for old in (
     r'\n[ \t]*location = /\.well-known/openid-configuration\s*\{[^}]*\}\n',
@@ -60,6 +68,8 @@ if 'location = /oauth/authorize' not in s:
     needed += authorize_block
 if 'rewrite ^/api/' not in s:
     needed += api_block
+if 'location = /callback' not in s:
+    needed += callback_block
 
 if not needed:
     print('规则已齐全，跳过')
@@ -95,3 +105,6 @@ probe /api/posts
 probe /.well-known/openid-configuration
 probe /.well-known/oauth-authorization-server
 probe /.well-known/jwks.json
+probe /callback
+probe /callback.html
+probe /admin.html
