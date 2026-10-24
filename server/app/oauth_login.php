@@ -10,7 +10,7 @@ declare(strict_types=1);
  *
  * Flow
  *   1. GET  /api/auth/oauth/start      -> { authorize_url }   (state + PKCE packed into `state`)
- *   2. browser visits authorize_url, provider redirects to /callback?code&state
+ *   2. browser visits authorize_url, provider redirects to /admin.html?code&state
  *   3. POST /api/auth/oauth/callback   -> exchanges the code, reads userinfo,
  *                                         binds to a local admin, sets the session
  *
@@ -186,7 +186,7 @@ function handle_auth_oauth_start(): void
     $query = [
         'response_type' => 'code',
         'client_id' => (string) $c['client_id'],
-        'redirect_uri' => (string) ($c['redirect_uri'] ?? 'https://sibaihua.com/callback'),
+        'redirect_uri' => (string) ($c['redirect_uri'] ?? 'https://sibaihua.com/admin.html'),
         'scope' => (string) ($c['scopes'] ?? 'openid profile email'),
         'state' => $state,
     ];
@@ -266,7 +266,7 @@ function handle_auth_oauth_callback(): void
         fail(400, '登录请求已过期或被篡改，请重新登录。');
     }
 
-    $redirectUri = (string) ($c['redirect_uri'] ?? 'https://sibaihua.com/callback');
+    $redirectUri = (string) ($c['redirect_uri'] ?? 'https://sibaihua.com/admin.html');
     $params = [
         'grant_type' => 'authorization_code',
         'code' => $code,

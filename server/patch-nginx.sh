@@ -46,18 +46,13 @@ api_block = """
     }
 """
 
-# 外部 OAuth 登录的回调地址登记为 /callback（无扩展名），这里指向静态页
-callback_block = """
-    # ── 外部 OAuth 登录回调（/callback -> /callback.html）──
-    location = /callback {
-        try_files /callback.html =404;
-    }
-"""
-
 # 清理早期写下的精确匹配版本，统一改成上面的正则形式
 for old in (
     r'\n[ \t]*location = /\.well-known/openid-configuration\s*\{[^}]*\}\n',
     r'\n[ \t]*location = /\.well-known/jwks\.json\s*\{[^}]*\}\n',
+    # 早期版本给外部 OAuth 登录用的 /callback 落地页，现已改为直接回调 /admin.html
+    r'\n[ \t]*#[^\n]*外部 OAuth 登录回调[^\n]*\n[ \t]*location = /callback\s*\{[^}]*\}\n',
+    r'\n[ \t]*location = /callback\s*\{[^}]*\}\n',
 ):
     s = re.sub(old, '\n', s)
 
@@ -68,8 +63,6 @@ if 'location = /oauth/authorize' not in s:
     needed += authorize_block
 if 'rewrite ^/api/' not in s:
     needed += api_block
-if 'location = /callback' not in s:
-    needed += callback_block
 
 if not needed:
     print('规则已齐全，跳过')
@@ -105,6 +98,4 @@ probe /api/posts
 probe /.well-known/openid-configuration
 probe /.well-known/oauth-authorization-server
 probe /.well-known/jwks.json
-probe /callback
-probe /callback.html
 probe /admin.html

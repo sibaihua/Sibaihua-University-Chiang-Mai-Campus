@@ -841,8 +841,51 @@
       toast('已退出登录。');
     };
 
+    /**
+     * The provider redirects straight back to this page (/admin.html?code=…&state=…),
+     * so no separate /callback landing page is needed — the console finishes the
+     * exchange itself and then scrubs the query string.
+     */
+    const finishOAuthLogin = async (code, stateParam) => {
+      setAlert('loginAlert', '');
+      const btn = $('oauthBtn');
+      const original = btn.innerHTML;
+      btn.classList.remove('hidden');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>正在完成登录…</span>';
+      try {
+        const data = await api('/api/auth/oauth/callback', { method: 'POST', body: { code, state: stateParam } });
+        state.user = data.user;
+        await enterConsole();
+        toast('已通过 ' + (data.user?.external?.provider || '外部账号') + ' 登录。');
+      } catch (err) {
+        setAlert('loginAlert', err.message);
+        showPasswordForm();
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = original;
+      }
+    };
+
+    const takeOAuthParamsFromUrl = () => {
+      const params = new URLSearchParams(location.search);
+      const payload = {
+        code: params.get('code') || '',
+        state: params.get('state') || '',
+        error: params.get('error') || '',
+        errorDescription: params.get('error_description') || params.get('error_message') || '',
+      };
+      if (payload.code || payload.state || payload.error) {
+        // Never leave the authorization code sitting in the address bar.
+        history.replaceState({}, '', location.pathname);
+        return payload;
+      }
+      return null;
+    };
+
     /* ── boot ────────────────────────────────────────────────────────── */
     const boot = async () => {
+      const oauth = takeOAuthParamsFromUrl();
       let setup;
       try {
         setup = await api('/api/setup');
@@ -857,9 +900,20 @@
         const data = await api('/api/auth/me');
         state.user = data.user;
         await enterConsole();
+        return;
       } catch (err) {
         showGate('login');
         loadOAuthConfig();
+      }
+      if (!oauth) { return; }
+      if (oauth.error) {
+        setAlert('loginAlert', '外部登录被拒绝：' + (oauth.errorDescription || oauth.error));
+        showPasswordForm();
+      } else if (oauth.code && oauth.state) {
+        await finishOAuthLogin(oauth.code, oauth.state);
+      } else {
+        setAlert('loginAlert', '外部登录返回的数据不完整，请重新登录。');
+        showPasswordForm();
       }
     };
 

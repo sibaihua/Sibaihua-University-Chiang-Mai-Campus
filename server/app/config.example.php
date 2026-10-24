@@ -41,7 +41,7 @@ return [
         'button_label' => '',           // defaults to "使用 {name} 登录"
         'client_id' => '',
         'client_secret' => '',          // leave empty only if the provider allows public clients
-        'redirect_uri' => 'https://sibaihua.com/callback',
+        'redirect_uri' => 'https://sibaihua.com/admin.html',
         'scopes' => 'openid profile email',
         'pkce' => true,
         'authorization_endpoint' => '',
